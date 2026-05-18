@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import calendar
 
 # --- DASHBOARD CONFIGURATION & CUSTOM CSS ---
 st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide")
@@ -26,7 +27,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB Accounting for a GmbH - Layer 8: 60-Month Cohort Scaling & CF)*",
+        "subtitle": "*(HGB Accounting for a GmbH - Layer 8: Exact Monthly Physics & Column Drilldown)*",
         "sec1": "1. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -47,9 +48,9 @@ if lang_choice == "English":
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
         "cleaning": "Cleaning Cost per Vehicle/Day (€)",
         "wear_rate": "Maintenance/Wear per km (€)",
-        "wear_help": "Covers tires, fluids, and suspension. The €0.03 excludes 'black swan' contingency which is held in the liquidity reserve.",
-        "energy_rate": "Energy Cost per km (€)",
-        "energy_help": "Fully-loaded cost of electricity accounting for hardware efficiency, wireless charging loss, and smart grid procurement.",
+        "wear_help": "Covers tires, fluids, and suspension. Excludes 'black swan' contingency (held in liquidity reserve).",
+        "energy_rate": "Base Energy Cost per km (€)",
+        "energy_help": "Un-blended summer rate. Winter/Shoulder penalties (1.4x / 1.3x) are applied dynamically by month.",
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
         "parking": "APCOA Parking",
@@ -88,7 +89,7 @@ if lang_choice == "English":
         "pnl_net_rev": "Net Revenue (Umsatzerlöse excl. VAT)",
         "pnl_tesla_fee": "Less: Tesla Platform Fee (Take-Rate on GBV)",
         "pnl_mrrg_net": "MRRG Net Revenue (After Platform Fee)",
-        "pnl_energy": "Less: Direct Energy (Variable)",
+        "pnl_energy": "Less: Direct Energy (Variable, Seasonally Adjusted)",
         "pnl_wear": "Less: Direct Maintenance/Wear (Variable)",
         "pnl_clean": "Less: Cleaning Cost (Variable)",
         "pnl_db1": "Deckungsbeitrag 1 (DB1)",
@@ -145,15 +146,18 @@ if lang_choice == "English":
         "tab_pnl": "Income Statement (P&L)",
         "tab_cf": "Cash Flow Statement",
         "tab_bs": "Balance Sheet",
-        "view_mode": "Display Granularity",
-        "yearly": "Yearly Overview",
-        "monthly": "Monthly Drilldown",
+        "exp_y1": "Expand Y1",
+        "exp_y2": "Expand Y2",
+        "exp_y3": "Expand Y3",
+        "exp_y4": "Expand Y4",
+        "exp_y5": "Expand Y5",
         "bs_note": "*(Balance Sheet integration will be built in Layer 9 after Cash Flow sign-off)*"
     }
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB-Rechnungslegung für eine GmbH - Layer 8: 60-Monate Kohorten-Skalierung)*",
+        "subtitle": "*(HGB-Rechnungslegung für eine GmbH - Layer 8: Exakte monatliche Physik & Spaltenerweiterung)*",
         "sec1": "1. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -174,9 +178,9 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Die 0,03 € schließen die 'Black Swan'-Rücklage aus, die separat im Liquiditätspuffer gehalten wird.",
-        "energy_rate": "Energiekosten pro km (€)",
-        "energy_help": "Vollkosten für Strom unter Berücksichtigung der Hardware-Effizienz, Verlusten beim kabellosen Laden und intelligentem Stromeinkauf.",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
+        "energy_rate": "Basis-Energiekosten pro km (€)",
+        "energy_help": "Reiner Sommer-Basistarif. Winter-/Übergangszuschläge (1,4x / 1,3x) werden je nach Monat dynamisch aufgeschlagen.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "APCOA Stellplätze",
@@ -215,7 +219,7 @@ else:
         "pnl_net_rev": "Umsatzerlöse (netto)",
         "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (auf BBW)",
         "pnl_mrrg_net": "MRRG Nettoerlöse (nach Plattformgebühr)",
-        "pnl_energy": "Abzüglich: Direkte Energiekosten (variabel)",
+        "pnl_energy": "Abzüglich: Direkte Energiekosten (variabel, saisonal gewichtet)",
         "pnl_wear": "Abzüglich: Instandhaltung/Verschleiß (variabel)",
         "pnl_clean": "Abzüglich: Reinigungskosten (variabel)",
         "pnl_db1": "Deckungsbeitrag 1 (DB1)",
@@ -272,11 +276,14 @@ else:
         "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
         "tab_cf": "Kapitalflussrechnung",
         "tab_bs": "Bilanz",
-        "view_mode": "Darstellung",
-        "yearly": "Jährlich",
-        "monthly": "Monatlich (Detailansicht)",
+        "exp_y1": "J1 Aufklappen",
+        "exp_y2": "J2 Aufklappen",
+        "exp_y3": "J3 Aufklappen",
+        "exp_y4": "J4 Aufklappen",
+        "exp_y5": "J5 Aufklappen",
         "bs_note": "*(Die Integration der Bilanz wird in Layer 9 nach Freigabe des Cashflows erstellt)*"
     }
+    month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
 st.title(loc["title"])
 st.markdown(loc["subtitle"])
@@ -318,7 +325,7 @@ vat_rate = 0.19
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
 wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
-energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.05, format="%.2f", step=0.01, help=loc["energy_help"])
+energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
 insurance_pm = st.sidebar.number_input(loc["insurance"], value=300.0)
@@ -380,6 +387,11 @@ for m in range(60):
             "afa_per_mo": capex / 48
         })
 
+# Day 1 Math for UI Cards (M1 Only)
+day_1_loan = sum(c["original_loan"] for c in cohorts if c["start_month"] == 1)
+day_1_uses = (day_1_loan / vehicle_ltv) + it_hardware_capex_y1 if day_1_loan > 0 else 0
+day_1_cash_ui = stammkapital + shareholder_loan + day_1_loan - day_1_uses
+
 # --- 3. UNIT ECONOMICS ---
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
 theoretical_deadhead_km = max_theoretical_km * deadhead_rate
@@ -395,7 +407,7 @@ base_fare_rev_per_day_gross = actual_trips_per_day * base_fare_eur
 distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
 gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-# --- 4. 60-MONTH LOOP MATRIX ---
+# --- 4. 60-MONTH DYNAMIC LOOP MATRIX ---
 pnl_keys = [
     loc["pnl_gbv"], loc["pnl_vat"], loc["pnl_net_rev"], loc["pnl_tesla_fee"], loc["pnl_mrrg_net"],
     loc["pnl_energy"], loc["pnl_wear"], loc["pnl_clean"], loc["pnl_db1"], loc["pnl_ins"], loc["pnl_park"],
@@ -423,16 +435,29 @@ tax_payment_schedule = [0]*70
 cum_ebt_year = 0
 
 active_fleet_by_month = []
-
-# Day 1 Math for UI Cards (M1 Only)
-day_1_loan = sum(c["original_loan"] for c in cohorts if c["start_month"] == 1)
-day_1_uses = (day_1_loan / vehicle_ltv) + it_hardware_capex_y1 if day_1_loan > 0 else 0
-day_1_cash_ui = stammkapital + shareholder_loan + day_1_loan - day_1_uses
+month_col_names = []
 
 for m in range(60):
     current_month = m + 1
+    current_year_cal = 2028 + (m // 12)
+    current_month_index = (m % 12) + 1
     current_year = (m // 12) + 1
     
+    # Store exact month names for the dataframes (e.g., "Jan '28")
+    month_col_names.append(f"{month_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
+    
+    # Exact Physics (Days in specific month)
+    days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
+    op_days = days_in_mo * vehicle_utilization
+    
+    # Winter Penalty Logic
+    if current_month_index in [12, 1, 2]:
+        season_mult = 1.4
+    elif current_month_index in [11, 3]:
+        season_mult = 1.3
+    else:
+        season_mult = 1.0
+        
     active_fleet = 0
     current_veh_afa = 0
     fleet_sale_rev = 0
@@ -467,9 +492,7 @@ for m in range(60):
         capex_this_mo += it_hardware_capex_y1
     current_it_afa = (it_hardware_capex_y1 / 36) if current_month <= 36 else 0
     
-    days_in_mo = 365 / 12
-    op_days = days_in_mo * vehicle_utilization
-    
+    # Economics based on exact days
     gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
     net_rev_mo = gbv_mo / (1 + vat_rate)
     vat_owed_mo = gbv_mo - net_rev_mo
@@ -478,10 +501,11 @@ for m in range(60):
     
     total_km_mo = actual_total_km_per_day * op_days * active_fleet
     wear_mo = total_km_mo * wear_and_tear_rate
-    energy_mo = total_km_mo * energy_rate
+    energy_mo = total_km_mo * (energy_rate * season_mult) # Winter Penalty Applied Here
     clean_mo = cleaning_cost_per_day * op_days * active_fleet
     db1_mo = mrrg_net_mo - wear_mo - energy_mo - clean_mo
     
+    # Fixed costs are not multiplied by days, they are standard monthly
     ins_mo = insurance_pm * active_fleet
     park_mo = parking_pm * active_fleet
     tel_mo = telemetry_pm * active_fleet
@@ -503,7 +527,7 @@ for m in range(60):
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # VAT Bridge Loan (Drawn on CapEx, repaid 6 months later)
+    # VAT Bridge Loan
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + 6] += vat_draw_mo
@@ -516,16 +540,15 @@ for m in range(60):
     ebt_mo = ebit_mo + int_inc_mo - int_exp
     cum_ebt_year += ebt_mo
     
-    # Year-End Tax Provision
+    # Tax Provision (Month 12 provisioning, Month 5 following year payment)
     tax_exp_mo = 0
     if current_month % 12 == 0:
         tax_exp_mo = max(0, cum_ebt_year) * tax_schedule[current_year]
         cum_ebt_year = 0
-        tax_payment_schedule[current_month + 5] = tax_exp_mo # Paid in M5 of following year
+        tax_payment_schedule[current_month + 5] = tax_exp_mo
         
     net_inc_mo = ebt_mo - tax_exp_mo
     
-    # Cash Flow Logic
     tax_prov_mo = tax_exp_mo
     tax_paid_mo = -tax_payment_schedule[current_month]
     
@@ -541,7 +564,6 @@ for m in range(60):
     end_cash = beg_cash + net_cf_mo
     current_cash = end_cash
     
-    # Append P&L
     pnl_monthly[loc["pnl_gbv"]].append(gbv_mo)
     pnl_monthly[loc["pnl_vat"]].append(-vat_owed_mo)
     pnl_monthly[loc["pnl_net_rev"]].append(net_rev_mo)
@@ -574,8 +596,7 @@ for m in range(60):
     pnl_monthly[loc["pnl_ebt"]].append(ebt_mo)
     pnl_monthly[loc["pnl_tax"]].append(-tax_exp_mo)
     pnl_monthly[loc["pnl_ni"]].append(net_inc_mo)
-    
-    # Append CF
+
     cf_monthly[loc["cf_ni"]].append(net_inc_mo)
     cf_monthly[loc["cf_depr"]].append(current_veh_afa + current_it_afa)
     cf_monthly[loc["cf_tax_prov"]].append(tax_prov_mo)
@@ -594,27 +615,31 @@ for m in range(60):
     cf_monthly[loc["cf_beg"]].append(beg_cash)
     cf_monthly[loc["cf_end"]].append(end_cash)
 
-# --- 5. AGGREGATE TO YEARLY ---
-def agg_to_yearly(monthly_dict, is_balances=False):
+# --- 5. AGGREGATE TO YEARLY & BUILD UNIFIED DATA ---
+def agg_to_yearly(monthly_dict):
     yearly_dict = {}
     for key, arr in monthly_dict.items():
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
-            if loc["cf_end"] in key:
-                yearly_arr.append(chunk[-1])
-            elif loc["cf_beg"] in key:
-                yearly_arr.append(chunk[0])
-            else:
-                yearly_arr.append(sum(chunk))
+            if loc["cf_end"] in key: yearly_arr.append(chunk[-1])
+            elif loc["cf_beg"] in key: yearly_arr.append(chunk[0])
+            else: yearly_arr.append(sum(chunk))
         yearly_dict[key] = yearly_arr
     return yearly_dict
 
 pnl_yearly = agg_to_yearly(pnl_monthly)
 cf_yearly = agg_to_yearly(cf_monthly)
 
-year_cols = [f"Year {y+1}" for y in range(5)]
-month_cols = [f"Y{(m//12)+1}-M{(m%12)+1}" for m in range(60)]
+year_cols = [f"Year {y+1} ({2028+y})" if lang_choice == "English" else f"Jahr {y+1} ({2028+y})" for y in range(5)]
+
+df_pnl_mo = pd.DataFrame(pnl_monthly, index=month_col_names).T
+df_pnl_yr = pd.DataFrame(pnl_yearly, index=year_cols).T
+df_pnl_combined = pd.concat([df_pnl_mo, df_pnl_yr], axis=1)
+
+df_cf_mo = pd.DataFrame(cf_monthly, index=month_col_names).T
+df_cf_yr = pd.DataFrame(cf_yearly, index=year_cols).T
+df_cf_combined = pd.concat([df_cf_mo, df_cf_yr], axis=1)
 
 # --- 6. DASHBOARD RENDER ---
 st.subheader(loc["sources_title"])
@@ -626,9 +651,25 @@ colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 
 st.divider()
 
-col_title, col_toggle = st.columns([1, 1])
-col_title.subheader(loc["output_title"])
-view_choice = col_toggle.radio(loc["view_mode"], [loc["yearly"], loc["monthly"]], horizontal=True)
+st.subheader(loc["output_title"])
+
+# Drilldown Column Toggles
+st.markdown("**(Excel-Style) Month-by-Month Column Drilldown**")
+t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
+exp_y1 = t_col1.toggle(loc["exp_y1"])
+exp_y2 = t_col2.toggle(loc["exp_y2"])
+exp_y3 = t_col3.toggle(loc["exp_y3"])
+exp_y4 = t_col4.toggle(loc["exp_y4"])
+exp_y5 = t_col5.toggle(loc["exp_y5"])
+
+expands = [exp_y1, exp_y2, exp_y3, exp_y4, exp_y5]
+
+# Build Final Dynamic Column Order
+display_cols = []
+for y in range(5):
+    if expands[y]:
+        display_cols.extend(month_col_names[y*12 : (y+1)*12])
+    display_cols.append(year_cols[y])
 
 fleet_cols = st.columns(5)
 for i in range(5):
@@ -666,18 +707,10 @@ def style_cf_rows(row):
     return style
 
 with tabs[0]:
-    if view_choice == loc["yearly"]:
-        df_pnl = pd.DataFrame(pnl_yearly, index=year_cols).T
-    else:
-        df_pnl = pd.DataFrame(pnl_monthly, index=month_cols).T
-    st.dataframe(df_pnl.style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 
 with tabs[1]:
-    if view_choice == loc["yearly"]:
-        df_cf = pd.DataFrame(cf_yearly, index=year_cols).T
-    else:
-        df_cf = pd.DataFrame(cf_monthly, index=month_cols).T
-    st.dataframe(df_cf.style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
+    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
 
 with tabs[2]:
     st.markdown(loc["bs_note"])
