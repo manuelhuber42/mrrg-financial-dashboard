@@ -54,7 +54,7 @@ annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
 annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
 
 # --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
-wear_and_tear_rate = 0.06 
+wear_and_tear_rate = 0.03 
 energy_rate = 0.05
 total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
 annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
