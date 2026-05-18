@@ -147,7 +147,8 @@ if lang_choice == "English":
         "tab_bs": "Balance Sheet",
         "view_mode": "Display Granularity",
         "yearly": "Yearly Overview",
-        "monthly": "Monthly Drilldown"
+        "monthly": "Monthly Drilldown",
+        "bs_note": "*(Balance Sheet integration will be built in Layer 9 after Cash Flow sign-off)*"
     }
 else:
     loc = {
@@ -273,7 +274,8 @@ else:
         "tab_bs": "Bilanz",
         "view_mode": "Darstellung",
         "yearly": "Jährlich",
-        "monthly": "Monatlich (Detailansicht)"
+        "monthly": "Monatlich (Detailansicht)",
+        "bs_note": "*(Die Integration der Bilanz wird in Layer 9 nach Freigabe des Cashflows erstellt)*"
     }
 
 st.title(loc["title"])
