@@ -254,7 +254,7 @@ dwell_time_mins = st.sidebar.number_input(loc["dwell"], value=2.0)
 st.sidebar.header(loc["sec3"])
 base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50)
 price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49)
-tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=30.0) / 100
+tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
 vat_rate = 0.19
 
 st.sidebar.header(loc["sec4"])
