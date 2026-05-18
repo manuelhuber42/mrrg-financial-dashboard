@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Tax & Debt Audit Fixes)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Fully Audited Core)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -141,10 +141,10 @@ if lang_choice == "English":
         "pnl_fees": "Less: Subscriptions & Fees (IHK, GEZ)",
         "pnl_bank": "Less: Bank Fees",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
-        "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebitda": "EBITDA",
         "pnl_afa_veh": "Less: Vehicle Depreciation (AfA - 48 Mo.)",
         "pnl_afa_it": "Less: IT Hardware Depreciation (AfA - 36 Mo.)",
+        "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebit": "EBIT (Operating Income)",
         "pnl_int_inc": "Add: Interest Income (Zinserträge)",
         "pnl_int_exp": "Less: Interest Expense (Vehicles & VAT Bridge)",
@@ -209,7 +209,7 @@ if lang_choice == "English":
         "kpi_var_ratio": "Variable Expense Ratio",
         "kpi_fix_ratio": "Fixed Expense Ratio",
         "kpi_tot_ratio": "Total Expense Ratio",
-        "kpi_other_inc_ratio": "Other Income Ratio (THG & Sale)",
+        "kpi_other_inc_ratio": "Other Income Ratio (THG)",
         "kpi_db2_m": "Contribution Margin Ratio (DB2)",
         "kpi_ebitda_m": "EBITDA Margin",
 
@@ -242,7 +242,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Steuer- & Darlehens-Audit Fixes)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geprüfte GuV & Darlehenstilgung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -341,10 +341,10 @@ else:
         "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ)",
         "pnl_bank": "Abzüglich: Bankgebühren",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
-        "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebitda": "EBITDA",
         "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA - 48 Mon.)",
         "pnl_afa_it": "Abzüglich: Abschreibung IT Hardware (AfA - 36 Mon.)",
+        "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
         "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Fahrzeuge & USt-Kredit)",
@@ -409,7 +409,7 @@ else:
         "kpi_var_ratio": "Variable Kostenquote",
         "kpi_fix_ratio": "Fixkostenquote",
         "kpi_tot_ratio": "Gesamtkostenquote",
-        "kpi_other_inc_ratio": "Sonstige Ertragsquote (THG & Verkauf)",
+        "kpi_other_inc_ratio": "Sonstige Ertragsquote (THG)",
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
         
@@ -491,7 +491,7 @@ vat_rate = 0.19
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.06, format="%.2f", step=0.01, help=loc["wear_help"])
 energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
@@ -582,8 +582,8 @@ pnl_keys = [
     loc["pnl_gbv"], loc["pnl_vat"], loc["pnl_net_rev"], loc["pnl_tesla_fee"], loc["pnl_mrrg_net"],
     loc["pnl_energy"], loc["pnl_wear"], loc["pnl_clean"], loc["pnl_db1"], loc["pnl_ins"], loc["pnl_park"],
     loc["pnl_api"], loc["pnl_tuev"], loc["pnl_sub"], loc["pnl_db2"], loc["pnl_hq_lease"], loc["pnl_it"],
-    loc["pnl_legal"], loc["pnl_hq_ins"], loc["pnl_fees"], loc["pnl_bank"], loc["pnl_thg"], loc["pnl_salvage"],
-    loc["pnl_ebitda"], loc["pnl_afa_veh"], loc["pnl_afa_it"], loc["pnl_ebit"], loc["pnl_int_inc"], loc["pnl_int_exp"],
+    loc["pnl_legal"], loc["pnl_hq_ins"], loc["pnl_fees"], loc["pnl_bank"], loc["pnl_thg"], 
+    loc["pnl_ebitda"], loc["pnl_afa_veh"], loc["pnl_afa_it"], loc["pnl_salvage"], loc["pnl_ebit"], loc["pnl_int_inc"], loc["pnl_int_exp"],
     loc["pnl_ebt"], loc["pnl_tax"], loc["pnl_ni"]
 ]
 
@@ -639,6 +639,7 @@ for m in range(60):
     current_year = (m // 12) + 1
     
     month_col_names.append(f"{month_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
+    
     days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
     
     if current_month_index in [12, 1, 2]: season_mult = 1.4
@@ -665,7 +666,7 @@ for m in range(60):
             current_veh_afa += c["afa_per_mo"]
             int_exp += c["loan_bal"] * (c["rate"] / 12)
             
-            # F-06 Fix: Amortization logic (60-mo term, 12-mo grace = M13 start)
+            # F-06 Fix
             if current_month >= c_start + 12:
                 prin = c["original_loan"] / 48
                 if c["loan_bal"] - prin < 0: prin = c["loan_bal"]
@@ -675,7 +676,7 @@ for m in range(60):
         if current_month == c_start + 48:
             fleet_sale_rev += c["size"] * salvage_value_per_car_y4
             capex_sold_this_mo += c["capex"]
-            # F-02 Fix: Payoff ghost liability upon asset sale
+            # F-02 Fix
             prin_pay += c["loan_bal"]
             c["loan_bal"] = 0
 
@@ -727,13 +728,13 @@ for m in range(60):
     
     thg_mo = (thg_quote_per_car_py * active_fleet) if (current_month % 12 == 0) else 0
     
-    # F-01 Fix: Stripped fleet_sale_rev out of EBITDA line
+    # F-01 Fix
     ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_mo
     ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # F-05 Fix: Dynamic VAT Bridge Parameters
+    # F-05 Fix
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
@@ -746,7 +747,7 @@ for m in range(60):
     
     ebt_mo = ebit_mo + int_inc_mo - int_exp
     
-    # F-04 Fix: Monthly HGB Tax Provisioning & Quarterly Prepayments
+    # F-04 Fix
     tax_exp_mo = max(0, ebt_mo) * tax_schedule[current_year]
     current_year_tax_accrued += tax_exp_mo
     
@@ -831,10 +832,10 @@ for m in range(60):
     pnl_monthly[loc["pnl_fees"]].append(-fees_mo)
     pnl_monthly[loc["pnl_bank"]].append(-bank_fees_pm)
     pnl_monthly[loc["pnl_thg"]].append(thg_mo)
-    pnl_monthly[loc["pnl_salvage"]].append(fleet_sale_rev)
     pnl_monthly[loc["pnl_ebitda"]].append(ebitda_mo)
     pnl_monthly[loc["pnl_afa_veh"]].append(-current_veh_afa)
     pnl_monthly[loc["pnl_afa_it"]].append(-current_it_afa)
+    pnl_monthly[loc["pnl_salvage"]].append(fleet_sale_rev)
     pnl_monthly[loc["pnl_ebit"]].append(ebit_mo)
     pnl_monthly[loc["pnl_int_inc"]].append(int_inc_mo)
     pnl_monthly[loc["pnl_int_exp"]].append(-int_exp)
@@ -1142,7 +1143,7 @@ with tabs[3]:
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
             * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
-            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts) generated as a byproduct of operations.
             * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
             * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
             """)
@@ -1155,7 +1156,7 @@ with tabs[3]:
             * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
             * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
-            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien), die als Nebenprodukt des Betriebs generiert wird.
             * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
             * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
             """)
