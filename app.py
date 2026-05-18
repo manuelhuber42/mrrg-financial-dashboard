@@ -1,3 +1,28 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+
+# --- DASHBOARD CONFIGURATION ---
+st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
+st.title("MRRG Cybercab Fleet: Master Financial Engine")
+st.markdown("*(Layer 1: Fleet Physics & Topline Revenue Verification)*")
+
+# --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
+st.sidebar.header("1. FLEET PHYSICS (Realistic)")
+fleet_size = st.sidebar.slider("Fleet Size (Num Cars)", 1, 50, 3)
+active_hours_per_day = st.sidebar.number_input("Active Hours / Day", value=16.0)
+avg_speed_kmh = st.sidebar.number_input("Average Speed (km/h)", value=22.0)
+deadhead_rate = st.sidebar.number_input("Deadhead Rate (%)", value=30.0) / 100
+
+st.sidebar.header("2. TRIP DYNAMICS")
+avg_trip_distance_km = st.sidebar.number_input("Average Trip Distance (km)", value=5.0)
+dwell_time_mins = st.sidebar.number_input("Dwell Time (Minutes)", value=2.0)
+
+st.sidebar.header("3. PRICING")
+base_fare_eur = st.sidebar.number_input("Base Fare (€)", value=2.50)
+price_per_km_eur = st.sidebar.number_input("Price per km (€)", value=1.49)
+tesla_take_rate = st.sidebar.number_input("Tesla Take-Rate (%)", value=30.0) / 100
+
 # --- 2. THE SCHEDULE ENGINE (Daily Math per Car) ---
 # 1. Total theoretical distance if driving non-stop
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
@@ -12,8 +37,7 @@ effective_trip_distance_km = avg_trip_distance_km + distance_lost_per_dwell_km
 actual_trips_per_day = np.floor(max_billable_km_theoretical / effective_trip_distance_km)
 actual_billable_km_per_day = actual_trips_per_day * avg_trip_distance_km
 
-# 4. FIXED: Actual Total KM (Maintaining the strict 30% deadhead ratio)
-# If billable km is 70% of the day, total km is Billable / 0.70
+# 4. Actual Total KM (Maintaining the strict 30% deadhead ratio)
 actual_total_km_per_day = actual_billable_km_per_day / (1 - deadhead_rate)
 actual_deadhead_km = actual_total_km_per_day - actual_billable_km_per_day
 
@@ -22,8 +46,63 @@ base_fare_rev_per_day = actual_trips_per_day * base_fare_eur
 distance_rev_per_day = actual_billable_km_per_day * price_per_km_eur
 gross_revenue_per_day_per_car = base_fare_rev_per_day + distance_rev_per_day
 
-# 6. Annual Fleet Topline
+# 6. Annual Fleet Topline (Assuming 365 operating days for the baseline)
 operating_days = 365
 annual_gross_revenue_fleet = gross_revenue_per_day_per_car * operating_days * fleet_size
 annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
 annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
+
+# --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
+wear_and_tear_rate = 0.06 
+energy_rate = 0.05
+total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
+annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
+annual_energy_cost = total_km_annual_fleet * energy_rate
+annual_fixed_overhead = 4000 * fleet_size # Placeholder
+
+ebitda_placeholder = annual_net_revenue - annual_wear_cost - annual_energy_cost - annual_fixed_overhead
+
+# --- 4. DASHBOARD RENDER ---
+st.subheader("Layer 1: Unit Economics Verification (Per Car / Per Day)")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Actual Trips / Day", f"{actual_trips_per_day:.0f}")
+col2.metric("Billable km / Day", f"{actual_billable_km_per_day:.1f}")
+col3.metric("Total km / Day", f"{actual_total_km_per_day:.1f}")
+col4.metric("Gross Rev / Day", f"€ {gross_revenue_per_day_per_car:.2f}")
+
+st.divider()
+
+# Prepare Annual 3-Statement Scaffolding
+st.subheader("Annual 3-Statement Model (Fleet Aggregate)")
+
+tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
+
+with tabs[0]:
+    st.markdown("### Year 1 Profit & Loss")
+    pnl_data = {
+        "Line Item": [
+            "Gross Revenue (Fahrgeldeinnahmen)", 
+            "Less: Tesla Platform Fee (Take-Rate)",
+            "Net Revenue (Nettoerlöse)",
+            "Less: Direct Energy (Variable)",
+            "Less: Direct Maintenance/Wear (Variable)",
+            "Less: Fixed Operational Overhead",
+            "EBITDA"
+        ],
+        "Year 1 (€)": [
+            annual_gross_revenue_fleet,
+            -annual_tesla_fees,
+            annual_net_revenue,
+            -annual_energy_cost,
+            -annual_wear_cost,
+            -annual_fixed_overhead,
+            ebitda_placeholder
+        ]
+    }
+    st.dataframe(pd.DataFrame(pnl_data).set_index("Line Item").style.format("{:,.0f} €"), use_container_width=True)
+
+with tabs[1]:
+    st.markdown("*(Cash Flow integration will be built in Layer 3 after Debt/AfA)*")
+
+with tabs[2]:
+    st.markdown("*(Balance Sheet integration will be built in Layer 4 after Asset/Liability setup)*")
