@@ -19,6 +19,20 @@ st.markdown("""
         font-family: 'Urbanist', sans-serif !important;
         font-weight: 700 !important;
     }
+    
+    /* Prevent Metric Cutoff - Override Streamlit Default Font Sizes */
+    div[data-testid="stMetricValue"] > div {
+        font-size: 1.6rem !important;
+        white-space: nowrap !important;
+    }
+    div[data-testid="stMetricDelta"] > div {
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+    }
+    div[data-testid="stMetricLabel"] > div {
+        font-size: 0.9rem !important;
+        white-space: nowrap !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -28,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualizations & KPIs Vetted)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Ordered KPIs & Dynamic CSS)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -225,7 +239,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualisierungen & KPIs Vetted)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geordnete KPIs & Dynamisches CSS)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -385,11 +399,11 @@ else:
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
         "kpi_runway": "Liquiditätsreichweite (Monate)",
-        "kpi_net_ltv": "Netto-LTV (Cash-bereinigt)",
+        "kpi_net_ltv": "Netto-LTV",
         "kpi_var_ratio": "Variable Kostenquote",
         "kpi_fix_ratio": "Fixkostenquote",
         "kpi_tot_ratio": "Gesamtkostenquote",
-        "kpi_other_inc_ratio": "Sonstige Ertragsquote (THG & Verkauf)",
+        "kpi_other_inc_ratio": "Sonstige Ertragsquote",
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
         
@@ -873,7 +887,7 @@ df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
-# --- 6. KPI CALCULATION ENGINE ---
+# --- 6. KPI CALCULATION ENGINE (ORDERED) ---
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
@@ -893,9 +907,24 @@ debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["p
 other_inc = df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
 
 kpi_dict = {}
-kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
-kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
 
+# 1. DB2 Margin
+kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
+# 2. Variable Expense Ratio
+kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev_top)]
+# 3. Fixed Expense Ratio
+kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev_top)]
+# 4. Total Expense Ratio
+kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev_top)]
+# 5. Other Income Ratio
+kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
+# 6. EBITDA Margin
+kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
+# 7. DSCR
+kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+# 8. Equity Ratio
+kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
+# 9. Liquidity Runway
 runway_arr = []
 for col in df_pnl_combined.columns:
     is_year = "Year" in col or "Jahr" in col
@@ -903,16 +932,9 @@ for col in df_pnl_combined.columns:
     rw = cash[col] / div if div > 0 else 999
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
-
+# 10. Net LTV
 net_debt = tliab - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
-
-kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev_top)]
-kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev_top)]
-kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
-kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev_top)]
-kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
-kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
 
@@ -1053,8 +1075,14 @@ def style_bs_rows(row):
     return [''] * len(row)
 
 def style_kpi_rows(row):
-    if loc["kpi_dscr"] in row.name or loc["kpi_ebitda_m"] in row.name or loc["kpi_runway"] in row.name:
-        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900;'] * len(row)
+    if loc["kpi_db2_m"] in row.name:
+        return ['font-weight: 700; color: #4DA8DA; border-bottom: 1px solid #ffffff40;'] * len(row)
+    elif loc["kpi_ebitda_m"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 1px solid #ffffff40; border-bottom: 2px solid #F2A900;'] * len(row)
+    elif loc["kpi_dscr"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    elif loc["kpi_net_ltv"] in row.name:
+        return ['font-weight: 700; border-top: 1px solid #ffffff40;'] * len(row)
     return [''] * len(row)
 
 with tabs[0]:
