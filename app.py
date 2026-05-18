@@ -335,8 +335,8 @@ else:
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
         "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
-        "cf_kfw_draw": "+ Einzahlungen Bankdarlehen",
-        "cf_prin": "- Tilgung Bankdarlehen",
+        "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
+        "cf_prin": "- Tilgung Darlehen",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
         "cf_vat_repay": "- Tilgung USt-Überbrückungskredit",
         "cf_fin": "Cashflow aus Finanzierungstätigkeit",
@@ -854,7 +854,6 @@ df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-# Pull natively from verified Dataframes
 rev = df_pnl_combined.loc[loc["pnl_mrrg_net"]]
 ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
@@ -864,7 +863,6 @@ tliab = df_bs_combined.loc[loc["bs_tliab"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
-# Recalculate isolated costs for ratio math
 var_costs = rev - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
 tot_costs = var_costs + fix_costs
@@ -935,25 +933,53 @@ st.write("")
 tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"]])
 
 def style_pnl_rows(row):
-    style = [''] * len(row)
-    if loc["pnl_mrrg_net"] in row.name: style = ['font-weight: 600; border-top: 1px solid #ffffff40; color: #4DA8DA;'] * len(row)
-    elif loc["pnl_db1"] in row.name or loc["pnl_db2"] in row.name: style = ['font-weight: 600; background-color: #1e1e1e; border-top: 1px solid #ffffff40;'] * len(row)
-    elif loc["pnl_ebitda"] in row.name: style = ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
-    elif loc["pnl_ebit"] in row.name: style = ['font-weight: 600; background-color: #1e1e1e;'] * len(row)
-    elif loc["pnl_ebt"] in row.name: style = ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
-    elif loc["pnl_ni"] in row.name: style = ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
-    return style
+    if loc["pnl_mrrg_net"] in row.name:
+        return ['font-weight: 600; border-top: 1px solid #ffffff40; color: #4DA8DA;'] * len(row)
+    elif loc["pnl_db1"] in row.name or loc["pnl_db2"] in row.name:
+        return ['font-weight: 600; background-color: #1e1e1e; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["pnl_ebitda"] in row.name:
+        return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    elif loc["pnl_ebit"] in row.name:
+        return ['font-weight: 600; background-color: #1e1e1e;'] * len(row)
+    elif loc["pnl_ebt"] in row.name:
+        return ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["pnl_ni"] in row.name:
+        return ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
+    return [''] * len(row)
 
 def style_cf_rows(row):
-    style = [''] * len(row)
-    if loc["cf_op"] in row.name or loc["cf_inv"] in row.name or loc["cf_fin"] in row.name: style = ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 1px solid #ffffff40;'] * len(row)
-    elif loc["cf_net"] in row.name: style = ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
-    elif loc["cf_end"] in row.name: style = ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
-    return style
+    if loc["cf_op"] in row.name or loc["cf_inv"] in row.name or loc["cf_fin"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["cf_net"] in row.name:
+        return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    elif loc["cf_end"] in row.name:
+        return ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
+    return [''] * len(row)
 
 def style_bs_rows(row):
-    style = [''] * len(row)
     if loc["bs_nfa"] in row.name or loc["bs_tca"] in row.name or loc["bs_teq"] in row.name or loc["bs_tprov"] in row.name or loc["bs_tliab"] in row.name:
-        style = ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
+        return ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
     elif loc["bs_ta"] in row.name:
-        style = ['font-weight: 700; background-color: #1e1e1e; color: #4
+        return ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 2px solid #4DA8DA;'] * len(row)
+    elif loc["bs_tleq"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 2px solid #F2A900;'] * len(row)
+    elif loc["bs_check"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    return [''] * len(row)
+
+def style_kpi_rows(row):
+    if loc["kpi_dscr"] in row.name or loc["kpi_ebitda_m"] in row.name or loc["kpi_runway"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900;'] * len(row)
+    return [''] * len(row)
+
+with tabs[0]:
+    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+
+with tabs[1]:
+    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
+
+with tabs[2]:
+    st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
+
+with tabs[3]:
+    st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
