@@ -27,7 +27,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamic Utilization & Tooltips)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 11: Institutional KPIs & Ratios)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -178,6 +178,17 @@ if lang_choice == "English":
         "bs_tleq": "TOTAL LIAB. & EQUITY",
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
 
+        "tab_kpi": "KPIs & Ratios",
+        "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
+        "kpi_eq_ratio": "Equity Ratio",
+        "kpi_runway": "Liquidity Runway (Months)",
+        "kpi_net_ltv": "Net LTV (Adj. for Cash)",
+        "kpi_var_ratio": "Variable Expense Ratio",
+        "kpi_fix_ratio": "Fixed Expense Ratio",
+        "kpi_tot_ratio": "Total Expense Ratio (GOR)",
+        "kpi_db2_m": "Contribution Margin (DB2)",
+        "kpi_ebitda_m": "EBITDA Margin",
+
         "sources_title": "Day 1 Sources & Uses of Capital",
         "src_stamm": "Sources: Stammkapital",
         "src_sh": "Sources: Shareholder Loan",
@@ -196,14 +207,13 @@ if lang_choice == "English":
         "exp_y2": "Expand Y2",
         "exp_y3": "Expand Y3",
         "exp_y4": "Expand Y4",
-        "exp_y5": "Expand Y5",
-        "bs_note": "*(Balance Sheet is fully integrated and dynamically tracks working capital)*"
+        "exp_y5": "Expand Y5"
     }
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamische Auslastung & Tooltips)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 11: Institutionelle KPIs & Ratios)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -325,8 +335,8 @@ else:
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
         "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
-        "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
-        "cf_prin": "- Tilgung Darlehen",
+        "cf_kfw_draw": "+ Einzahlungen Bankdarlehen",
+        "cf_prin": "- Tilgung Bankdarlehen",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
         "cf_vat_repay": "- Tilgung USt-Überbrückungskredit",
         "cf_fin": "Cashflow aus Finanzierungstätigkeit",
@@ -353,6 +363,17 @@ else:
         "bs_tliab": "Summe Verbindlichkeiten",
         "bs_tleq": "SUMME PASSIVA",
         "bs_check": "BILANZKONTROLLE (Aktiva - Passiva)",
+
+        "tab_kpi": "KPIs & Kennzahlen",
+        "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
+        "kpi_eq_ratio": "Eigenkapitalquote",
+        "kpi_runway": "Liquiditätsreichweite (Monate)",
+        "kpi_net_ltv": "Netto-LTV (Cash-bereinigt)",
+        "kpi_var_ratio": "Variable Kostenquote",
+        "kpi_fix_ratio": "Fixkostenquote",
+        "kpi_tot_ratio": "Gesamtkostenquote (GOR)",
+        "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
+        "kpi_ebitda_m": "EBITDA-Marge",
         
         "sources_title": "Tag 1 Mittelherkunft & Mittelverwendung",
         "src_stamm": "Mittelherkunft: Stammkapital",
@@ -372,8 +393,7 @@ else:
         "exp_y2": "J2 Aufklappen",
         "exp_y3": "J3 Aufklappen",
         "exp_y4": "J4 Aufklappen",
-        "exp_y5": "J5 Aufklappen",
-        "bs_note": "*(Die Bilanz ist vollständig integriert und verfolgt das Working Capital dynamisch)*"
+        "exp_y5": "J5 Aufklappen"
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
@@ -622,7 +642,6 @@ for m in range(60):
     utilization_by_month.append(current_u)
     prev_fleet = active_fleet
     active_fleet_by_month.append(active_fleet)
-    # --- END UTILIZATION LOGIC ---
     
     if current_month == 1: capex_this_mo += it_hardware_capex_y1
     current_it_afa = (it_hardware_capex_y1 / 36) if current_month <= 36 else 0
@@ -831,7 +850,50 @@ df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
-# --- 6. DASHBOARD RENDER ---
+# --- 6. KPI CALCULATION ENGINE ---
+def safe_div(n, d):
+    return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
+
+# Pull natively from verified Dataframes
+rev = df_pnl_combined.loc[loc["pnl_mrrg_net"]]
+ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
+db2 = df_pnl_combined.loc[loc["pnl_db2"]]
+ta = df_bs_combined.loc[loc["bs_ta"]]
+teq = df_bs_combined.loc[loc["bs_teq"]]
+tliab = df_bs_combined.loc[loc["bs_tliab"]]
+cash = df_bs_combined.loc[loc["bs_cash"]]
+nfa = df_bs_combined.loc[loc["bs_nfa"]]
+
+# Recalculate isolated costs for ratio math
+var_costs = rev - df_pnl_combined.loc[loc["pnl_db1"]]
+fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
+tot_costs = var_costs + fix_costs
+debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
+
+kpi_dict = {}
+kpi_dict[loc["kpi_dscr"]] = [f"{x:.2f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
+
+runway_arr = []
+for col in df_pnl_combined.columns:
+    is_year = "Year" in col or "Jahr" in col
+    div = (fix_costs[col] + debt_service[col]) / 12 if is_year else (fix_costs[col] + debt_service[col])
+    rw = cash[col] / div if div > 0 else 999
+    runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
+kpi_dict[loc["kpi_runway"]] = runway_arr
+
+net_debt = (tliab - cash).apply(lambda x: max(x, 0))
+kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
+
+kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev)]
+kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev)]
+kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev)]
+kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev)]
+kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev)]
+
+df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
+
+# --- 7. DASHBOARD RENDER ---
 st.subheader(loc["sources_title"])
 colA, colB, colC, colD = st.columns(4)
 colA.metric(loc["src_stamm"], f"€ {stammkapital:,.0f}")
@@ -842,6 +904,7 @@ colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 st.divider()
 st.subheader(loc["output_title"])
 
+st.markdown(f"**{loc['view_mode']}**")
 t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 exp_y1 = t_col1.toggle(loc["exp_y1"])
 exp_y2 = t_col2.toggle(loc["exp_y2"])
@@ -869,7 +932,7 @@ for i in range(5):
 
 st.write("") 
 
-tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"]])
+tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"]])
 
 def style_pnl_rows(row):
     style = [''] * len(row)
@@ -893,18 +956,4 @@ def style_bs_rows(row):
     if loc["bs_nfa"] in row.name or loc["bs_tca"] in row.name or loc["bs_teq"] in row.name or loc["bs_tprov"] in row.name or loc["bs_tliab"] in row.name:
         style = ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
     elif loc["bs_ta"] in row.name:
-        style = ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 2px solid #4DA8DA;'] * len(row)
-    elif loc["bs_tleq"] in row.name:
-        style = ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 2px solid #F2A900;'] * len(row)
-    elif loc["bs_check"] in row.name:
-        style = ['font-weight: 700; color: #38c172;'] * len(row)
-    return style
-
-with tabs[0]:
-    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
-
-with tabs[1]:
-    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
-
-with tabs[2]:
-    st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
+        style = ['font-weight: 700; background-color: #1e1e1e; color: #4
