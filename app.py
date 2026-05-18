@@ -5,7 +5,7 @@ import numpy as np
 # --- DASHBOARD CONFIGURATION ---
 st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
 st.title("MRRG Cybercab Fleet: Master Financial Engine")
-st.markdown("*(Layer 4: CapEx, Depreciation (AfA) & EBIT)*")
+st.markdown("*(Layer 5: Capital Structure, Debt Amortization & EBT)*")
 
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
 st.sidebar.header("1. FLEET PHYSICS (Realistic)")
@@ -52,21 +52,35 @@ import_freight_eur = st.sidebar.number_input("Import Freight & Ins. per Car (€
 customs_duty_rate = st.sidebar.number_input("Import Duty (Zoll) %", value=10.0) / 100
 it_hardware_capex_y1 = st.sidebar.number_input("IT Hardware CapEx (Y1)", value=2500.0)
 
-st.sidebar.header("8. OTHER INCOME / SALVAGE")
+st.sidebar.header("8. CAPITAL STRUCTURE & FINANCING")
+stammkapital = st.sidebar.number_input("Stammkapital (€)", value=25000.0)
+shareholder_loan = st.sidebar.number_input("Shareholder Loan (€)", value=50000.0)
+vehicle_ltv = st.sidebar.number_input("Vehicle Loan-to-Value (LTV) %", value=80.0) / 100
+loan_cohort = st.sidebar.selectbox("Loan Type", ["KfW Gründerkredit (4.5%, 1yr Grace)", "Bank Loan - Expansion (5.5%, 1yr Grace)"])
+interest_income_rate = st.sidebar.number_input("Cash Interest Rate (%)", value=2.2) / 100
+
+st.sidebar.header("9. OTHER INCOME / SALVAGE")
 thg_quote_per_car_py = st.sidebar.number_input("THG Quote per car/yr", value=200.0)
 salvage_value_per_car_y4 = st.sidebar.number_input("Vehicle Sale Price (Y4)", value=10000.0)
 
-# --- 2. CAPEX & DEPRECIATION MATH (AfA) ---
-# Calculate true landed cost per vehicle according to EU Customs Law
+# --- 2. CAPEX & SOURCES/USES MATH ---
+# CapEx
 cybercab_base_eur = cybercab_base_usd / usd_eur_rate
 zollwert_cif_eur = cybercab_base_eur + import_freight_eur
 zollkosten_eur = zollwert_cif_eur * customs_duty_rate
 total_capex_per_car = zollwert_cif_eur + zollkosten_eur
 total_fleet_capex = total_capex_per_car * fleet_size
 
-# AfA (Straight Line)
-vehicle_afa_per_year = total_fleet_capex / 4  # 48 months
-it_hardware_afa_per_year = it_hardware_capex_y1 / 3  # 36 months
+vehicle_afa_per_year = total_fleet_capex / 4  
+it_hardware_afa_per_year = it_hardware_capex_y1 / 3  
+
+# Financing (Sources & Uses)
+vehicle_loan_amount = total_fleet_capex * vehicle_ltv
+vehicle_equity_amount = total_fleet_capex * (1 - vehicle_ltv)
+
+total_sources = stammkapital + shareholder_loan + vehicle_loan_amount
+total_uses = total_fleet_capex + it_hardware_capex_y1
+day_1_cash_balance = total_sources - total_uses
 
 # --- 3. THE SCHEDULE ENGINE (Daily Math per Car) ---
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
@@ -113,15 +127,22 @@ pnl_data_dict = {
     "EBITDA": [],
     "Less: Vehicle Depreciation (AfA - 48 Mo.)": [],
     "Less: IT Hardware Depreciation (AfA - 36 Mo.)": [],
-    "EBIT (Operating Income)": []
+    "EBIT (Operating Income)": [],
+    "Add: Interest Income (Zinserträge)": [],
+    "Less: Interest Expense (Zinsaufwendungen)": [],
+    "EBT (Earnings Before Tax)": []
 }
 
 wear_and_tear_rate = 0.03 
 energy_rate = 0.05
 months_per_year = 12
 
+# Initialize dynamic financial trackers
+current_cash_balance = day_1_cash_balance
+remaining_loan_balance = vehicle_loan_amount
+loan_interest_rate = 0.045 if "KfW" in loan_cohort else 0.055
+
 for year in range(1, 6):
-    # Fleet is sold end of Year 4.
     active_fleet = fleet_size if year <= 4 else 0
     operating_days = (365 * vehicle_utilization) if year <= 4 else 0
     
@@ -156,27 +177,41 @@ for year in range(1, 6):
     annual_fees = (ihk_pm * months_per_year) + (gez_pm_per_car * months_per_year * active_fleet)
     annual_bank = bank_fees_pm * months_per_year
     
-    # Other Income
     annual_thg = thg_quote_per_car_py * active_fleet
     fleet_sale_revenue = (salvage_value_per_car_y4 * active_fleet) if year == 4 else 0
     
-    # EBITDA
-    ebitda = (deckungsbeitrag_2 
-              - annual_hq_lease 
-              - annual_it_cloud 
-              - annual_legal 
-              - annual_hq_insurance
-              - annual_fees 
-              - annual_bank 
-              + annual_thg 
-              + fleet_sale_revenue)
+    # EBITDA & EBIT
+    ebitda = (deckungsbeitrag_2 - annual_hq_lease - annual_it_cloud - annual_legal 
+              - annual_hq_insurance - annual_fees - annual_bank + annual_thg + fleet_sale_revenue)
               
-    # Depreciation (AfA)
     current_vehicle_afa = vehicle_afa_per_year if year <= 4 else 0
     current_it_afa = it_hardware_afa_per_year if year <= 3 else 0
-    
-    # EBIT
     ebit = ebitda - current_vehicle_afa - current_it_afa
+    
+    # FINANCING MATH (EBT)
+    # Interest Income is based on beginning of year cash balance
+    interest_income = current_cash_balance * interest_income_rate if current_cash_balance > 0 else 0
+    
+    # Interest Expense is based on remaining loan balance
+    interest_expense = remaining_loan_balance * loan_interest_rate
+    
+    # EBT
+    ebt = ebit + interest_income - interest_expense
+    
+    # Debt Amortization (1 Year Grace Period)
+    if year == 1:
+        principal_payment = 0
+    else:
+        # Paid evenly over the remaining 4 years
+        principal_payment = vehicle_loan_amount / 4
+        if remaining_loan_balance - principal_payment < 0:
+            principal_payment = remaining_loan_balance
+            
+    # Roll forward balances for next year
+    # (Approximate operating cash flow generation before tax to increment cash balance)
+    cash_movement = ebt + current_vehicle_afa + current_it_afa - principal_payment
+    current_cash_balance += cash_movement
+    remaining_loan_balance -= principal_payment
     
     # Append to Dictionary
     pnl_data_dict["Gross Booking Value (Customer Pays incl. 19% VAT)"].append(annual_gbv_fleet)
@@ -206,13 +241,17 @@ for year in range(1, 6):
     pnl_data_dict["Less: Vehicle Depreciation (AfA - 48 Mo.)"].append(-current_vehicle_afa)
     pnl_data_dict["Less: IT Hardware Depreciation (AfA - 36 Mo.)"].append(-current_it_afa)
     pnl_data_dict["EBIT (Operating Income)"].append(ebit)
+    pnl_data_dict["Add: Interest Income (Zinserträge)"].append(interest_income)
+    pnl_data_dict["Less: Interest Expense (Zinsaufwendungen)"].append(-interest_expense)
+    pnl_data_dict["EBT (Earnings Before Tax)"].append(ebt)
 
 # --- 5. DASHBOARD RENDER ---
-st.subheader("Key CapEx Assumptions")
-colA, colB, colC = st.columns(3)
-colA.metric("Landed CapEx per Car (CIF + Duty)", f"€ {total_capex_per_car:,.0f}")
-colB.metric("Total Fleet CapEx", f"€ {total_fleet_capex:,.0f}")
-colC.metric("Annual Fleet AfA", f"€ {vehicle_afa_per_year:,.0f}")
+st.subheader("Day 1 Sources & Uses of Capital (Mittelherkunft & Mittelverwendung)")
+colA, colB, colC, colD = st.columns(4)
+colA.metric("Sources: Stammkapital", f"€ {stammkapital:,.0f}")
+colB.metric("Sources: Shareholder Loan", f"€ {shareholder_loan:,.0f}")
+colC.metric(f"Sources: Vehicle Loan ({vehicle_ltv*100:.0f}%)", f"€ {vehicle_loan_amount:,.0f}")
+colD.metric("Day 1 Liquidity Buffer", f"€ {day_1_cash_balance:,.0f}")
 
 st.divider()
 
@@ -221,12 +260,12 @@ st.subheader("5-Year Cohort P&L (Fleet Aggregate)")
 tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
 
 with tabs[0]:
-    st.markdown("### Profit & Loss down to EBIT")
+    st.markdown("### Profit & Loss down to EBT")
     df_pnl = pd.DataFrame(pnl_data_dict, index=years).T
     st.dataframe(df_pnl.style.format("{:,.0f} €"), use_container_width=True)
 
 with tabs[1]:
-    st.markdown("*(Cash Flow integration will be built in Layer 5 after Debt Amortization)*")
+    st.markdown("*(Cash Flow integration will be built in Layer 6 after Taxes)*")
 
 with tabs[2]:
-    st.markdown("*(Balance Sheet integration will be built in Layer 6 after Asset/Liability setup)*")
+    st.markdown("*(Balance Sheet integration will be built in Layer 7 after Asset/Liability setup)*")
