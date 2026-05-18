@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualizations & Embedded Manual)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Ordered KPIs & Dynamic CSS)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -198,7 +198,6 @@ if lang_choice == "English":
         "tab_bs": "Balance Sheet",
         "tab_kpi": "KPIs & Ratios",
         "tab_charts": "Visualizations & Dashboards",
-        "tab_readme": "README & User Manual",
         
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
@@ -240,7 +239,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualisierungen & Handbuch)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geordnete KPIs & Dynamisches CSS)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -275,7 +274,7 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab.",
         "energy_rate": "Basis-Energiekosten pro km (€)",
         "energy_help": "Reiner Sommer-Basistarif. Winterzuschläge erfolgen dynamisch.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
@@ -396,7 +395,6 @@ else:
         "tab_bs": "Bilanz",
         "tab_kpi": "KPIs & Kennzahlen",
         "tab_charts": "Visualisierungen & Dashboards",
-        "tab_readme": "Handbuch & Dokumentation",
         
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
@@ -405,7 +403,7 @@ else:
         "kpi_var_ratio": "Variable Kostenquote",
         "kpi_fix_ratio": "Fixkostenquote",
         "kpi_tot_ratio": "Gesamtkostenquote",
-        "kpi_other_inc_ratio": "Sonstige Ertragsquote (THG & Verkauf)",
+        "kpi_other_inc_ratio": "Sonstige Ertragsquote",
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
         
@@ -719,7 +717,7 @@ for m in range(60):
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # VAT Bridge Loan
+    # CapEx VAT & Bridge Loan
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + 6] += vat_draw_mo
@@ -878,4 +876,278 @@ bs_yearly = agg_to_yearly(bs_monthly)
 year_cols = [f"Year {y+1} ({2028+y})" if lang_choice == "English" else f"Jahr {y+1} ({2028+y})" for y in range(5)]
 
 df_pnl_mo = pd.DataFrame(pnl_monthly, index=month_col_names).T
-df_pnl_yr = pd.DataFrame(pnl
+df_pnl_yr = pd.DataFrame(pnl_yearly, index=year_cols).T
+df_pnl_combined = pd.concat([df_pnl_mo, df_pnl_yr], axis=1)
+
+df_cf_mo = pd.DataFrame(cf_monthly, index=month_col_names).T
+df_cf_yr = pd.DataFrame(cf_yearly, index=year_cols).T
+df_cf_combined = pd.concat([df_cf_mo, df_cf_yr], axis=1)
+
+df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
+df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
+df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
+
+# --- 6. KPI CALCULATION ENGINE (ORDERED) ---
+def safe_div(n, d):
+    return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
+
+rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]]
+ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
+db2 = df_pnl_combined.loc[loc["pnl_db2"]]
+ta = df_bs_combined.loc[loc["bs_ta"]]
+teq = df_bs_combined.loc[loc["bs_teq"]]
+tliab = df_bs_combined.loc[loc["bs_tliab"]]
+cash = df_bs_combined.loc[loc["bs_cash"]]
+nfa = df_bs_combined.loc[loc["bs_nfa"]]
+
+var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
+fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
+tot_costs = var_costs + fix_costs
+debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
+other_inc = df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
+
+kpi_dict = {}
+
+# 1. DB2 Margin
+kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
+# 2. Variable Expense Ratio
+kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev_top)]
+# 3. Fixed Expense Ratio
+kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev_top)]
+# 4. Total Expense Ratio
+kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev_top)]
+# 5. Other Income Ratio
+kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
+# 6. EBITDA Margin
+kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
+# 7. DSCR
+kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+# 8. Equity Ratio
+kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
+# 9. Liquidity Runway
+runway_arr = []
+for col in df_pnl_combined.columns:
+    is_year = "Year" in col or "Jahr" in col
+    div = (fix_costs[col] + debt_service[col]) / 12 if is_year else (fix_costs[col] + debt_service[col])
+    rw = cash[col] / div if div > 0 else 999
+    runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
+kpi_dict[loc["kpi_runway"]] = runway_arr
+# 10. Net LTV
+net_debt = tliab - cash
+kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
+
+df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
+
+
+# --- 7. VISUALIZATION ENGINE ---
+def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_cagr=False):
+    beg = y_values[0]
+    end = y_values[-1]
+    
+    if not hide_cagr:
+        if beg > 0 and end > 0:
+            cagr = (end / beg) ** (1/4) - 1
+            cagr_text = f"CAGR {cagr*100:.0f}%"
+        elif beg <= 0 and end > 0:
+            cagr_text = "CAGR N/A"
+        else:
+            cagr_text = "CAGR N/A"
+            
+    fig = go.Figure()
+    
+    fig.add_trace(go.Bar(
+        x=x_labels, 
+        y=y_values, 
+        marker=dict(
+            color='rgba(255,255,255,0.9)', 
+            pattern=dict(shape='/', fgcolor='#4DA8DA')
+        ),
+        name=title
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=x_labels, 
+        y=y_values, 
+        mode='lines+markers', 
+        line=dict(color='#FFFFFF', width=3, shape='spline'),
+        marker=dict(size=8, color='#FFFFFF'),
+        name='Trend'
+    ))
+    
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=20, color='white')),
+        plot_bgcolor='#DE6B28',
+        paper_bgcolor='#DE6B28',
+        font=dict(color='white', family='Urbanist'),
+        showlegend=False,
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+    
+    if not hide_cagr:
+        fig.add_annotation(
+            x=1, y=1.05, xref='paper', yref='paper',
+            text=f"<b>{cagr_text}</b>",
+            showarrow=False,
+            font=dict(color='white', size=14),
+            bgcolor='#4A86E8',
+            borderpad=6
+        )
+    
+    fig.update_yaxes(tickprefix=prefix, ticksuffix=suffix, showgrid=True, gridcolor='rgba(255,255,255,0.2)', zeroline=False)
+    fig.update_xaxes(showgrid=False)
+    return fig
+
+
+# --- 8. DASHBOARD RENDER ---
+st.subheader(loc["sources_title"])
+colA, colB, colC, colD = st.columns(4)
+colA.metric(loc["src_stamm"], f"€ {stammkapital:,.0f}")
+colB.metric(loc["src_sh"], f"€ {shareholder_loan:,.0f}")
+colC.metric(f"{loc['src_veh']} ({vehicle_ltv*100:.0f}%)", f"€ {day_1_loan:,.0f}")
+colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
+
+st.divider()
+st.subheader(loc["output_title"])
+
+st.markdown(f"**{loc['view_mode']}**")
+t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
+exp_y1 = t_col1.toggle(loc["exp_y1"])
+exp_y2 = t_col2.toggle(loc["exp_y2"])
+exp_y3 = t_col3.toggle(loc["exp_y3"])
+exp_y4 = t_col4.toggle(loc["exp_y4"])
+exp_y5 = t_col5.toggle(loc["exp_y5"])
+
+expands = [exp_y1, exp_y2, exp_y3, exp_y4, exp_y5]
+
+display_cols = []
+for y in range(5):
+    if expands[y]: display_cols.extend(month_col_names[y*12 : (y+1)*12])
+    display_cols.append(year_cols[y])
+
+fleet_cols = st.columns(5)
+for i in range(5):
+    yr_fleet_val = active_fleet_by_month[(i*12)+11]
+    yr_util_val = np.mean(utilization_by_month[i*12 : (i+1)*12])
+    fleet_cols[i].metric(
+        f"{loc['active_fleet']} (Y{i+1} End)", 
+        f"{yr_fleet_val:.0f} {loc['cars']}", 
+        delta=f"Ø {yr_util_val*100:.1f}% {loc['util_label']}",
+        delta_color="off"
+    )
+
+st.write("") 
+
+tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"]])
+
+def style_pnl_rows(row):
+    if loc["pnl_mrrg_net"] in row.name:
+        return ['font-weight: 600; border-top: 1px solid #ffffff40; color: #4DA8DA;'] * len(row)
+    elif loc["pnl_db1"] in row.name or loc["pnl_db2"] in row.name:
+        return ['font-weight: 600; background-color: #1e1e1e; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["pnl_ebitda"] in row.name:
+        return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    elif loc["pnl_ebit"] in row.name:
+        return ['font-weight: 600; background-color: #1e1e1e;'] * len(row)
+    elif loc["pnl_ebt"] in row.name:
+        return ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["pnl_ni"] in row.name:
+        return ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
+    return [''] * len(row)
+
+def style_cf_rows(row):
+    if loc["cf_op"] in row.name or loc["cf_inv"] in row.name or loc["cf_fin"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["cf_net"] in row.name:
+        return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    elif loc["cf_end"] in row.name:
+        return ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
+    return [''] * len(row)
+
+def style_bs_rows(row):
+    if loc["bs_nfa"] in row.name or loc["bs_tca"] in row.name or loc["bs_teq"] in row.name or loc["bs_tprov"] in row.name or loc["bs_tliab"] in row.name:
+        return ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
+    elif loc["bs_ta"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 2px solid #4DA8DA;'] * len(row)
+    elif loc["bs_tleq"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 2px solid #F2A900;'] * len(row)
+    elif loc["bs_check"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    return [''] * len(row)
+
+def style_kpi_rows(row):
+    if loc["kpi_db2_m"] in row.name:
+        return ['font-weight: 700; color: #4DA8DA; border-bottom: 1px solid #ffffff40;'] * len(row)
+    elif loc["kpi_ebitda_m"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 1px solid #ffffff40; border-bottom: 2px solid #F2A900;'] * len(row)
+    elif loc["kpi_dscr"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    elif loc["kpi_net_ltv"] in row.name:
+        return ['font-weight: 700; border-top: 1px solid #ffffff40;'] * len(row)
+    return [''] * len(row)
+
+with tabs[0]:
+    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+
+with tabs[1]:
+    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
+
+with tabs[2]:
+    st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
+
+with tabs[3]:
+    st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
+    
+    st.write("")
+    with st.expander(loc["glossary_title"]):
+        if lang_choice == "English":
+            st.markdown("""
+            * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*.
+            * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
+            * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
+            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Liabilities - Cash) / Net Fixed Assets*.
+            * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
+            * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
+            * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
+            * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
+            * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
+            """)
+        else:
+            st.markdown("""
+            * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*.
+            * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
+            * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
+            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Verbindlichkeiten - Kasse) / Netto-Sachanlagen*.
+            * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
+            * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
+            * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
+            * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
+            * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
+            """)
+
+with tabs[4]:
+    y_rev = df_pnl_yr.loc[loc["pnl_net_rev"]].values
+    y_ebitda = df_pnl_yr.loc[loc["pnl_ebitda"]].values
+    y_ni = df_pnl_yr.loc[loc["pnl_ni"]].values
+    y_fleet = [active_fleet_by_month[(i*12)+11] for i in range(5)]
+    y_ta = df_bs_yr.loc[loc["bs_ta"]].values
+    
+    y_fcf_arr = (df_cf_yr.loc[loc["cf_op"]] + df_cf_yr.loc[loc["cf_inv"]]).values
+    y_fcf_cum_arr = np.cumsum(y_fcf_arr)
+    
+    c1, c2 = st.columns(2)
+    with c1: st.plotly_chart(create_mrrg_chart(year_cols, y_rev, loc["chart_rev"]), use_container_width=True)
+    with c2: st.plotly_chart(create_mrrg_chart(year_cols, y_ebitda, loc["chart_ebitda"]), use_container_width=True)
+    
+    c3, c4 = st.columns(2)
+    with c3: st.plotly_chart(create_mrrg_chart(year_cols, y_ni, loc["chart_ni"]), use_container_width=True)
+    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fleet, loc["chart_fleet"], prefix="", suffix=""), use_container_width=True)
+    
+    c5, c6 = st.columns(2)
+    with c5:
+        use_cum_fcf = st.toggle(loc["toggle_fcf"])
+        plot_fcf = y_fcf_cum_arr if use_cum_fcf else y_fcf_arr
+        st.plotly_chart(create_mrrg_chart(year_cols, plot_fcf, loc["chart_fcf"], hide_cagr=use_cum_fcf), use_container_width=True)
+    with c6:
+        st.plotly_chart(create_mrrg_chart(year_cols, y_ta, loc["chart_ta"]), use_container_width=True)
