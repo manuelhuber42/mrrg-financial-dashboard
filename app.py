@@ -920,7 +920,6 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix=""):
         
     fig = go.Figure()
     
-    # Striped Bar Chart
     fig.add_trace(go.Bar(
         x=x_labels, 
         y=y_values, 
@@ -931,7 +930,6 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix=""):
         name=title
     ))
     
-    # Smoothed Trendline
     fig.add_trace(go.Scatter(
         x=x_labels, 
         y=y_values, 
@@ -941,7 +939,6 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix=""):
         name='Trend'
     ))
     
-    # Institutional Orange Styling
     fig.update_layout(
         title=dict(text=title, font=dict(size=20, color='white')),
         plot_bgcolor='#DE6B28',
@@ -951,7 +948,6 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix=""):
         margin=dict(l=40, r=40, t=60, b=40)
     )
     
-    # CAGR Floating Annotation Box
     fig.add_annotation(
         x=1, y=1.05, xref='paper', yref='paper',
         text=f"<b>{cagr_text}</b>",
@@ -1047,20 +1043,16 @@ def style_kpi_rows(row):
         return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900;'] * len(row)
     return [''] * len(row)
 
-
 with tabs[0]:
-    # Extract Yearly Values for Plotly
     y_rev = df_pnl_yr.loc[loc["pnl_net_rev"]].values
     y_ebitda = df_pnl_yr.loc[loc["pnl_ebitda"]].values
     y_ni = df_pnl_yr.loc[loc["pnl_ni"]].values
     y_fleet = [active_fleet_by_month[(i*12)+11] for i in range(5)]
     y_ta = df_bs_yr.loc[loc["bs_ta"]].values
     
-    # Free Cash Flow = Operating + Investing
     y_fcf_arr = (df_cf_yr.loc[loc["cf_op"]] + df_cf_yr.loc[loc["cf_inv"]]).values
     y_fcf_cum_arr = np.cumsum(y_fcf_arr)
     
-    # 2x3 Grid Layout
     c1, c2 = st.columns(2)
     with c1: st.plotly_chart(create_mrrg_chart(year_cols, y_rev, loc["chart_rev"]), use_container_width=True)
     with c2: st.plotly_chart(create_mrrg_chart(year_cols, y_ebitda, loc["chart_ebitda"]), use_container_width=True)
@@ -1076,7 +1068,6 @@ with tabs[0]:
         st.plotly_chart(create_mrrg_chart(year_cols, plot_fcf, loc["chart_fcf"]), use_container_width=True)
     with c6:
         st.plotly_chart(create_mrrg_chart(year_cols, y_ta, loc["chart_ta"]), use_container_width=True)
-
 
 with tabs[1]:
     st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
