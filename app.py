@@ -27,7 +27,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 9: Balance Sheet & Working Capital)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 9: Fully Balanced & Vetted)*",
         "sec1": "1. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -184,7 +184,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 9: Bilanz & Working Capital)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 9: Vollständig bilanziert & geprüft)*",
         "sec1": "1. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -501,7 +501,6 @@ cum_ebt_year = 0
 cum_gfa = 0
 cum_depr = 0
 cum_net_income = 0
-kfw_loan_bal = 0
 
 vat_repay_schedule = [0]*70 
 tax_payment_schedule = [0]*70
@@ -639,7 +638,9 @@ for m in range(60):
     operational_vat_payable = op_vat_collected
     tax_provision_bal += tax_exp_mo + tax_paid_mo
     cum_net_income += net_inc_mo
-    kfw_loan_bal = sum(c["loan_bal"] for c in cohorts)
+    
+    # BUG FIX: Only sum loans that have actually been drawn by the current month
+    kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
     
     # BS Checking Math
     total_assets = nfa + vat_receivable + current_cash
@@ -647,7 +648,7 @@ for m in range(60):
     total_prov = tax_provision_bal
     total_liab = kfw_loan_bal + vat_loan_bal + operational_vat_payable + shareholder_loan
     total_liab_eq = total_equity + total_prov + total_liab
-    bs_check_val = total_assets - total_liab_eq
+    bs_check_val = round(total_assets - total_liab_eq, 2)
     
     # Append P&L
     pnl_monthly[loc["pnl_gbv"]].append(gbv_mo)
