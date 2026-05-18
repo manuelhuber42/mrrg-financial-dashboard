@@ -2,140 +2,107 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-# --- 1. DASHBOARD CONFIGURATION ---
-st.set_page_config(page_title="MRRG 5-Year Financial Engine", layout="wide")
-st.title("MRRG Cybercab Fleet: 5-Year Cohort Projection")
-st.markdown("*(Analyzing the 5-year financial lifecycle of a single vehicle cohort)*")
+# --- DASHBOARD CONFIGURATION ---
+st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
+st.title("MRRG Cybercab Fleet: Master Financial Engine")
+st.markdown("*(Layer 1: Fleet Physics & Topline Revenue Verification)*")
 
-# --- 2. SIDEBAR INPUTS ---
-st.sidebar.header("CORE ECONOMICS")
-fleet_size = st.sidebar.slider("Fleet Size (Num Cars)", 1, 100, 7)
-utilization = st.sidebar.slider("Utilization % (Active Hours)", 10, 80, 30, 1) / 100
-price_per_km = st.sidebar.slider("Price Per km (€)", 0.50, 3.00, 1.49, 0.01)
+# --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
+st.sidebar.header("1. FLEET PHYSICS (Realistic)")
+fleet_size = st.sidebar.slider("Fleet Size (Num Cars)", 1, 50, 3)
+active_hours_per_day = st.sidebar.number_input("Active Hours / Day", value=16.0)
+avg_speed_kmh = st.sidebar.number_input("Average Speed (km/h)", value=22.0)
+deadhead_rate = st.sidebar.number_input("Deadhead Rate (%)", value=30.0) / 100
 
-st.sidebar.header("NETWORK DYNAMICS")
-paid_fraction = st.sidebar.slider("Paid Miles Fraction", 30, 90, 60, 1) / 100
-tesla_take_rate = st.sidebar.slider("Tesla Base Take-Rate %", 10, 50, 30, 1) / 100
+st.sidebar.header("2. TRIP DYNAMICS")
+avg_trip_distance_km = st.sidebar.number_input("Average Trip Distance (km)", value=5.0)
+dwell_time_mins = st.sidebar.number_input("Dwell Time (Minutes)", value=2.0)
 
-st.sidebar.header("COSTS & AFA")
-capex_per_car = st.sidebar.slider("Car Purchase Price (€)", 20000, 50000, 28000, 1000)
-wear_accrual_per_km = 0.06 # Fixed physical maintenance accrual
-annual_fixed_opex = st.sidebar.slider("Annual Fixed OpEx per Car", 1000, 10000, 4000, 500)
-tax_rate = st.sidebar.slider("Corporate Tax Rate %", 15, 35, 24, 1) / 100
+st.sidebar.header("3. PRICING")
+base_fare_eur = st.sidebar.number_input("Base Fare (€)", value=2.50)
+price_per_km_eur = st.sidebar.number_input("Price per km (€)", value=1.49)
+tesla_take_rate = st.sidebar.number_input("Tesla Take-Rate (%)", value=30.0) / 100
 
-st.sidebar.header("FINANCING (LOAN)")
-debt_percentage = st.sidebar.slider("Debt Financing % (LTV)", 0, 100, 80, 5) / 100
-interest_rate = st.sidebar.slider("Interest Rate %", 1.0, 15.0, 6.0, 0.1) / 100
-loan_term_years = 5
+# --- 2. THE SCHEDULE ENGINE (Daily Math per Car) ---
+# Total theoretical distance if driving non-stop
+max_theoretical_km = active_hours_per_day * avg_speed_kmh
+deadhead_km = max_theoretical_km * deadhead_rate
+max_billable_km_theoretical = max_theoretical_km - deadhead_km
 
-# --- 3. THE CFO FINANCIAL ENGINE ---
-max_annual_km_per_car = 50000 
-actual_annual_km = max_annual_km_per_car * utilization
-paid_annual_km = actual_annual_km * paid_fraction
+# Dwell Penalty (Distance lost while passengers get in/out)
+# Speed in km/min * dwell time
+distance_lost_per_dwell_km = (avg_speed_kmh / 60) * dwell_time_mins
+effective_trip_distance_km = avg_trip_distance_km + distance_lost_per_dwell_km
 
-# Unit Economics
-gross_revenue = paid_annual_km * price_per_km * fleet_size
-tesla_fees = gross_revenue * tesla_take_rate
-wear_costs = actual_annual_km * wear_accrual_per_km * fleet_size
-total_opex = (annual_fixed_opex * fleet_size) + wear_costs
-ebitda = gross_revenue - tesla_fees - total_opex
+# Total Trips & Actual Billable Distance
+actual_trips_per_day = np.floor(max_billable_km_theoretical / effective_trip_distance_km)
+actual_billable_km_per_day = actual_trips_per_day * avg_trip_distance_km
+actual_total_km_per_day = actual_billable_km_per_day + deadhead_km
 
-# CapEx & Financing Calcs
-total_capex = capex_per_car * fleet_size
-loan_amount = total_capex * debt_percentage
-equity_amount = total_capex - loan_amount
-annual_depreciation = total_capex / 5  # 5-Year Straight Line AfA
+# Daily Revenue Math (per car)
+base_fare_rev_per_day = actual_trips_per_day * base_fare_eur
+distance_rev_per_day = actual_billable_km_per_day * price_per_km_eur
+gross_revenue_per_day_per_car = base_fare_rev_per_day + distance_rev_per_day
 
-# PMT Calculation for Annual Debt Service
-if interest_rate > 0 and loan_amount > 0:
-    annual_pmt = (interest_rate * loan_amount) / (1 - (1 + interest_rate)**-loan_term_years)
-elif loan_amount > 0:
-    annual_pmt = loan_amount / loan_term_years
-else:
-    annual_pmt = 0
+# Annual Fleet Topline (Assuming 365 operating days for the baseline)
+operating_days = 365
+annual_gross_revenue_fleet = gross_revenue_per_day_per_car * operating_days * fleet_size
+annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
+annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
 
-# Build Schedules
-financials = []
-loan_schedule = []
-afa_schedule = []
+# --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
+# We will replace these with exact Excel lookups in Phase 2 & 3
+wear_and_tear_rate = 0.06 # Locked per instruction
+energy_rate = 0.05
+total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
+annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
+annual_energy_cost = total_km_annual_fleet * energy_rate
+annual_fixed_overhead = 4000 * fleet_size # Placeholder
 
-remaining_loan = loan_amount
-book_value = total_capex
+ebitda_placeholder = annual_net_revenue - annual_wear_cost - annual_energy_cost - annual_fixed_overhead
 
-for year in range(1, 6):
-    # Loan Math
-    interest_payment = remaining_loan * interest_rate
-    principal_payment = annual_pmt - interest_payment
-    if remaining_loan <= 0:
-        interest_payment = 0
-        principal_payment = 0
-    
-    loan_schedule.append({
-        "Year": f"Year {year}",
-        "Starting Balance": remaining_loan,
-        "Interest Expense": interest_payment,
-        "Principal Repayment": principal_payment,
-        "Ending Balance": max(0, remaining_loan - principal_payment)
-    })
-    remaining_loan = max(0, remaining_loan - principal_payment)
-    
-    # AfA Math
-    afa_schedule.append({
-        "Year": f"Year {year}",
-        "Starting Book Value": book_value,
-        "Depreciation (AfA)": annual_depreciation,
-        "Ending Book Value": max(0, book_value - annual_depreciation)
-    })
-    book_value = max(0, book_value - annual_depreciation)
-
-    # P&L and Cash Flow Math
-    ebit = ebitda - annual_depreciation
-    ebt = ebit - interest_payment
-    taxes = max(0, ebt * tax_rate)
-    net_income = ebt - taxes
-    
-    # Free Cash Flow to Equity (Operational Cash - Debt Service)
-    fcf = net_income + annual_depreciation - principal_payment
-    
-    financials.append({
-        "Metric": f"Year {year}",
-        "Gross Revenue (€)": gross_revenue,
-        "Tesla Take-Rate (€)": -tesla_fees,
-        "Operating Expenses (€)": -total_opex,
-        "EBITDA (€)": ebitda,
-        "Depreciation AfA (€)": -annual_depreciation,
-        "EBIT (€)": ebit,
-        "Interest Expense (€)": -interest_payment,
-        "EBT (€)": ebt,
-        "Taxes (€)": -taxes,
-        "Net Income (€)": net_income,
-        "Principal Repayment (€)": -principal_payment,
-        "Free Cash Flow (€)": fcf
-    })
-
-# --- 4. MAIN DASHBOARD RENDER ---
-df_financials = pd.DataFrame(financials).set_index("Metric").T
-df_loan = pd.DataFrame(loan_schedule).set_index("Year")
-df_afa = pd.DataFrame(afa_schedule).set_index("Year")
-
-# Layout formatting
-st.subheader("Key Return Metrics")
+# --- 4. DASHBOARD RENDER ---
+st.subheader("Layer 1: Unit Economics Verification (Per Car / Per Day)")
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Total CapEx", f"€ {total_capex:,.0f}")
-col2.metric("Equity Required", f"€ {equity_amount:,.0f}")
-col3.metric("Annual Debt Service", f"€ {annual_pmt:,.0f}")
-col4.metric("EBITDA Margin", f"{(ebitda / gross_revenue) * 100:.1f}%" if gross_revenue > 0 else "0%")
+col1.metric("Actual Trips / Day", f"{actual_trips_per_day:.0f}")
+col2.metric("Billable km / Day", f"{actual_billable_km_per_day:.1f}")
+col3.metric("Total km / Day", f"{actual_total_km_per_day:.1f}")
+col4.metric("Gross Rev / Day", f"€ {gross_revenue_per_day_per_car:.2f}")
 
 st.divider()
 
-# Create Excel-like tabs
-tab1, tab2, tab3 = st.tabs(["📊 P&L & Cash Flow", "🏦 Debt Amortization Schedule", "📉 AfA Schedule"])
+# Prepare Annual 3-Statement Scaffolding
+st.subheader("Annual 3-Statement Model (Fleet Aggregate)")
 
-with tab1:
-    st.dataframe(df_financials.style.format("{:,.0f} €"), use_container_width=True)
+tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
 
-with tab2:
-    st.dataframe(df_loan.style.format("€ {:,.0f}"), use_container_width=True)
+with tabs[0]:
+    st.markdown("### Year 1 Profit & Loss")
+    # Building the P&L structure top-down
+    pnl_data = {
+        "Line Item": [
+            "Gross Revenue (Fahrgeldeinnahmen)", 
+            "Less: Tesla Platform Fee (Take-Rate)",
+            "Net Revenue (Nettoerlöse)",
+            "Less: Direct Energy (Variable)",
+            "Less: Direct Maintenance/Wear (Variable)",
+            "Less: Fixed Operational Overhead",
+            "EBITDA"
+        ],
+        "Year 1 (€)": [
+            annual_gross_revenue_fleet,
+            -annual_tesla_fees,
+            annual_net_revenue,
+            -annual_energy_cost,
+            -annual_wear_cost,
+            -annual_fixed_overhead,
+            ebitda_placeholder
+        ]
+    }
+    st.dataframe(pd.DataFrame(pnl_data).set_index("Line Item").style.format("{:,.0f} €"), use_container_width=True)
 
-with tab3:
-    st.dataframe(df_afa.style.format("€ {:,.0f}"), use_container_width=True)
+with tabs[1]:
+    st.markdown("*(Cash Flow integration will be built in Layer 3 after Debt/AfA)*")
+
+with tabs[2]:
+    st.markdown("*(Balance Sheet integration will be built in Layer 4 after Asset/Liability setup)*")
