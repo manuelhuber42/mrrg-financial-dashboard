@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import calendar
+import plotly.graph_objects as go
 
 # --- DASHBOARD CONFIGURATION & CUSTOM CSS ---
 st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide")
@@ -27,7 +28,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 11: Institutional KPIs & Ratios)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualizations & CAGR Dashboard)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -38,19 +39,19 @@ if lang_choice == "English":
         "active_hours": "Active Hours / Day",
         "speed": "Average Speed (km/h)",
         "deadhead": "Deadhead Rate (%)",
-        "help_deadhead": "Percentage of total kilometers driven without a paying passenger (e.g., driving to chargers, parking, or the next pickup).",
+        "help_deadhead": "Percentage of total kilometers driven without a paying passenger.",
         "sec1c": "1c. UTILIZATION DYNAMICS",
         "util_mode": "Utilization Mode",
         "util_dyn": "Dynamic (Ramp & Cannibalization)",
         "util_fix": "Fixed Rate",
         "target_util": "Target Utilization (%)",
-        "help_target": "The optimal, steady-state utilization your fleet achieves when supply and demand are perfectly balanced.",
+        "help_target": "The optimal, steady-state utilization your fleet achieves.",
         "init_util": "Month 1 Launch Util. (%)",
-        "help_init": "The lower utilization expected in the very first month of business as algorithms map the city and demand is new.",
+        "help_init": "The lower utilization expected in the very first month of business.",
         "rec_rate": "Monthly Recovery (+%)",
-        "help_rec": "How much the fleet utilization naturally climbs each month (+%) after a new vehicle drop, as demand catches up.",
+        "help_rec": "How much the fleet utilization naturally climbs each month (+%).",
         "can_fac": "Cannibalization Factor",
-        "help_can": "Measures how much new cars steal rides from existing cars. e.g., A 0.5 factor means a 10% increase in total cars causes a 5% temporary drop in fleet-wide utilization.",
+        "help_can": "Measures how much new cars steal rides from existing cars.",
         "util_label": "Avg Util",
         "sec2": "2. TRIP DYNAMICS",
         "trip_dist": "Average Trip Distance (km)",
@@ -62,15 +63,15 @@ if lang_choice == "English":
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
         "cleaning": "Cleaning Cost per Vehicle/Day (€)",
         "wear_rate": "Maintenance/Wear per km (€)",
-        "wear_help": "Covers tires, fluids, and suspension. Excludes 'black swan' contingency (held in liquidity reserve).",
+        "wear_help": "Covers tires, fluids, and suspension. Excludes 'black swan' contingency.",
         "energy_rate": "Base Energy Cost per km (€)",
-        "energy_help": "Un-blended summer rate. Winter/Shoulder penalties (1.4x / 1.3x) are applied dynamically by month.",
+        "energy_help": "Un-blended summer rate. Winter penalties applied dynamically.",
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
         "parking": "APCOA Parking",
         "telemetry": "Telemetry & API",
         "tuev": "TÜV / BO-Kraft Accrual",
-        "help_tuev": "Monthly accrual for mandatory commercial passenger transport (BO-Kraft) technical inspections.",
+        "help_tuev": "Monthly accrual for mandatory passenger transport inspections.",
         "charging_sub": "Tesla Charging Sub",
         "sec6": "6. CORPORATE HQ & SCALING (€ / Month, Net)",
         "hq_lease": "HQ Lease (Raumkosten)",
@@ -93,13 +94,13 @@ if lang_choice == "English":
         "stamm": "Stammkapital (€)",
         "sh_loan": "Shareholder Loan (€)",
         "ltv": "Vehicle Loan-to-Value (LTV) %",
-        "help_ltv": "Percentage of total vehicle landing costs (including freight and customs) financed via bank debt.",
+        "help_ltv": "Percentage of total vehicle landing costs financed via bank debt.",
         "y1_loan_rate": "KfW Gründerkredit Rate (Y1) %",
         "y2_loan_rate": "Standard Bank Rate (Y2+) %",
         "int_rate": "Cash Interest Rate (%)",
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
-        "help_thg": "Greenhouse Gas (GHG) Reduction Quota. Tradable certificates sold to oil companies for operating zero-emission vehicles.",
+        "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates.",
         "salvage": "Vehicle Sale Price (Y4)",
         
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
@@ -179,6 +180,7 @@ if lang_choice == "English":
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
 
         "tab_kpi": "KPIs & Ratios",
+        "tab_charts": "Visualizations & Dashboards",
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
         "kpi_runway": "Liquidity Runway (Months)",
@@ -197,9 +199,6 @@ if lang_choice == "English":
         "output_title": "Master Financial Schedules (HGB)",
         "active_fleet": "Active Fleet",
         "cars": "Vehicles",
-        "tab_pnl": "Income Statement (P&L)",
-        "tab_cf": "Cash Flow Statement",
-        "tab_bs": "Balance Sheet",
         "view_mode": "Display Granularity",
         "yearly": "Yearly Overview",
         "monthly": "Monthly Drilldown",
@@ -208,13 +207,20 @@ if lang_choice == "English":
         "exp_y3": "Expand Y3",
         "exp_y4": "Expand Y4",
         "exp_y5": "Expand Y5",
-        "glossary_title": "Financial Metric Definitions & Methodology"
+        "glossary_title": "Financial Metric Definitions & Methodology",
+        "chart_rev": "Net Revenue",
+        "chart_ebitda": "EBITDA",
+        "chart_ni": "Net Income",
+        "chart_fleet": "Vehicle Fleet (Year-End)",
+        "chart_fcf": "Free Cash Flow",
+        "chart_ta": "Total Balance Sheet (Assets)",
+        "toggle_fcf": "Show Cumulative FCF"
     }
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 11: Institutionelle KPIs & Ratios)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Visualisierungen & CAGR Dashboard)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -225,19 +231,19 @@ else:
         "active_hours": "Aktive Stunden / Tag",
         "speed": "Durchschnittsgeschwindigkeit (km/h)",
         "deadhead": "Leerfahrten-Quote (%)",
-        "help_deadhead": "Prozentsatz der gefahrenen Kilometer ohne zahlenden Fahrgast (z.B. Fahrt zum Ladepark, Parkplatz oder zum nächsten Kunden).",
+        "help_deadhead": "Prozentsatz der gefahrenen Kilometer ohne zahlenden Fahrgast.",
         "sec1c": "1c. AUSLASTUNGSDYNAMIK",
         "util_mode": "Auslastungsmodell",
         "util_dyn": "Dynamisch (Anlauf & Kannibalisierung)",
         "util_fix": "Fester Wert",
         "target_util": "Ziel-Auslastung (%)",
-        "help_target": "Die optimale Dauer-Auslastung der Flotte, wenn Angebot und Nachfrage im Gleichgewicht sind.",
+        "help_target": "Die optimale Dauer-Auslastung der Flotte.",
         "init_util": "Start-Auslastung Monat 1 (%)",
-        "help_init": "Niedrigere Auslastung im ersten Geschäftsmonat, da die Algorithmen den Markt erst mappen müssen.",
+        "help_init": "Niedrigere Auslastung im ersten Geschäftsmonat.",
         "rec_rate": "Monatliche Erholung (+%)",
-        "help_rec": "Um wie viel Prozent die Auslastung monatlich wieder ansteigt, nachdem neue Fahrzeuge hinzugefügt wurden.",
+        "help_rec": "Erholungsrate der Auslastung nach Neu-Einführungen.",
         "can_fac": "Kannibalisierungsfaktor",
-        "help_can": "Bestimmt den Auslastungseinbruch bei Neuzugängen. Ein Faktor von 0,5 bedeutet, dass ein 10%iges Flottenwachstum zu einem temporären Auslastungsrückgang von 5% führt.",
+        "help_can": "Bestimmt den Auslastungseinbruch bei Neuzugängen.",
         "util_label": "Ø Auslastung",
         "sec2": "2. FAHRTDYNAMIK",
         "trip_dist": "Durchschnittliche Fahrstrecke (km)",
@@ -249,15 +255,15 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab.",
         "energy_rate": "Basis-Energiekosten pro km (€)",
-        "energy_help": "Reiner Sommer-Basistarif. Winter-/Übergangszuschläge (1,4x / 1,3x) werden je nach Monat dynamisch aufgeschlagen.",
+        "energy_help": "Reiner Sommer-Basistarif. Winterzuschläge erfolgen dynamisch.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "APCOA Stellplätze",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
-        "help_tuev": "Monatliche Rückstellung für die gesetzlich vorgeschriebene BO-Kraft Untersuchung zur Fahrgastbeförderung.",
+        "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
         "charging_sub": "Tesla Lade-Abo",
         "sec6": "6. CORPORATE HQ & SKALIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
@@ -280,13 +286,13 @@ else:
         "stamm": "Stammkapital (€)",
         "sh_loan": "Gesellschafterdarlehen (€)",
         "ltv": "Fremdkapitalquote Fahrzeuge (LTV) %",
-        "help_ltv": "Prozentualer Anteil der gesamten Fahrzeuganschaffungskosten (inkl. Fracht und Zoll), der über Bankdarlehen finanziert wird.",
+        "help_ltv": "Prozentualer Anteil der finanzierten Anschaffungskosten.",
         "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
         "y2_loan_rate": "Standard Bankzins (J2+) %",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
-        "help_thg": "Treibhausgasminderungsquote. Handelbare Zertifikate für den Betrieb von Elektrofahrzeugen.",
+        "help_thg": "Treibhausgasminderungsquote.",
         "salvage": "Fahrzeugverkaufspreis (J4)",
         
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
@@ -330,8 +336,8 @@ else:
         "cf_vat_coll": "+ Erhaltene Umsatzsteuer (laufender Betrieb)",
         "cf_vat_paid": "- Gezahlte Umsatzsteuer (laufender Betrieb)",
         "cf_op": "Operativer Cashflow",
-        "cf_capex": "- Auszahlungen für Sachanlagen (CapEx inkl. USt)",
-        "cf_vat_ref": "+ USt-Erstattung vom Finanzamt (auf CapEx)",
+        "cf_capex": "- Auszahlungen Sachanlagen (CapEx inkl. USt)",
+        "cf_vat_ref": "+ USt-Erstattung Finanzamt (auf CapEx)",
         "cf_sale": "+ Einzahlungen aus Anlagenabgängen",
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
@@ -366,6 +372,7 @@ else:
         "bs_check": "BILANZKONTROLLE (Aktiva - Passiva)",
 
         "tab_kpi": "KPIs & Kennzahlen",
+        "tab_charts": "Visualisierungen & Dashboards",
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
         "kpi_runway": "Liquiditätsreichweite (Monate)",
@@ -384,9 +391,6 @@ else:
         "output_title": "Master-Finanzpläne (HGB)",
         "active_fleet": "Aktive Flotte",
         "cars": "Fahrzeuge",
-        "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
-        "tab_cf": "Kapitalflussrechnung",
-        "tab_bs": "Bilanz",
         "view_mode": "Darstellung",
         "yearly": "Jährlich",
         "monthly": "Monatlich (Detailansicht)",
@@ -395,7 +399,14 @@ else:
         "exp_y3": "J3 Aufklappen",
         "exp_y4": "J4 Aufklappen",
         "exp_y5": "J5 Aufklappen",
-        "glossary_title": "Erläuterungen der Kennzahlen & Methodik"
+        "glossary_title": "Erläuterungen der Kennzahlen & Methodik",
+        "chart_rev": "Umsatzerlöse (Netto)",
+        "chart_ebitda": "EBITDA",
+        "chart_ni": "Jahresüberschuss",
+        "chart_fleet": "Fahrzeugflotte (Jahresende)",
+        "chart_fcf": "Free Cash Flow",
+        "chart_ta": "Bilanzsumme (Aktiva)",
+        "toggle_fcf": "Kumulierten FCF anzeigen"
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
@@ -682,7 +693,7 @@ for m in range(60):
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # VAT Bridge Loan
+    # CapEx VAT & Bridge Loan
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + 6] += vat_draw_mo
@@ -856,7 +867,6 @@ df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-# FIXED: EBITDA Margin pinned to top-line Corporate Revenue (pnl_net_rev)
 rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]]
 ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
@@ -872,7 +882,6 @@ tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
 
 kpi_dict = {}
-# FIXED: DSCR formatted to one decimal point
 kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
 kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
 
@@ -884,7 +893,6 @@ for col in df_pnl_combined.columns:
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
 
-# FIXED: Net LTV allows cash buffer to fully offset liability balance natively
 net_debt = tliab - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
 
@@ -896,7 +904,69 @@ kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_t
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
 
-# --- 7. DASHBOARD RENDER ---
+
+# --- 7. VISUALIZATION ENGINE ---
+def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix=""):
+    beg = y_values[0]
+    end = y_values[-1]
+    
+    if beg > 0 and end > 0:
+        cagr = (end / beg) ** (1/4) - 1
+        cagr_text = f"CAGR {cagr*100:.0f}%"
+    elif beg <= 0 and end > 0:
+        cagr_text = "CAGR N/A"
+    else:
+        cagr_text = "CAGR N/A"
+        
+    fig = go.Figure()
+    
+    # Striped Bar Chart
+    fig.add_trace(go.Bar(
+        x=x_labels, 
+        y=y_values, 
+        marker=dict(
+            color='rgba(255,255,255,0.9)', 
+            pattern=dict(shape='/', fgcolor='#4DA8DA')
+        ),
+        name=title
+    ))
+    
+    # Smoothed Trendline
+    fig.add_trace(go.Scatter(
+        x=x_labels, 
+        y=y_values, 
+        mode='lines+markers', 
+        line=dict(color='#FFFFFF', width=3, shape='spline'),
+        marker=dict(size=8, color='#FFFFFF'),
+        name='Trend'
+    ))
+    
+    # Institutional Orange Styling
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=20, color='white')),
+        plot_bgcolor='#DE6B28',
+        paper_bgcolor='#DE6B28',
+        font=dict(color='white', family='Urbanist'),
+        showlegend=False,
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+    
+    # CAGR Floating Annotation Box
+    fig.add_annotation(
+        x=1, y=1.05, xref='paper', yref='paper',
+        text=f"<b>{cagr_text}</b>",
+        showarrow=False,
+        font=dict(color='white', size=14),
+        bgcolor='#4A86E8',
+        borderpad=6
+    )
+    
+    fig.update_yaxes(tickprefix=prefix, ticksuffix=suffix, showgrid=True, gridcolor='rgba(255,255,255,0.2)', zeroline=False)
+    fig.update_xaxes(showgrid=False)
+    return fig
+
+
+# --- 8. DASHBOARD RENDER ---
 st.subheader(loc["sources_title"])
 colA, colB, colC, colD = st.columns(4)
 colA.metric(loc["src_stamm"], f"€ {stammkapital:,.0f}")
@@ -907,6 +977,7 @@ colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 st.divider()
 st.subheader(loc["output_title"])
 
+st.markdown(f"**{loc['view_mode']}**")
 t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 exp_y1 = t_col1.toggle(loc["exp_y1"])
 exp_y2 = t_col2.toggle(loc["exp_y2"])
@@ -934,7 +1005,7 @@ for i in range(5):
 
 st.write("") 
 
-tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"]])
+tabs = st.tabs([loc["tab_charts"], loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"]])
 
 def style_pnl_rows(row):
     if loc["pnl_mrrg_net"] in row.name:
@@ -976,27 +1047,57 @@ def style_kpi_rows(row):
         return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900;'] * len(row)
     return [''] * len(row)
 
+
 with tabs[0]:
-    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+    # Extract Yearly Values for Plotly
+    y_rev = df_pnl_yr.loc[loc["pnl_net_rev"]].values
+    y_ebitda = df_pnl_yr.loc[loc["pnl_ebitda"]].values
+    y_ni = df_pnl_yr.loc[loc["pnl_ni"]].values
+    y_fleet = [active_fleet_by_month[(i*12)+11] for i in range(5)]
+    y_ta = df_bs_yr.loc[loc["bs_ta"]].values
+    
+    # Free Cash Flow = Operating + Investing
+    y_fcf_arr = (df_cf_yr.loc[loc["cf_op"]] + df_cf_yr.loc[loc["cf_inv"]]).values
+    y_fcf_cum_arr = np.cumsum(y_fcf_arr)
+    
+    # 2x3 Grid Layout
+    c1, c2 = st.columns(2)
+    with c1: st.plotly_chart(create_mrrg_chart(year_cols, y_rev, loc["chart_rev"]), use_container_width=True)
+    with c2: st.plotly_chart(create_mrrg_chart(year_cols, y_ebitda, loc["chart_ebitda"]), use_container_width=True)
+    
+    c3, c4 = st.columns(2)
+    with c3: st.plotly_chart(create_mrrg_chart(year_cols, y_ni, loc["chart_ni"]), use_container_width=True)
+    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fleet, loc["chart_fleet"], prefix="", suffix=""), use_container_width=True)
+    
+    c5, c6 = st.columns(2)
+    with c5:
+        use_cum_fcf = st.toggle(loc["toggle_fcf"])
+        plot_fcf = y_fcf_cum_arr if use_cum_fcf else y_fcf_arr
+        st.plotly_chart(create_mrrg_chart(year_cols, plot_fcf, loc["chart_fcf"]), use_container_width=True)
+    with c6:
+        st.plotly_chart(create_mrrg_chart(year_cols, y_ta, loc["chart_ta"]), use_container_width=True)
+
 
 with tabs[1]:
-    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
+    st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 
 with tabs[2]:
-    st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
+    st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_cf_rows, axis=1), use_container_width=True)
 
 with tabs[3]:
+    st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
+
+with tabs[4]:
     st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
     
-    # Layman KPI Glossary Expanders
     st.write("")
     with st.expander(loc["glossary_title"]):
         if lang_choice == "English":
             st.markdown("""
-            * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*. A value of 1.5x means we have 50% more operational cash than needed to satisfy current bank collections.
+            * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*.
             * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
             * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
-            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Liabilities - Cash) / Net Fixed Assets*. A negative percentage indicates that company liquidity fully shields outstanding corporate liabilities.
+            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Liabilities - Cash) / Net Fixed Assets*.
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
             * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
@@ -1005,13 +1106,13 @@ with tabs[3]:
             """)
         else:
             st.markdown("""
-            * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*. Ein Wert von 1,5x bedeutet, dass 50% mehr operativer Cashflow generiert wird, als für den Bankendienst nötig ist.
-            * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens im Vergleich zur Fremdkapitalfinanzierung. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
+            * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*.
+            * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
             * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
-            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Verbindlichkeiten - Kasse) / Netto-Sachanlagen*. Ein negativer Prozentsatz bedeutet, dass die Kassenbestände alle Verbindlichkeiten vollständig abdecken.
-            * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden (Plattformgebühren, Strom, Reinigung). Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
+            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Verbindlichkeiten - Kasse) / Netto-Sachanlagen*.
+            * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
             * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
             * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
-            * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens, unabhängig von Abschreibungen, Zinsen oder Steuern. Berechnung: *EBITDA / Netto-Umsatzerlöse*.
+            * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Berechnung: *EBITDA / Netto-Umsatzerlöse*.
             """)
