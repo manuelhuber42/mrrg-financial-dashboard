@@ -27,17 +27,26 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 9: Fully Balanced & Vetted)*",
-        "sec1": "1. FLEET SCALING SCHEDULE",
+        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamic Utilization & Cannibalization)*",
+        "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
         "y3_adds": "Year 3 Additions (Jan-Dec)",
         "y4_adds": "Year 4 Additions (Jan-Dec)",
         "y5_adds": "Year 5 Additions (Jan-Dec)",
-        "utilization": "Vehicle Utilization / Uptime (%)",
+        "sec1b": "1b. OPERATIONAL PHYSICS",
         "active_hours": "Active Hours / Day",
         "speed": "Average Speed (km/h)",
         "deadhead": "Deadhead Rate (%)",
+        "sec1c": "1c. UTILIZATION DYNAMICS",
+        "util_mode": "Utilization Mode",
+        "util_dyn": "Dynamic (Ramp & Cannibalization)",
+        "util_fix": "Fixed Rate",
+        "target_util": "Target Utilization (%)",
+        "init_util": "Month 1 Launch Util. (%)",
+        "rec_rate": "Monthly Recovery (+%)",
+        "can_fac": "Cannibalization Factor",
+        "util_label": "Avg Util",
         "sec2": "2. TRIP DYNAMICS",
         "trip_dist": "Average Trip Distance (km)",
         "dwell": "Dwell Time (Minutes)",
@@ -178,23 +187,33 @@ if lang_choice == "English":
         "exp_y2": "Expand Y2",
         "exp_y3": "Expand Y3",
         "exp_y4": "Expand Y4",
-        "exp_y5": "Expand Y5"
+        "exp_y5": "Expand Y5",
+        "bs_note": "*(Balance Sheet is fully integrated and dynamically tracks working capital)*"
     }
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 9: Vollständig bilanziert & geprüft)*",
-        "sec1": "1. FLOTTENSKALIERUNG",
+        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamische Auslastung & Kannibalisierung)*",
+        "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
         "y3_adds": "Jahr 3 Zugänge (Jan-Dez)",
         "y4_adds": "Jahr 4 Zugänge (Jan-Dez)",
         "y5_adds": "Jahr 5 Zugänge (Jan-Dez)",
-        "utilization": "Fahrzeugauslastung / Uptime (%)",
+        "sec1b": "1b. OPERATIVE PHYSIK",
         "active_hours": "Aktive Stunden / Tag",
         "speed": "Durchschnittsgeschwindigkeit (km/h)",
         "deadhead": "Leerfahrten-Quote (%)",
+        "sec1c": "1c. AUSLASTUNGSDYNAMIK",
+        "util_mode": "Auslastungsmodell",
+        "util_dyn": "Dynamisch (Anlauf & Kannibalisierung)",
+        "util_fix": "Fester Wert",
+        "target_util": "Ziel-Auslastung (%)",
+        "init_util": "Start-Auslastung Monat 1 (%)",
+        "rec_rate": "Monatliche Erholung (+%)",
+        "can_fac": "Kannibalisierungsfaktor",
+        "util_label": "Ø Auslastung",
         "sec2": "2. FAHRTDYNAMIK",
         "trip_dist": "Durchschnittliche Fahrstrecke (km)",
         "dwell": "Standzeit pro Fahrt (Minuten)",
@@ -335,7 +354,8 @@ else:
         "exp_y2": "J2 Aufklappen",
         "exp_y3": "J3 Aufklappen",
         "exp_y4": "J4 Aufklappen",
-        "exp_y5": "J5 Aufklappen"
+        "exp_y5": "J5 Aufklappen",
+        "bs_note": "*(Die Bilanz ist vollständig integriert und verfolgt das Working Capital dynamisch)*"
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
@@ -361,10 +381,22 @@ def parse_adds(add_str):
 all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
 base_fleet_size = sum(parse_adds(y1_adds_str))
 
-vehicle_utilization = st.sidebar.number_input(loc["utilization"], value=90.0) / 100
+st.sidebar.header(loc["sec1b"])
 active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0)
 avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=22.0)
 deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=30.0) / 100
+
+st.sidebar.header(loc["sec1c"])
+util_mode = st.sidebar.radio(loc["util_mode"], [loc["util_dyn"], loc["util_fix"]])
+if util_mode == loc["util_dyn"]:
+    target_util = st.sidebar.number_input(loc["target_util"], value=90.0) / 100
+    init_util = st.sidebar.number_input(loc["init_util"], value=60.0) / 100
+    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0) / 100
+    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.5, step=0.1)
+    flat_util = target_util
+else:
+    flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
+    target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
 st.sidebar.header(loc["sec2"])
 avg_trip_distance_km = st.sidebar.number_input(loc["trip_dist"], value=5.0)
@@ -446,7 +478,7 @@ day_1_loan = sum(c["original_loan"] for c in cohorts if c["start_month"] == 1)
 day_1_uses = (day_1_loan / vehicle_ltv) + it_hardware_capex_y1 if day_1_loan > 0 else 0
 day_1_cash_ui = stammkapital + shareholder_loan + day_1_loan - day_1_uses
 
-# --- 3. UNIT ECONOMICS ---
+# --- 3. TRIP PHYSICS BASE ---
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
 theoretical_deadhead_km = max_theoretical_km * deadhead_rate
 max_billable_km_theoretical = max_theoretical_km - theoretical_deadhead_km
@@ -491,7 +523,7 @@ bs_monthly = {k: [] for k in bs_keys}
 
 tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
-# Balance Sheet & CF State Trackers
+# Dynamic Trackers
 current_cash = 0
 vat_loan_bal = 0
 operational_vat_payable = 0
@@ -501,11 +533,16 @@ cum_ebt_year = 0
 cum_gfa = 0
 cum_depr = 0
 cum_net_income = 0
+kfw_loan_bal = 0
 
 vat_repay_schedule = [0]*70 
 tax_payment_schedule = [0]*70
 active_fleet_by_month = []
+utilization_by_month = []
 month_col_names = []
+
+current_u = init_util if util_mode == loc["util_dyn"] else flat_util
+prev_fleet = 0
 
 for m in range(60):
     current_month = m + 1
@@ -516,7 +553,6 @@ for m in range(60):
     month_col_names.append(f"{month_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
     
     days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
-    op_days = days_in_mo * vehicle_utilization
     
     if current_month_index in [12, 1, 2]: season_mult = 1.4
     elif current_month_index in [11, 3]: season_mult = 1.3
@@ -552,7 +588,23 @@ for m in range(60):
             fleet_sale_rev += c["size"] * salvage_value_per_car_y4
             capex_sold_this_mo += c["capex"]
 
+    # --- DYNAMIC UTILIZATION LOGIC ---
+    if util_mode == loc["util_dyn"]:
+        if active_fleet > prev_fleet and prev_fleet > 0:
+            supply_shock = (active_fleet - prev_fleet) / active_fleet
+            current_u -= (supply_shock * can_fac)
+            current_u = max(current_u, 0.20) # Floor at 20%
+        elif active_fleet <= prev_fleet and prev_fleet > 0:
+            current_u = min(target_util, current_u + rec_rate)
+    else:
+        current_u = flat_util
+        
+    op_days = days_in_mo * current_u
+    utilization_by_month.append(current_u)
+    prev_fleet = active_fleet
     active_fleet_by_month.append(active_fleet)
+    
+    # --- END UTILIZATION LOGIC ---
     
     if current_month == 1: capex_this_mo += it_hardware_capex_y1
     current_it_afa = (it_hardware_capex_y1 / 36) if current_month <= 36 else 0
@@ -639,10 +691,8 @@ for m in range(60):
     tax_provision_bal += tax_exp_mo + tax_paid_mo
     cum_net_income += net_inc_mo
     
-    # BUG FIX: Only sum loans that have actually been drawn by the current month
     kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
     
-    # BS Checking Math
     total_assets = nfa + vat_receivable + current_cash
     total_equity = stammkapital + cum_net_income
     total_prov = tax_provision_bal
@@ -792,7 +842,13 @@ for y in range(5):
 fleet_cols = st.columns(5)
 for i in range(5):
     yr_fleet_val = active_fleet_by_month[(i*12)+11]
-    fleet_cols[i].metric(f"{loc['active_fleet']} (Y{i+1} End)", f"{yr_fleet_val:.0f} {loc['cars']}")
+    yr_util_val = np.mean(utilization_by_month[i*12 : (i+1)*12])
+    fleet_cols[i].metric(
+        f"{loc['active_fleet']} (Y{i+1} End)", 
+        f"{yr_fleet_val:.0f} {loc['cars']}", 
+        delta=f"Ø {yr_util_val*100:.1f}% {loc['util_label']}",
+        delta_color="off"
+    )
 
 st.write("") 
 
