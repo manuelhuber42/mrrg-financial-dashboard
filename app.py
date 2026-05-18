@@ -2,10 +2,27 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-# --- DASHBOARD CONFIGURATION ---
+# --- DASHBOARD CONFIGURATION & CUSTOM CSS ---
 st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
+
+# Inject Urbanist Font and Global Styling
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Urbanist', sans-serif !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Urbanist', sans-serif !important;
+        font-weight: 700 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 st.title("MRRG Cybercab Fleet: Master Financial Engine")
-st.markdown("*(Layer 7: Multi-Cohort Fleet Scaling & Dynamic Overhead)*")
+st.markdown("*(Layer 7: Multi-Cohort Fleet Scaling, Dynamic Overhead & Styling)*")
 
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS ---
 st.sidebar.header("1a. BASE FLEET PHYSICS (Y1)")
@@ -315,12 +332,24 @@ tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"
 with tabs[0]:
     df_pnl = pd.DataFrame(pnl_data_dict, index=years).T
     
-    def style_net_income(row):
-        if row.name == "Net Income (Jahresüberschuss / EAT)":
-            return ['font-weight: bold; background-color: #1e1e1e'] * len(row)
-        return [''] * len(row)
+    # Custom Formatter for the P&L rows to create a waterfall effect
+    def style_pnl_rows(row):
+        style = [''] * len(row)
+        if "MRRG Net Revenue" in row.name:
+            style = ['font-weight: 600; border-top: 1px solid #ffffff40; color: #4DA8DA;'] * len(row)
+        elif "Deckungsbeitrag 1" in row.name or "Deckungsbeitrag 2" in row.name:
+            style = ['font-weight: 600; background-color: #1e1e1e; border-top: 1px solid #ffffff40;'] * len(row)
+        elif "EBITDA" in row.name:
+            style = ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+        elif "EBIT (" in row.name:
+            style = ['font-weight: 600; background-color: #1e1e1e;'] * len(row)
+        elif "EBT (" in row.name:
+            style = ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
+        elif "Net Income" in row.name:
+            style = ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
+        return style
 
-    styled_df = df_pnl.style.format("{:,.0f} €").apply(style_net_income, axis=1)
+    styled_df = df_pnl.style.format("{:,.0f} €").apply(style_pnl_rows, axis=1)
     st.dataframe(styled_df, use_container_width=True)
 
 with tabs[1]:
