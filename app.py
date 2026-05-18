@@ -44,6 +44,10 @@ if lang_choice == "English":
         "tesla_take": "Tesla Take-Rate (%)",
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
         "cleaning": "Cleaning Cost per Vehicle/Day (€)",
+        "wear_rate": "Maintenance/Wear per km (€)",
+        "wear_help": "Covers tires, fluids, and suspension. The €0.03 excludes 'black swan' contingency which is held in the liquidity reserve.",
+        "energy_rate": "Energy Cost per km (€)",
+        "energy_help": "Fully-loaded cost of electricity accounting for hardware efficiency, wireless charging loss, and smart grid procurement.",
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
         "parking": "APCOA Parking",
@@ -147,6 +151,10 @@ else:
         "tesla_take": "Tesla Plattformgebühr (%)",
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
+        "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Die 0,03 € schließen die 'Black Swan'-Rücklage aus, die separat im Liquiditätspuffer gehalten wird.",
+        "energy_rate": "Energiekosten pro km (€)",
+        "energy_help": "Vollkosten für Strom unter Berücksichtigung der Hardware-Effizienz, Verlusten beim kabellosen Laden und intelligentem Stromeinkauf.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "APCOA Stellplätze",
@@ -259,6 +267,8 @@ vat_rate = 0.19
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
+energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.05, format="%.2f", step=0.01, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
 insurance_pm = st.sidebar.number_input(loc["insurance"], value=300.0)
@@ -373,11 +383,7 @@ pnl_data_dict = {
     loc["pnl_ni"]: []
 }
 
-# Locked per your specific mandate
-wear_and_tear_rate = 0.06 
-energy_rate = 0.05
 months_per_year = 12
-
 tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
 current_cash_balance = day_1_cash_balance
