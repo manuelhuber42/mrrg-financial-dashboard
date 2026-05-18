@@ -5,7 +5,7 @@ import numpy as np
 # --- DASHBOARD CONFIGURATION ---
 st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
 st.title("MRRG Cybercab Fleet: Master Financial Engine")
-st.markdown("*(Layer 5: Capital Structure, Debt Amortization & EBT)*")
+st.markdown("*(Layer 6: Dynamic Corporate Taxes & Net Income / EAT)*")
 
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
 st.sidebar.header("1. FLEET PHYSICS (Realistic)")
@@ -99,7 +99,7 @@ distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
 gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
 # --- 4. MULTI-YEAR P&L GENERATOR ---
-years = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]
+years = ["Year 1 (2028)", "Year 2 (2029)", "Year 3 (2030)", "Year 4 (2031)", "Year 5 (2032)"]
 pnl_data_dict = {
     "Gross Booking Value (Customer Pays incl. 19% VAT)": [],
     "Less: 19% VAT (Finanzamt)": [],
@@ -130,12 +130,23 @@ pnl_data_dict = {
     "EBIT (Operating Income)": [],
     "Add: Interest Income (Zinserträge)": [],
     "Less: Interest Expense (Zinsaufwendungen)": [],
-    "EBT (Earnings Before Tax)": []
+    "EBT (Earnings Before Tax)": [],
+    "Less: Corporate Taxes (Ertragsteuern)": [],
+    "Net Income (Jahresüberschuss / EAT)": []
 }
 
 wear_and_tear_rate = 0.03 
 energy_rate = 0.05
 months_per_year = 12
+
+# Gräfelfing Dynamic Tax Schedule (Starting 2028)
+tax_schedule = {
+    1: 0.23520,  # 2028
+    2: 0.22465,  # 2029
+    3: 0.21410,  # 2030
+    4: 0.20355,  # 2031
+    5: 0.19300   # 2032 and beyond
+}
 
 # Initialize dynamic financial trackers
 current_cash_balance = day_1_cash_balance
@@ -189,27 +200,25 @@ for year in range(1, 6):
     ebit = ebitda - current_vehicle_afa - current_it_afa
     
     # FINANCING MATH (EBT)
-    # Interest Income is based on beginning of year cash balance
     interest_income = current_cash_balance * interest_income_rate if current_cash_balance > 0 else 0
-    
-    # Interest Expense is based on remaining loan balance
     interest_expense = remaining_loan_balance * loan_interest_rate
-    
-    # EBT
     ebt = ebit + interest_income - interest_expense
+    
+    # CORPORATE TAX & NET INCOME (Jahresüberschuss)
+    current_tax_rate = tax_schedule[year]
+    tax_expense = ebt * current_tax_rate if ebt > 0 else 0
+    net_income = ebt - tax_expense
     
     # Debt Amortization (1 Year Grace Period)
     if year == 1:
         principal_payment = 0
     else:
-        # Paid evenly over the remaining 4 years
         principal_payment = vehicle_loan_amount / 4
         if remaining_loan_balance - principal_payment < 0:
             principal_payment = remaining_loan_balance
             
-    # Roll forward balances for next year
-    # (Approximate operating cash flow generation before tax to increment cash balance)
-    cash_movement = ebt + current_vehicle_afa + current_it_afa - principal_payment
+    # Roll forward cash & loan balances for next year
+    cash_movement = ebt + current_vehicle_afa + current_it_afa - principal_payment - tax_expense
     current_cash_balance += cash_movement
     remaining_loan_balance -= principal_payment
     
@@ -244,6 +253,8 @@ for year in range(1, 6):
     pnl_data_dict["Add: Interest Income (Zinserträge)"].append(interest_income)
     pnl_data_dict["Less: Interest Expense (Zinsaufwendungen)"].append(-interest_expense)
     pnl_data_dict["EBT (Earnings Before Tax)"].append(ebt)
+    pnl_data_dict["Less: Corporate Taxes (Ertragsteuern)"].append(-tax_expense)
+    pnl_data_dict["Net Income (Jahresüberschuss / EAT)"].append(net_income)
 
 # --- 5. DASHBOARD RENDER ---
 st.subheader("Day 1 Sources & Uses of Capital (Mittelherkunft & Mittelverwendung)")
@@ -260,12 +271,20 @@ st.subheader("5-Year Cohort P&L (Fleet Aggregate)")
 tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
 
 with tabs[0]:
-    st.markdown("### Profit & Loss down to EBT")
+    st.markdown("### Profit & Loss down to Net Income (Jahresüberschuss)")
     df_pnl = pd.DataFrame(pnl_data_dict, index=years).T
-    st.dataframe(df_pnl.style.format("{:,.0f} €"), use_container_width=True)
+    
+    # Formatting helper to make the final Net Income row bold (Streamlit workaround)
+    def style_net_income(row):
+        if row.name == "Net Income (Jahresüberschuss / EAT)":
+            return ['font-weight: bold; background-color: #1e1e1e'] * len(row)
+        return [''] * len(row)
+
+    styled_df = df_pnl.style.format("{:,.0f} €").apply(style_net_income, axis=1)
+    st.dataframe(styled_df, use_container_width=True)
 
 with tabs[1]:
-    st.markdown("*(Cash Flow integration will be built in Layer 6 after Taxes)*")
+    st.markdown("*(Cash Flow Statement integration is ready to be built from Net Income down to Free Cash Flow)*")
 
 with tabs[2]:
-    st.markdown("*(Balance Sheet integration will be built in Layer 7 after Asset/Liability setup)*")
+    st.markdown("*(Balance Sheet integration will be built in Layer 7 after Cash Flow setup)*")
