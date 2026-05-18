@@ -182,11 +182,11 @@ if lang_choice == "English":
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
         "kpi_runway": "Liquidity Runway (Months)",
-        "kpi_net_ltv": "Net LTV (Adj. for Cash)",
+        "kpi_net_ltv": "Net LTV (Adj. for Cash Shield)",
         "kpi_var_ratio": "Variable Expense Ratio",
         "kpi_fix_ratio": "Fixed Expense Ratio",
-        "kpi_tot_ratio": "Total Expense Ratio (GOR)",
-        "kpi_db2_m": "Contribution Margin (DB2)",
+        "kpi_tot_ratio": "Total Expense Ratio",
+        "kpi_db2_m": "Contribution Margin Ratio (DB2)",
         "kpi_ebitda_m": "EBITDA Margin",
 
         "sources_title": "Day 1 Sources & Uses of Capital",
@@ -207,7 +207,8 @@ if lang_choice == "English":
         "exp_y2": "Expand Y2",
         "exp_y3": "Expand Y3",
         "exp_y4": "Expand Y4",
-        "exp_y5": "Expand Y5"
+        "exp_y5": "Expand Y5",
+        "glossary_title": "Financial Metric Definitions & Methodology"
     }
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
@@ -371,7 +372,7 @@ else:
         "kpi_net_ltv": "Netto-LTV (Cash-bereinigt)",
         "kpi_var_ratio": "Variable Kostenquote",
         "kpi_fix_ratio": "Fixkostenquote",
-        "kpi_tot_ratio": "Gesamtkostenquote (GOR)",
+        "kpi_tot_ratio": "Gesamtkostenquote",
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
         
@@ -393,7 +394,8 @@ else:
         "exp_y2": "J2 Aufklappen",
         "exp_y3": "J3 Aufklappen",
         "exp_y4": "J4 Aufklappen",
-        "exp_y5": "J5 Aufklappen"
+        "exp_y5": "J5 Aufklappen",
+        "glossary_title": "Erläuterungen der Kennzahlen & Methodik"
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
@@ -632,7 +634,7 @@ for m in range(60):
         if active_fleet > prev_fleet and prev_fleet > 0:
             supply_shock = (active_fleet - prev_fleet) / active_fleet
             current_u -= (supply_shock * can_fac)
-            current_u = max(current_u, 0.20) # Floor at 20%
+            current_u = max(current_u, 0.20)
         elif active_fleet <= prev_fleet and prev_fleet > 0:
             current_u = min(target_util, current_u + rec_rate)
     else:
@@ -680,7 +682,7 @@ for m in range(60):
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # CapEx VAT & Bridge Loan
+    # VAT Bridge Loan
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + 6] += vat_draw_mo
@@ -854,7 +856,8 @@ df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-rev = df_pnl_combined.loc[loc["pnl_mrrg_net"]]
+# FIXED: EBITDA Margin pinned to top-line Corporate Revenue (pnl_net_rev)
+rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]]
 ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
 ta = df_bs_combined.loc[loc["bs_ta"]]
@@ -863,13 +866,14 @@ tliab = df_bs_combined.loc[loc["bs_tliab"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
-var_costs = rev - df_pnl_combined.loc[loc["pnl_db1"]]
+var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
 tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
 
 kpi_dict = {}
-kpi_dict[loc["kpi_dscr"]] = [f"{x:.2f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+# FIXED: DSCR formatted to one decimal point
+kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
 kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
 
 runway_arr = []
@@ -880,14 +884,15 @@ for col in df_pnl_combined.columns:
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
 
-net_debt = (tliab - cash).apply(lambda x: max(x, 0))
+# FIXED: Net LTV allows cash buffer to fully offset liability balance natively
+net_debt = tliab - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
 
-kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev)]
-kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev)]
-kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev)]
-kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev)]
-kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev)]
+kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev_top)]
+kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev_top)]
+kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev_top)]
+kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
+kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
 
@@ -902,7 +907,6 @@ colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 st.divider()
 st.subheader(loc["output_title"])
 
-st.markdown(f"**{loc['view_mode']}**")
 t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 exp_y1 = t_col1.toggle(loc["exp_y1"])
 exp_y2 = t_col2.toggle(loc["exp_y2"])
@@ -983,3 +987,31 @@ with tabs[2]:
 
 with tabs[3]:
     st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
+    
+    # Layman KPI Glossary Expanders
+    st.write("")
+    with st.expander(loc["glossary_title"]):
+        if lang_choice == "English":
+            st.markdown("""
+            * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*. A value of 1.5x means we have 50% more operational cash than needed to satisfy current bank collections.
+            * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
+            * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
+            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Liabilities - Cash) / Net Fixed Assets*. A negative percentage indicates that company liquidity fully shields outstanding corporate liabilities.
+            * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
+            * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
+            * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
+            * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
+            * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency before accounting for non-cash asset depreciation, financing structures, or sovereign tax loads. Calculated as *EBITDA / Top-line Net Revenue*.
+            """)
+        else:
+            st.markdown("""
+            * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*. Ein Wert von 1,5x bedeutet, dass 50% mehr operativer Cashflow generiert wird, als für den Bankendienst nötig ist.
+            * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens im Vergleich zur Fremdkapitalfinanzierung. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
+            * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
+            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Verbindlichkeiten - Kasse) / Netto-Sachanlagen*. Ein negativer Prozentsatz bedeutet, dass die Kassenbestände alle Verbindlichkeiten vollständig abdecken.
+            * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden (Plattformgebühren, Strom, Reinigung). Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
+            * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
+            * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
+            * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
+            * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens, unabhängig von Abschreibungen, Zinsen oder Steuern. Berechnung: *EBITDA / Netto-Umsatzerlöse*.
+            """)
