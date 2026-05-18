@@ -39,6 +39,7 @@ st.sidebar.header("6. CORPORATE HQ (€ / Month, Net)")
 hq_lease_pm = st.sidebar.number_input("HQ Lease (Raumkosten)", value=450.0)
 it_cloud_pm = st.sidebar.number_input("IT, Cloud & AI Services", value=320.0)
 legal_bookkeeping_pm = st.sidebar.number_input("Legal & Bookkeeping", value=230.0)
+hq_insurance_pm = st.sidebar.number_input("HQ Insurance (Liability, D&O)", value=250.0)
 bank_fees_pm = st.sidebar.number_input("Bank Fees", value=20.0)
 ihk_pm = st.sidebar.number_input("IHK Membership", value=35.0)
 gez_pm_per_car = st.sidebar.number_input("GEZ (per car)", value=7.0)
@@ -85,6 +86,7 @@ pnl_data_dict = {
     "Less: HQ Lease (Raumkosten)": [],
     "Less: IT, Cloud & AI Services": [],
     "Less: Legal, Tax & Bookkeeping": [],
+    "Less: Corporate Insurance (Liability, D&O)": [],
     "Less: Subscriptions & Fees (IHK, GEZ)": [],
     "Less: Bank Fees": [],
     "Add: THG Quote (Other Operating Income)": [],
@@ -127,6 +129,7 @@ for year in range(1, 6):
     # Corporate HQ Math (Costs run regardless of fleet being active)
     annual_hq_lease = hq_lease_pm * months_per_year
     annual_it_cloud = it_cloud_pm * months_per_year
+    annual_hq_insurance = hq_insurance_pm * months_per_year
     
     # Legal has a one-off setup cost in Year 1
     annual_legal = (legal_bookkeeping_pm * months_per_year) + (setup_costs_y1 if year == 1 else 0)
@@ -144,6 +147,7 @@ for year in range(1, 6):
               - annual_hq_lease 
               - annual_it_cloud 
               - annual_legal 
+              - annual_hq_insurance
               - annual_fees 
               - annual_bank 
               + annual_thg 
@@ -168,6 +172,7 @@ for year in range(1, 6):
     pnl_data_dict["Less: HQ Lease (Raumkosten)"].append(-annual_hq_lease)
     pnl_data_dict["Less: IT, Cloud & AI Services"].append(-annual_it_cloud)
     pnl_data_dict["Less: Legal, Tax & Bookkeeping"].append(-annual_legal)
+    pnl_data_dict["Less: Corporate Insurance (Liability, D&O)"].append(-annual_hq_insurance)
     pnl_data_dict["Less: Subscriptions & Fees (IHK, GEZ)"].append(-annual_fees)
     pnl_data_dict["Less: Bank Fees"].append(-annual_bank)
     pnl_data_dict["Add: THG Quote (Other Operating Income)"].append(annual_thg)
