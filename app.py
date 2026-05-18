@@ -5,7 +5,7 @@ import numpy as np
 # --- DASHBOARD CONFIGURATION ---
 st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
 st.title("MRRG Cybercab Fleet: Master Financial Engine")
-st.markdown("*(Layer 1: Fleet Physics & Topline Revenue Verification)*")
+st.markdown("*(Layer 2: Vehicle Unit Economics & Deckungsbeitrag 2)*")
 
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
 st.sidebar.header("1. FLEET PHYSICS (Realistic)")
@@ -26,6 +26,13 @@ tesla_take_rate = st.sidebar.number_input("Tesla Take-Rate (%)", value=30.0) / 1
 
 st.sidebar.header("4. DAILY VARIABLE COSTS")
 cleaning_cost_per_day = st.sidebar.number_input("Cleaning Cost per Car/Day (€)", value=3.00)
+
+st.sidebar.header("5. VEHICLE FIXED COSTS (€ / Month)")
+insurance_pm = st.sidebar.number_input("Insurance", value=300.0)
+parking_pm = st.sidebar.number_input("APCOA Parking", value=150.0)
+telemetry_pm = st.sidebar.number_input("Telemetry & API", value=100.0)
+tuev_pm = st.sidebar.number_input("TÜV / BO-Kraft Accrual", value=15.0)
+charging_sub_pm = st.sidebar.number_input("Tesla Charging Sub", value=10.0)
 
 # --- 2. THE SCHEDULE ENGINE (Daily Math per Car) ---
 # 1. Total theoretical distance if driving non-stop
@@ -56,25 +63,31 @@ annual_gross_revenue_fleet = gross_revenue_per_day_per_car * operating_days * fl
 annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
 annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
 
-# --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
-wear_and_tear_rate = 0.03 # Updated per your new assumption
+# --- 3. LAYER 1: VARIABLE COSTS (Deckungsbeitrag 1) ---
+wear_and_tear_rate = 0.03 
 energy_rate = 0.05
 total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
 
-# Variable Costs
 annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
 annual_energy_cost = total_km_annual_fleet * energy_rate
 annual_cleaning_cost = cleaning_cost_per_day * operating_days * fleet_size
 
-# Deckungsbeitrag (Contribution Margin) Calculation
-deckungsbeitrag = annual_net_revenue - annual_energy_cost - annual_wear_cost - annual_cleaning_cost
+deckungsbeitrag_1 = annual_net_revenue - annual_energy_cost - annual_wear_cost - annual_cleaning_cost
 
-annual_fixed_overhead = 4000 * fleet_size # Placeholder for Layer 2
+# --- 4. LAYER 2: VEHICLE FIXED COSTS (Deckungsbeitrag 2) ---
+months_per_year = 12
+annual_insurance = insurance_pm * months_per_year * fleet_size
+annual_parking = parking_pm * months_per_year * fleet_size
+annual_telemetry = telemetry_pm * months_per_year * fleet_size
+annual_tuev = tuev_pm * months_per_year * fleet_size
+annual_charging_sub = charging_sub_pm * months_per_year * fleet_size
 
-ebitda_placeholder = deckungsbeitrag - annual_fixed_overhead
+total_annual_vehicle_fixed_costs = annual_insurance + annual_parking + annual_telemetry + annual_tuev + annual_charging_sub
 
-# --- 4. DASHBOARD RENDER ---
-st.subheader("Layer 1: Unit Economics Verification (Per Car / Per Day)")
+deckungsbeitrag_2 = deckungsbeitrag_1 - total_annual_vehicle_fixed_costs
+
+# --- 5. DASHBOARD RENDER ---
+st.subheader("Daily Unit Economics Verification (Per Car / Per Day)")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Actual Trips / Day", f"{actual_trips_per_day:.0f}")
 col2.metric("Billable km / Day", f"{actual_billable_km_per_day:.1f}")
@@ -83,7 +96,6 @@ col4.metric("Gross Rev / Day", f"€ {gross_revenue_per_day_per_car:.2f}")
 
 st.divider()
 
-# Prepare Annual 3-Statement Scaffolding
 st.subheader("Annual 3-Statement Model (Fleet Aggregate)")
 
 tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
@@ -98,9 +110,13 @@ with tabs[0]:
             "Less: Direct Energy (Variable)",
             "Less: Direct Maintenance/Wear (Variable)",
             "Less: Cleaning Cost (Variable)",
-            "Deckungsbeitrag (Contribution Margin)",
-            "Less: Fixed Operational Overhead",
-            "EBITDA"
+            "Deckungsbeitrag 1 (DB1)",
+            "Less: Insurance (Fixed)",
+            "Less: APCOA Parking (Fixed)",
+            "Less: Telemetry & API (Fixed)",
+            "Less: TÜV / BO-Kraft (Fixed)",
+            "Less: Tesla Charging Sub (Fixed)",
+            "Deckungsbeitrag 2 (DB2)"
         ],
         "Year 1 (€)": [
             annual_gross_revenue_fleet,
@@ -109,9 +125,13 @@ with tabs[0]:
             -annual_energy_cost,
             -annual_wear_cost,
             -annual_cleaning_cost,
-            deckungsbeitrag,
-            -annual_fixed_overhead,
-            ebitda_placeholder
+            deckungsbeitrag_1,
+            -annual_insurance,
+            -annual_parking,
+            -annual_telemetry,
+            -annual_tuev,
+            -annual_charging_sub,
+            deckungsbeitrag_2
         ]
     }
     st.dataframe(pd.DataFrame(pnl_data).set_index("Line Item").style.format("{:,.0f} €"), use_container_width=True)
