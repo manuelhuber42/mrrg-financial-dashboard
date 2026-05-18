@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Ordered KPIs & Dynamic CSS)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Audited P&L & Debt Liquidation)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -139,10 +139,10 @@ if lang_choice == "English":
         "pnl_fees": "Less: Subscriptions & Fees (IHK, GEZ)",
         "pnl_bank": "Less: Bank Fees",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
-        "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebitda": "EBITDA",
         "pnl_afa_veh": "Less: Vehicle Depreciation (AfA - 48 Mo.)",
         "pnl_afa_it": "Less: IT Hardware Depreciation (AfA - 36 Mo.)",
+        "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebit": "EBIT (Operating Income)",
         "pnl_int_inc": "Add: Interest Income (Zinserträge)",
         "pnl_int_exp": "Less: Interest Expense (Zinsaufwendungen)",
@@ -198,6 +198,7 @@ if lang_choice == "English":
         "tab_bs": "Balance Sheet",
         "tab_kpi": "KPIs & Ratios",
         "tab_charts": "Visualizations & Dashboards",
+        "tab_readme": "README & User Manual",
         
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
@@ -206,7 +207,7 @@ if lang_choice == "English":
         "kpi_var_ratio": "Variable Expense Ratio",
         "kpi_fix_ratio": "Fixed Expense Ratio",
         "kpi_tot_ratio": "Total Expense Ratio",
-        "kpi_other_inc_ratio": "Other Income Ratio (THG & Sale)",
+        "kpi_other_inc_ratio": "Other Income Ratio (THG)",
         "kpi_db2_m": "Contribution Margin Ratio (DB2)",
         "kpi_ebitda_m": "EBITDA Margin",
 
@@ -239,7 +240,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geordnete KPIs & Dynamisches CSS)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geprüfte GuV & Darlehenstilgung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -274,7 +275,7 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab.",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
         "energy_rate": "Basis-Energiekosten pro km (€)",
         "energy_help": "Reiner Sommer-Basistarif. Winterzuschläge erfolgen dynamisch.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
@@ -336,10 +337,10 @@ else:
         "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ)",
         "pnl_bank": "Abzüglich: Bankgebühren",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
-        "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebitda": "EBITDA",
         "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA - 48 Mon.)",
         "pnl_afa_it": "Abzüglich: Abschreibung IT Hardware (AfA - 36 Mon.)",
+        "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
         "pnl_int_exp": "Abzüglich: Zinsaufwendungen",
@@ -395,6 +396,7 @@ else:
         "tab_bs": "Bilanz",
         "tab_kpi": "KPIs & Kennzahlen",
         "tab_charts": "Visualisierungen & Dashboards",
+        "tab_readme": "Handbuch & Dokumentation",
         
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
@@ -403,7 +405,7 @@ else:
         "kpi_var_ratio": "Variable Kostenquote",
         "kpi_fix_ratio": "Fixkostenquote",
         "kpi_tot_ratio": "Gesamtkostenquote",
-        "kpi_other_inc_ratio": "Sonstige Ertragsquote",
+        "kpi_other_inc_ratio": "Sonstige Ertragsquote (THG)",
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
         
@@ -574,8 +576,8 @@ pnl_keys = [
     loc["pnl_gbv"], loc["pnl_vat"], loc["pnl_net_rev"], loc["pnl_tesla_fee"], loc["pnl_mrrg_net"],
     loc["pnl_energy"], loc["pnl_wear"], loc["pnl_clean"], loc["pnl_db1"], loc["pnl_ins"], loc["pnl_park"],
     loc["pnl_api"], loc["pnl_tuev"], loc["pnl_sub"], loc["pnl_db2"], loc["pnl_hq_lease"], loc["pnl_it"],
-    loc["pnl_legal"], loc["pnl_hq_ins"], loc["pnl_fees"], loc["pnl_bank"], loc["pnl_thg"], loc["pnl_salvage"],
-    loc["pnl_ebitda"], loc["pnl_afa_veh"], loc["pnl_afa_it"], loc["pnl_ebit"], loc["pnl_int_inc"], loc["pnl_int_exp"],
+    loc["pnl_legal"], loc["pnl_hq_ins"], loc["pnl_fees"], loc["pnl_bank"], loc["pnl_thg"], 
+    loc["pnl_ebitda"], loc["pnl_afa_veh"], loc["pnl_afa_it"], loc["pnl_salvage"], loc["pnl_ebit"], loc["pnl_int_inc"], loc["pnl_int_exp"],
     loc["pnl_ebt"], loc["pnl_tax"], loc["pnl_ni"]
 ]
 
@@ -663,6 +665,9 @@ for m in range(60):
         if current_month == c_start + 48:
             fleet_sale_rev += c["size"] * salvage_value_per_car_y4
             capex_sold_this_mo += c["capex"]
+            # F-02 Fix: Payoff ghost liability upon asset sale
+            prin_pay += c["loan_bal"]
+            c["loan_bal"] = 0
 
     # --- DYNAMIC UTILIZATION LOGIC ---
     if util_mode == loc["util_dyn"]:
@@ -712,8 +717,9 @@ for m in range(60):
     
     thg_mo = (thg_quote_per_car_py * active_fleet) if (current_month % 12 == 0) else 0
     
-    ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_mo + fleet_sale_rev
-    ebit_mo = ebitda_mo - total_afa_this_mo
+    # F-01 Fix: Stripped fleet_sale_rev out of EBITDA line
+    ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_mo
+    ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
@@ -797,10 +803,10 @@ for m in range(60):
     pnl_monthly[loc["pnl_fees"]].append(-fees_mo)
     pnl_monthly[loc["pnl_bank"]].append(-bank_fees_pm)
     pnl_monthly[loc["pnl_thg"]].append(thg_mo)
-    pnl_monthly[loc["pnl_salvage"]].append(fleet_sale_rev)
     pnl_monthly[loc["pnl_ebitda"]].append(ebitda_mo)
     pnl_monthly[loc["pnl_afa_veh"]].append(-current_veh_afa)
     pnl_monthly[loc["pnl_afa_it"]].append(-current_it_afa)
+    pnl_monthly[loc["pnl_salvage"]].append(fleet_sale_rev)
     pnl_monthly[loc["pnl_ebit"]].append(ebit_mo)
     pnl_monthly[loc["pnl_int_inc"]].append(int_inc_mo)
     pnl_monthly[loc["pnl_int_exp"]].append(-int_exp)
@@ -901,10 +907,10 @@ cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
-fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
+fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
-other_inc = df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]
+other_inc = df_pnl_combined.loc[loc["pnl_thg"]]
 
 kpi_dict = {}
 
@@ -1037,7 +1043,7 @@ for i in range(5):
 
 st.write("") 
 
-tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"]])
+tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"], loc["tab_readme"]])
 
 def style_pnl_rows(row):
     if loc["pnl_mrrg_net"] in row.name:
@@ -1108,7 +1114,7 @@ with tabs[3]:
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
             * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
-            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts) generated as a byproduct of operations.
             * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
             * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
             """)
@@ -1121,7 +1127,7 @@ with tabs[3]:
             * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
             * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
-            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien), die als Nebenprodukt des Betriebs generiert wird.
             * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
             * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
             """)
@@ -1151,3 +1157,77 @@ with tabs[4]:
         st.plotly_chart(create_mrrg_chart(year_cols, plot_fcf, loc["chart_fcf"], hide_cagr=use_cum_fcf), use_container_width=True)
     with c6:
         st.plotly_chart(create_mrrg_chart(year_cols, y_ta, loc["chart_ta"]), use_container_width=True)
+
+with tabs[5]:
+    if lang_choice == "English":
+        st.markdown("""
+        ### 🚕 MRRG Cybercab Fleet: Master Financial Engine
+        
+        Welcome to the MRRG Master Financial Engine. This application is a fully integrated, institutional-grade financial model designed to simulate the operations, scaling, and accounting of an automated robotaxi (TaaS) fleet operating in Germany.
+
+        Built on **Streamlit** and written in **Python**, this dashboard moves beyond basic spreadsheet math. It uses a **60-month cohort engine** to simulate real-world physics: from the exact number of days in a month (accounting for leap years) to winter battery penalties and fleet cannibalization. It outputs a fully balanced, HGB-compliant 3-Statement financial model.
+
+        ---
+
+        #### 🧠 TaaS & Finance 101: Core Concepts to Know
+        * **TaaS (Transportation-as-a-Service):** The business model of providing rides using automated vehicles routed by an algorithmic platform.
+        * **CapEx (Capital Expenditure):** The massive upfront cost of buying the vehicles. You don't "expense" a car in month 1; you put it on the Balance Sheet as an asset.
+        * **AfA (Absetzung für Abnutzung / Depreciation):** Because cars lose value over time, the government allows us to deduct a portion of the car's value from our taxable profit every month.
+        * **Deadhead:** The percentage of kilometers a vehicle drives *without* a paying passenger. 
+        * **HGB (Handelsgesetzbuch):** The German Commercial Code. This model strictly follows German accounting rules, specifically regarding how taxes are provisioned and paid.
+
+        ---
+
+        #### 🎛️ How to Use the Sidebar (Input Levers)
+        The left sidebar is your "control room." Any change you make here instantly recalculates all 60 months of the simulation. 
+        
+        * **Fleet Scaling:** Instead of adding cars once a year, you type a comma-separated list to drop cars into specific months (e.g., `2, 0, 0, 0, 2` means 2 cars in Jan, 2 in May). 
+        * **Utilization Mode:** If set to *Dynamic*, the model simulates reality: when you drop new cars into a city, they temporarily "cannibalize" rides from your existing cars. Your overall utilization drops, and then slowly recovers.
+        * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
+        * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws an 8% short-term bridge loan to cover this VAT and pays it off automatically 6 months later when the refund arrives.
+
+        ---
+
+        #### 📊 Understanding the Outputs (The Tabs)
+        * **Income Statement (P&L):** Measures paper profitability. Start at the top (Customer bookings) and watch the money cascade down to EBITDA (Operational profit before loans/depreciation) and Net Income.
+        * **Cash Flow Statement:** The actual cash entering and leaving your bank account. This tab shows your CapEx cash burns, your loan drawdowns, and exactly when you pay your corporate taxes. 
+        * **Balance Sheet:** A snapshot of what the company owns vs. what it owes. Look at the **BALANCE CHECK** line at the very bottom. It dynamically proves the math is perfect by always showing 0 €.
+        * **KPIs & Ratios:** The metrics banks and Venture Capitalists look at to judge the health of your business (like DSCR and Liquidity Runway).
+        * **Visualizations & Dashboards:** A suite of institutional charts showing the scaling trajectory. Toggle Free Cash Flow to "Cumulative" to see the exact "J-Curve" of your business.
+        """)
+    else:
+        st.markdown("""
+        ### 🚕 MRRG Cybercab-Flotte: Master-Finanzmodell
+        
+        Willkommen beim MRRG Master-Finanzmodell. Diese Anwendung ist ein vollständig integriertes, institutionelles Finanzmodell, das den Betrieb, die Skalierung und die Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland simuliert.
+
+        Dieses auf **Streamlit** und **Python** basierende Dashboard geht weit über grundlegende Tabellenkalkulationen hinaus. Es nutzt eine **60-monatige Kohorten-Logik**, um reale physikalische und wirtschaftliche Gegebenheiten zu simulieren: von der exakten Anzahl an Tagen pro Monat (inkl. Schaltjahren) über Winterzuschläge beim Stromverbrauch bis hin zur Flotten-Kannibalisierung. Das Ergebnis ist ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
+
+        ---
+
+        #### 🧠 TaaS & Finance 101: Die wichtigsten Grundkonzepte
+        * **TaaS (Transportation-as-a-Service):** Das Geschäftsmodell zur Bereitstellung von Fahrten durch automatisierte Fahrzeuge, die über eine algorithmische Plattform gesteuert werden.
+        * **CapEx (Investitionsausgaben):** Die massiven Vorlaufkosten für den Kauf der Fahrzeuge. Ein Auto wird nicht im ersten Monat als Aufwand verbucht; es wird als Vermögenswert in der Bilanz aktiviert.
+        * **AfA (Absetzung für Abnutzung):** Da Autos im Laufe der Zeit an Wert verlieren, dürfen wir jeden Monat einen Teil des Fahrzeugwerts von unserem steuerpflichtigen Gewinn abziehen.
+        * **Leerfahrten (Deadhead):** Der prozentuale Anteil der gefahrenen Kilometer *ohne* zahlenden Fahrgast.
+        * **HGB (Handelsgesetzbuch):** Dieses Modell folgt strikt den deutschen Rechnungslegungsvorschriften, insbesondere im Hinblick auf die Bildung und Auszahlung von Steuerrückstellungen.
+
+        ---
+
+        #### 🎛️ Bedienung der Seitenleiste (Eingabeparameter)
+        Die linke Seitenleiste ist Ihr Kontrollzentrum. Jede Änderung, die Sie hier vornehmen, berechnet sofort alle 60 Monate der Simulation neu.
+        
+        * **Flottenskalierung:** Anstatt Autos nur einmal pro Jahr hinzuzufügen, geben Sie eine durch Kommas getrennte Liste ein, um Autos in bestimmten Monaten einzuflotten (z. B. `2, 0, 0, 0, 2` bedeutet 2 Autos im Jan, 2 im Mai).
+        * **Auslastungsmodell:** Wenn auf *Dynamisch* gesetzt, simuliert das Modell die Realität: Wenn neue Autos in die Flotte kommen, "kannibalisieren" sie vorübergehend die Fahrten der bestehenden Flotte. Die Gesamtauslastung sinkt und erholt sich dann allmählich.
+        * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
+        * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit zu 8% auf, um diese Vorsteuer zu decken, und zahlt ihn 6 Monate später zurück, wenn die Erstattung vom Finanzamt eintrifft.
+
+        ---
+
+        #### 📊 Verständnis der Auswertungen (Die Reiter)
+        * **Gewinn- und Verlustrechnung (GuV):** Misst die buchhalterische Rentabilität. Oben stehen die Kundenbuchungen, unten bleiben EBITDA (operativer Gewinn vor Zinsen/Abschreibungen) und der Jahresüberschuss.
+        * **Kapitalflussrechnung:** Die tatsächlichen Zahlungsströme auf Ihrem Bankkonto. Hier sehen Sie die CapEx-Mittelabflüsse, die Kreditaufnahmen und exakt, wann Sie Ihre Unternehmenssteuern zahlen.
+        * **Bilanz:** Eine Momentaufnahme dessen, was das Unternehmen besitzt und wem es was schuldet. Achten Sie auf die **BILANZKONTROLLE** ganz unten. Sie beweist dynamisch, dass die Mathematik perfekt aufgeht, indem sie immer 0 € anzeigt.
+        * **KPIs & Kennzahlen:** Die Kennzahlen, die Banken und Venture-Capital-Investoren heranziehen, um die Gesundheit Ihres Unternehmens zu beurteilen (wie DSCR und Liquiditätsreichweite).
+        * **Visualisierungen & Dashboards:** Institutionelle Diagramme, die den Skalierungsverlauf zeigen. Wenn Sie den Free Cash Flow auf "Kumuliert" umstellen, sehen Sie die exakte "J-Kurve" Ihres Unternehmens.
+        """)
