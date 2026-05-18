@@ -5,7 +5,7 @@ import numpy as np
 # --- DASHBOARD CONFIGURATION ---
 st.set_page_config(page_title="MRRG 3-Statement Financial Engine", layout="wide")
 st.title("MRRG Cybercab Fleet: Master Financial Engine")
-st.markdown("*(Layer 3: Corporate Overhead, Other Income & EBITDA)*")
+st.markdown("*(Layer 4: CapEx, Depreciation (AfA) & EBIT)*")
 
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
 st.sidebar.header("1. FLEET PHYSICS (Realistic)")
@@ -45,11 +45,30 @@ ihk_pm = st.sidebar.number_input("IHK Membership", value=35.0)
 gez_pm_per_car = st.sidebar.number_input("GEZ (per car)", value=7.0)
 setup_costs_y1 = st.sidebar.number_input("One-off Setup Costs (Y1)", value=1700.0)
 
-st.sidebar.header("7. OTHER INCOME / SALVAGE")
+st.sidebar.header("7. CAPEX & DEPRECIATION")
+cybercab_base_usd = st.sidebar.number_input("Base Cybercab Price (USD)", value=30000.0)
+usd_eur_rate = st.sidebar.number_input("USD to EUR Exchange Rate", value=1.15)
+import_freight_eur = st.sidebar.number_input("Import Freight & Ins. per Car (€)", value=1800.0)
+customs_duty_rate = st.sidebar.number_input("Import Duty (Zoll) %", value=10.0) / 100
+it_hardware_capex_y1 = st.sidebar.number_input("IT Hardware CapEx (Y1)", value=2500.0)
+
+st.sidebar.header("8. OTHER INCOME / SALVAGE")
 thg_quote_per_car_py = st.sidebar.number_input("THG Quote per car/yr", value=200.0)
 salvage_value_per_car_y4 = st.sidebar.number_input("Vehicle Sale Price (Y4)", value=10000.0)
 
-# --- 2. THE SCHEDULE ENGINE (Daily Math per Car) ---
+# --- 2. CAPEX & DEPRECIATION MATH (AfA) ---
+# Calculate true landed cost per vehicle according to EU Customs Law
+cybercab_base_eur = cybercab_base_usd / usd_eur_rate
+zollwert_cif_eur = cybercab_base_eur + import_freight_eur
+zollkosten_eur = zollwert_cif_eur * customs_duty_rate
+total_capex_per_car = zollwert_cif_eur + zollkosten_eur
+total_fleet_capex = total_capex_per_car * fleet_size
+
+# AfA (Straight Line)
+vehicle_afa_per_year = total_fleet_capex / 4  # 48 months
+it_hardware_afa_per_year = it_hardware_capex_y1 / 3  # 36 months
+
+# --- 3. THE SCHEDULE ENGINE (Daily Math per Car) ---
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
 theoretical_deadhead_km = max_theoretical_km * deadhead_rate
 max_billable_km_theoretical = max_theoretical_km - theoretical_deadhead_km
@@ -65,7 +84,7 @@ base_fare_rev_per_day_gross = actual_trips_per_day * base_fare_eur
 distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
 gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-# --- 3. MULTI-YEAR P&L GENERATOR ---
+# --- 4. MULTI-YEAR P&L GENERATOR ---
 years = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]
 pnl_data_dict = {
     "Gross Booking Value (Customer Pays incl. 19% VAT)": [],
@@ -91,7 +110,10 @@ pnl_data_dict = {
     "Less: Bank Fees": [],
     "Add: THG Quote (Other Operating Income)": [],
     "Add: Fleet Liquidation (Asset Sale)": [],
-    "EBITDA": []
+    "EBITDA": [],
+    "Less: Vehicle Depreciation (AfA - 48 Mo.)": [],
+    "Less: IT Hardware Depreciation (AfA - 36 Mo.)": [],
+    "EBIT (Operating Income)": []
 }
 
 wear_and_tear_rate = 0.03 
@@ -99,25 +121,25 @@ energy_rate = 0.05
 months_per_year = 12
 
 for year in range(1, 6):
-    # Fleet is sold end of Year 4. Therefore, Year 5 operations are zero.
+    # Fleet is sold end of Year 4.
     active_fleet = fleet_size if year <= 4 else 0
     operating_days = (365 * vehicle_utilization) if year <= 4 else 0
     
-    # Revenue Math
+    # Revenue
     annual_gbv_fleet = gross_booking_value_per_day_per_car * operating_days * active_fleet
     annual_net_revenue_fleet = annual_gbv_fleet / (1 + vat_rate)
     annual_vat_owed = annual_gbv_fleet - annual_net_revenue_fleet
     annual_tesla_fees = annual_gbv_fleet * tesla_take_rate
     mrrg_net_revenue = annual_net_revenue_fleet - annual_tesla_fees
     
-    # Variable Costs Math
+    # Variable Costs
     total_km_annual_fleet = actual_total_km_per_day * operating_days * active_fleet
     annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
     annual_energy_cost = total_km_annual_fleet * energy_rate
     annual_cleaning_cost = cleaning_cost_per_day * operating_days * active_fleet
     deckungsbeitrag_1 = mrrg_net_revenue - annual_energy_cost - annual_wear_cost - annual_cleaning_cost
     
-    # Vehicle Fixed Costs Math
+    # Vehicle Fixed Costs
     annual_insurance = insurance_pm * months_per_year * active_fleet
     annual_parking = parking_pm * months_per_year * active_fleet
     annual_telemetry = telemetry_pm * months_per_year * active_fleet
@@ -126,15 +148,11 @@ for year in range(1, 6):
     total_annual_vehicle_fixed_costs = annual_insurance + annual_parking + annual_telemetry + annual_tuev + annual_charging_sub
     deckungsbeitrag_2 = deckungsbeitrag_1 - total_annual_vehicle_fixed_costs
     
-    # Corporate HQ Math (Costs run regardless of fleet being active)
+    # Corporate HQ
     annual_hq_lease = hq_lease_pm * months_per_year
     annual_it_cloud = it_cloud_pm * months_per_year
     annual_hq_insurance = hq_insurance_pm * months_per_year
-    
-    # Legal has a one-off setup cost in Year 1
     annual_legal = (legal_bookkeeping_pm * months_per_year) + (setup_costs_y1 if year == 1 else 0)
-    
-    # IHK is flat HQ cost, GEZ is tied to cars
     annual_fees = (ihk_pm * months_per_year) + (gez_pm_per_car * months_per_year * active_fleet)
     annual_bank = bank_fees_pm * months_per_year
     
@@ -142,7 +160,7 @@ for year in range(1, 6):
     annual_thg = thg_quote_per_car_py * active_fleet
     fleet_sale_revenue = (salvage_value_per_car_y4 * active_fleet) if year == 4 else 0
     
-    # EBITDA Calculation
+    # EBITDA
     ebitda = (deckungsbeitrag_2 
               - annual_hq_lease 
               - annual_it_cloud 
@@ -152,6 +170,13 @@ for year in range(1, 6):
               - annual_bank 
               + annual_thg 
               + fleet_sale_revenue)
+              
+    # Depreciation (AfA)
+    current_vehicle_afa = vehicle_afa_per_year if year <= 4 else 0
+    current_it_afa = it_hardware_afa_per_year if year <= 3 else 0
+    
+    # EBIT
+    ebit = ebitda - current_vehicle_afa - current_it_afa
     
     # Append to Dictionary
     pnl_data_dict["Gross Booking Value (Customer Pays incl. 19% VAT)"].append(annual_gbv_fleet)
@@ -178,14 +203,16 @@ for year in range(1, 6):
     pnl_data_dict["Add: THG Quote (Other Operating Income)"].append(annual_thg)
     pnl_data_dict["Add: Fleet Liquidation (Asset Sale)"].append(fleet_sale_revenue)
     pnl_data_dict["EBITDA"].append(ebitda)
+    pnl_data_dict["Less: Vehicle Depreciation (AfA - 48 Mo.)"].append(-current_vehicle_afa)
+    pnl_data_dict["Less: IT Hardware Depreciation (AfA - 36 Mo.)"].append(-current_it_afa)
+    pnl_data_dict["EBIT (Operating Income)"].append(ebit)
 
-# --- 4. DASHBOARD RENDER ---
-st.subheader("Daily Unit Economics Verification (Per Car / Per Day)")
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Actual Trips / Day", f"{actual_trips_per_day:.0f}")
-col2.metric("Billable km / Day", f"{actual_billable_km_per_day:.1f}")
-col3.metric("Total km / Day", f"{actual_total_km_per_day:.1f}")
-col4.metric("GBV / Day (Incl. VAT)", f"€ {gross_booking_value_per_day_per_car:.2f}")
+# --- 5. DASHBOARD RENDER ---
+st.subheader("Key CapEx Assumptions")
+colA, colB, colC = st.columns(3)
+colA.metric("Landed CapEx per Car (CIF + Duty)", f"€ {total_capex_per_car:,.0f}")
+colB.metric("Total Fleet CapEx", f"€ {total_fleet_capex:,.0f}")
+colC.metric("Annual Fleet AfA", f"€ {vehicle_afa_per_year:,.0f}")
 
 st.divider()
 
@@ -194,12 +221,12 @@ st.subheader("5-Year Cohort P&L (Fleet Aggregate)")
 tabs = st.tabs(["Income Statement (P&L)", "Cash Flow Statement", "Balance Sheet"])
 
 with tabs[0]:
-    st.markdown("### Profit & Loss down to EBITDA")
+    st.markdown("### Profit & Loss down to EBIT")
     df_pnl = pd.DataFrame(pnl_data_dict, index=years).T
     st.dataframe(df_pnl.style.format("{:,.0f} €"), use_container_width=True)
 
 with tabs[1]:
-    st.markdown("*(Cash Flow integration will be built in Layer 4 after Debt/AfA)*")
+    st.markdown("*(Cash Flow integration will be built in Layer 5 after Debt Amortization)*")
 
 with tabs[2]:
-    st.markdown("*(Balance Sheet integration will be built in Layer 5 after Asset/Liability setup)*")
+    st.markdown("*(Balance Sheet integration will be built in Layer 6 after Asset/Liability setup)*")
