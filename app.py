@@ -26,7 +26,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB Accounting for a GmbH - Layer 7: Multi-Cohort Fleet Scaling)*",
+        "subtitle": "*(HGB Accounting for a GmbH - Layer 8: Cash Flow Statement & VAT Bridge)*",
         "sec1a": "1a. BASE FLEET PHYSICS (Y1)",
         "fleet_size": "Base Fleet Size (Num Vehicles)",
         "utilization": "Vehicle Utilization / Uptime (%)",
@@ -115,25 +115,43 @@ if lang_choice == "English":
         "pnl_tax": "Less: Corporate Taxes (Ertragsteuern)",
         "pnl_ni": "Net Income (Jahresüberschuss / EAT)",
         
+        # Cash Flow Lines
+        "cf_ni": "Net Income (Jahresüberschuss)",
+        "cf_depr": "Depreciation (AfA)",
+        "cf_tax_prov": "Increase in Tax Provision",
+        "cf_tax_paid": "Taxes Paid (Previous Year)",
+        "cf_op": "Cash Flow from Operations",
+        "cf_capex": "CapEx (Vehicles & IT)",
+        "cf_inv": "Cash Flow from Investing",
+        "cf_eq": "Equity Injection (Stammkapital)",
+        "cf_sh": "Shareholder Loan",
+        "cf_kfw_draw": "Loan Drawdown (KfW / Bank)",
+        "cf_prin": "Principal Repayment",
+        "cf_vat_draw": "VAT Bridge Loan Drawdown",
+        "cf_vat_repay": "VAT Bridge Loan Repayment",
+        "cf_fin": "Cash Flow from Financing",
+        "cf_net": "Net Change in Cash",
+        "cf_beg": "Beginning Cash Balance",
+        "cf_end": "Ending Cash Balance",
+        
         # UI Elements
         "sources_title": "Day 1 Sources & Uses of Capital (Y1 Cohort Only)",
         "src_stamm": "Sources: Stammkapital",
         "src_sh": "Sources: Shareholder Loan",
         "src_veh": "Sources: Vehicle Loan",
         "liquidity": "Day 1 Liquidity Buffer",
-        "output_title": "5-Year Cohort P&L & Scaling Output (HGB)",
+        "output_title": "5-Year Cohort P&L & Cash Flow Output (HGB)",
         "active_fleet": "Active Fleet",
         "cars": "Vehicles",
         "tab_pnl": "Income Statement (P&L)",
         "tab_cf": "Cash Flow Statement",
         "tab_bs": "Balance Sheet",
-        "cf_note": "*(Cash Flow Statement integration is ready to be built from Net Income down to Free Cash Flow)*",
-        "bs_note": "*(Balance Sheet integration will be built in Layer 8 after Cash Flow setup)*"
+        "bs_note": "*(Balance Sheet integration will be built in Layer 9 after Cash Flow sign-off)*"
     }
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB-Rechnungslegung für eine GmbH - Layer 7: Flottenskalierung)*",
+        "subtitle": "*(HGB-Rechnungslegung für eine GmbH - Layer 8: Kapitalflussrechnung & USt-Kredit)*",
         "sec1a": "1a. BASIS-FLOTTENPHYSIK (J1)",
         "fleet_size": "Basis-Flottengröße (Anzahl)",
         "utilization": "Fahrzeugauslastung / Uptime (%)",
@@ -222,20 +240,38 @@ else:
         "pnl_tax": "Abzüglich: Ertragsteuern",
         "pnl_ni": "Jahresüberschuss (EAT)",
         
+        # Cash Flow Lines
+        "cf_ni": "Jahresüberschuss",
+        "cf_depr": "Abschreibungen (AfA)",
+        "cf_tax_prov": "Zunahme Steuerrückstellungen",
+        "cf_tax_paid": "Gezahlte Steuern (Vorjahr)",
+        "cf_op": "Operativer Cashflow",
+        "cf_capex": "Auszahlungen für Sachanlagen (CapEx)",
+        "cf_inv": "Cashflow aus Investitionstätigkeit",
+        "cf_eq": "Einzahlungen Eigenkapital",
+        "cf_sh": "Einzahlungen Gesellschafterdarlehen",
+        "cf_kfw_draw": "Einzahlungen Bankdarlehen",
+        "cf_prin": "Tilgung Bankdarlehen",
+        "cf_vat_draw": "Einzahlungen USt-Überbrückungskredit",
+        "cf_vat_repay": "Tilgung USt-Überbrückungskredit",
+        "cf_fin": "Cashflow aus Finanzierungstätigkeit",
+        "cf_net": "Nettoveränderung Finanzmittel",
+        "cf_beg": "Anfangsbestand Finanzmittel",
+        "cf_end": "Endbestand Finanzmittel",
+        
         # UI Elements
         "sources_title": "Tag 1 Mittelherkunft & Mittelverwendung (Nur Kohorte J1)",
         "src_stamm": "Mittelherkunft: Stammkapital",
         "src_sh": "Mittelherkunft: Gesellschafterdarlehen",
         "src_veh": "Mittelherkunft: Fahrzeugdarlehen",
         "liquidity": "Tag 1 Liquiditätspuffer",
-        "output_title": "5-Jahres Kohorten-GuV & Skalierungsauswertung (HGB)",
+        "output_title": "5-Jahres Kohorten-GuV & Kapitalflussrechnung (HGB)",
         "active_fleet": "Aktive Flotte",
         "cars": "Fahrzeuge",
         "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
         "tab_cf": "Kapitalflussrechnung",
         "tab_bs": "Bilanz",
-        "cf_note": "*(Die Integration der Kapitalflussrechnung vom Jahresüberschuss bis zum Free Cash Flow ist bereit für den Aufbau)*",
-        "bs_note": "*(Die Integration der Bilanz wird in Layer 8 nach der Cash-Flow-Einrichtung erstellt)*"
+        "bs_note": "*(Die Integration der Bilanz wird in Layer 9 nach Freigabe des Cashflows erstellt)*"
     }
 
 st.title(loc["title"])
@@ -328,8 +364,9 @@ for c, size in enumerate(additions, start=1):
         "afa_per_yr": capex / 4
     }
 
+# Day 1 UI Variables (For top cards only)
 total_uses_y1 = cohort_data[1]["original_loan"] / vehicle_ltv + it_hardware_capex_y1
-day_1_cash_balance = stammkapital + shareholder_loan + cohort_data[1]["original_loan"] - total_uses_y1
+day_1_cash_balance_ui = stammkapital + shareholder_loan + cohort_data[1]["original_loan"] - total_uses_y1
 
 # --- 3. UNIT ECONOMICS ENGINE ---
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
@@ -346,8 +383,9 @@ base_fare_rev_per_day_gross = actual_trips_per_day * base_fare_eur
 distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
 gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-# --- 4. MULTI-YEAR P&L GENERATOR ---
+# --- 4. MULTI-YEAR GENERATOR (P&L AND CASH FLOW) ---
 years = ["Year 1 (2028)", "Year 2 (2029)", "Year 3 (2030)", "Year 4 (2031)", "Year 5 (2032)"]
+
 pnl_data_dict = {
     loc["pnl_gbv"]: [],
     loc["pnl_vat"]: [],
@@ -383,10 +421,32 @@ pnl_data_dict = {
     loc["pnl_ni"]: []
 }
 
+cf_data_dict = {
+    loc["cf_ni"]: [],
+    loc["cf_depr"]: [],
+    loc["cf_tax_prov"]: [],
+    loc["cf_tax_paid"]: [],
+    loc["cf_op"]: [],
+    loc["cf_capex"]: [],
+    loc["cf_inv"]: [],
+    loc["cf_eq"]: [],
+    loc["cf_sh"]: [],
+    loc["cf_kfw_draw"]: [],
+    loc["cf_prin"]: [],
+    loc["cf_vat_draw"]: [],
+    loc["cf_vat_repay"]: [],
+    loc["cf_fin"]: [],
+    loc["cf_net"]: [],
+    loc["cf_beg"]: [],
+    loc["cf_end"]: []
+}
+
 months_per_year = 12
 tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
-current_cash_balance = day_1_cash_balance
+# CF Trackers - Initialized at 0. Capital flows hit Y1 Cash Flow Statement.
+current_cash_balance = 0 
+previous_tax_expense = 0
 it_hardware_afa_per_year = it_hardware_capex_y1 / 3  
 
 active_fleet_by_year = []
@@ -398,24 +458,21 @@ for year in range(1, 6):
     
     operating_days = (365 * vehicle_utilization)
     
-    if year > 1 and cohort_data[year]["size"] > 0:
-        new_capex = cohort_data[year]["size"] * total_capex_per_car
-        new_loan = cohort_data[year]["original_loan"]
-        new_equity_needed = new_capex - new_loan
-        current_cash_balance -= new_equity_needed
-    
+    # Revenue
     annual_gbv_fleet = gross_booking_value_per_day_per_car * operating_days * active_fleet
     annual_net_revenue_fleet = annual_gbv_fleet / (1 + vat_rate)
     annual_vat_owed = annual_gbv_fleet - annual_net_revenue_fleet
     annual_tesla_fees = annual_gbv_fleet * tesla_take_rate
     mrrg_net_revenue = annual_net_revenue_fleet - annual_tesla_fees
     
+    # Variable Costs
     total_km_annual_fleet = actual_total_km_per_day * operating_days * active_fleet
     annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
     annual_energy_cost = total_km_annual_fleet * energy_rate
     annual_cleaning_cost = cleaning_cost_per_day * operating_days * active_fleet
     deckungsbeitrag_1 = mrrg_net_revenue - annual_energy_cost - annual_wear_cost - annual_cleaning_cost
     
+    # Vehicle Fixed Costs
     annual_insurance = insurance_pm * months_per_year * active_fleet
     annual_parking = parking_pm * months_per_year * active_fleet
     annual_telemetry = telemetry_pm * months_per_year * active_fleet
@@ -424,6 +481,7 @@ for year in range(1, 6):
     total_annual_vehicle_fixed_costs = annual_insurance + annual_parking + annual_telemetry + annual_tuev + annual_charging_sub
     deckungsbeitrag_2 = deckungsbeitrag_1 - total_annual_vehicle_fixed_costs
     
+    # Corporate HQ (Scaled)
     additional_cars = max(0, active_fleet - fleet_size)
     annual_hq_lease = hq_lease_pm * months_per_year
     annual_it_cloud = it_cloud_pm * months_per_year
@@ -432,12 +490,14 @@ for year in range(1, 6):
     annual_fees = (ihk_pm * months_per_year) + (gez_pm_per_car * months_per_year * active_fleet)
     annual_bank = bank_fees_pm * months_per_year
     
+    # Other Income
     annual_thg = thg_quote_per_car_py * active_fleet
     fleet_sale_revenue = 0
     current_vehicle_afa = 0
     interest_expense = 0
     total_principal_payment = 0
     
+    # Cohort AfA and Debt Loop
     for c in range(1, year + 1):
         if cohort_data[c]["size"] == 0: continue
         if year <= c + 3:
@@ -455,21 +515,61 @@ for year in range(1, 6):
 
     current_it_afa = it_hardware_afa_per_year if year <= 3 else 0
     
+    # EBITDA & EBIT
     ebitda = (deckungsbeitrag_2 - annual_hq_lease - annual_it_cloud - annual_legal 
               - annual_hq_insurance - annual_fees - annual_bank + annual_thg + fleet_sale_revenue)
     
     ebit = ebitda - current_vehicle_afa - current_it_afa
     
+    # VAT BRIDGE LOAN & FINANCING (EBT)
     interest_income = current_cash_balance * interest_income_rate if current_cash_balance > 0 else 0
+    
+    vat_bridge_draw = 0
+    vat_bridge_repay = 0
+    vat_bridge_interest = 0
+    
+    capex_this_year = cohort_data[year]["size"] * total_capex_per_car if cohort_data[year]["size"] > 0 else 0
+    if year == 1: 
+        capex_this_year += it_hardware_capex_y1
+        # Year 1 VAT Loan assumes 6 months 8%
+        vat_on_capex = capex_this_year * vat_rate
+        vat_bridge_draw = vat_on_capex
+        vat_bridge_repay = -vat_on_capex
+        vat_bridge_interest = vat_on_capex * 0.08 * (6/12)
+        interest_expense += vat_bridge_interest
+        
     ebt = ebit + interest_income - interest_expense
     
+    # HGB Corporate Taxes (Provisions)
     current_tax_rate = tax_schedule[year]
     tax_expense = ebt * current_tax_rate if ebt > 0 else 0
     net_income = ebt - tax_expense
     
-    cash_movement = ebt + current_vehicle_afa + current_it_afa - total_principal_payment - tax_expense
-    current_cash_balance += cash_movement
+    # --- LAYER 8: HGB CASH FLOW STATEMENT LOGIC ---
+    # 1. Operating CF (Taxes provisioned this year, paid next year in Month 5)
+    tax_provision_increase = tax_expense
+    tax_paid = -previous_tax_expense
+    previous_tax_expense = tax_expense
     
+    operating_cf = net_income + current_vehicle_afa + current_it_afa + tax_provision_increase + tax_paid
+    
+    # 2. Investing CF
+    investing_cf = -capex_this_year
+    
+    # 3. Financing CF
+    equity_in = stammkapital if year == 1 else 0
+    sh_loan_in = shareholder_loan if year == 1 else 0
+    kfw_draw = cohort_data[year]["original_loan"] if cohort_data[year]["size"] > 0 else 0
+    
+    financing_cf = equity_in + sh_loan_in + kfw_draw - total_principal_payment + vat_bridge_draw + vat_bridge_repay
+    
+    # 4. Cash Roll Forward
+    net_cash_change = operating_cf + investing_cf + financing_cf
+    beg_cash = current_cash_balance
+    end_cash = beg_cash + net_cash_change
+    current_cash_balance = end_cash
+    
+    # P&L Dictionary Append
     pnl_data_dict[loc["pnl_gbv"]].append(annual_gbv_fleet)
     pnl_data_dict[loc["pnl_vat"]].append(-annual_vat_owed)
     pnl_data_dict[loc["pnl_net_rev"]].append(annual_net_revenue_fleet)
@@ -503,50 +603,18 @@ for year in range(1, 6):
     pnl_data_dict[loc["pnl_tax"]].append(-tax_expense)
     pnl_data_dict[loc["pnl_ni"]].append(net_income)
 
-# --- 5. DASHBOARD RENDER ---
-st.subheader(loc["sources_title"])
-colA, colB, colC, colD = st.columns(4)
-colA.metric(loc["src_stamm"], f"€ {stammkapital:,.0f}")
-colB.metric(loc["src_sh"], f"€ {shareholder_loan:,.0f}")
-colC.metric(f"{loc['src_veh']} ({vehicle_ltv*100:.0f}%)", f"€ {cohort_data[1]['original_loan']:,.0f}")
-colD.metric(loc["liquidity"], f"€ {day_1_cash_balance:,.0f}")
-
-st.divider()
-
-st.subheader(loc["output_title"])
-
-fleet_cols = st.columns(5)
-for i, year in enumerate(years):
-    fleet_cols[i].metric(f"{loc['active_fleet']} ({year})", f"{active_fleet_by_year[i]:.0f} {loc['cars']}")
-
-st.write("") 
-
-tabs = st.tabs([loc["tab_pnl"], loc["tab_cf"], loc["tab_bs"]])
-
-with tabs[0]:
-    df_pnl = pd.DataFrame(pnl_data_dict, index=years).T
-    
-    def style_pnl_rows(row):
-        style = [''] * len(row)
-        if loc["pnl_mrrg_net"] in row.name:
-            style = ['font-weight: 600; border-top: 1px solid #ffffff40; color: #4DA8DA;'] * len(row)
-        elif loc["pnl_db1"] in row.name or loc["pnl_db2"] in row.name:
-            style = ['font-weight: 600; background-color: #1e1e1e; border-top: 1px solid #ffffff40;'] * len(row)
-        elif loc["pnl_ebitda"] in row.name:
-            style = ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
-        elif loc["pnl_ebit"] in row.name:
-            style = ['font-weight: 600; background-color: #1e1e1e;'] * len(row)
-        elif loc["pnl_ebt"] in row.name:
-            style = ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
-        elif loc["pnl_ni"] in row.name:
-            style = ['font-weight: 700; background-color: #0b2e13; color: #38c172; font-size: 1.05em; border-top: 2px solid #38c172;'] * len(row)
-        return style
-
-    styled_df = df_pnl.style.format("{:,.0f} €").apply(style_pnl_rows, axis=1)
-    st.dataframe(styled_df, use_container_width=True)
-
-with tabs[1]:
-    st.markdown(loc["cf_note"])
-
-with tabs[2]:
-    st.markdown(loc["bs_note"])
+    # CF Dictionary Append
+    cf_data_dict[loc["cf_ni"]].append(net_income)
+    cf_data_dict[loc["cf_depr"]].append(current_vehicle_afa + current_it_afa)
+    cf_data_dict[loc["cf_tax_prov"]].append(tax_provision_increase)
+    cf_data_dict[loc["cf_tax_paid"]].append(tax_paid)
+    cf_data_dict[loc["cf_op"]].append(operating_cf)
+    cf_data_dict[loc["cf_capex"]].append(investing_cf)
+    cf_data_dict[loc["cf_inv"]].append(investing_cf)
+    cf_data_dict[loc["cf_eq"]].append(equity_in)
+    cf_data_dict[loc["cf_sh"]].append(sh_loan_in)
+    cf_data_dict[loc["cf_kfw_draw"]].append(kfw_draw)
+    cf_data_dict[loc["cf_prin"]].append(-total_principal_payment)
+    cf_data_dict[loc["cf_vat_draw"]].append(vat_bridge_draw)
+    cf_data_dict[loc["cf_vat_repay"]].append(vat_bridge_repay)
+    cf_data_dict[loc["cf_fin"]].append
