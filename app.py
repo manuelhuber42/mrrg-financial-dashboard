@@ -28,7 +28,7 @@ if lang_choice == "English":
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
         "subtitle": "*(HGB Accounting for a GmbH - Layer 7: Multi-Cohort Fleet Scaling)*",
         "sec1a": "1a. BASE FLEET PHYSICS (Y1)",
-        "fleet_size": "Base Fleet Size (Num Cars)",
+        "fleet_size": "Base Fleet Size (Num Vehicles)",
         "utilization": "Vehicle Utilization / Uptime (%)",
         "active_hours": "Active Hours / Day",
         "speed": "Average Speed (km/h)",
@@ -43,7 +43,7 @@ if lang_choice == "English":
         "price_km": "Price per km (€)",
         "tesla_take": "Tesla Take-Rate (%)",
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
-        "cleaning": "Cleaning Cost per Car/Day (€)",
+        "cleaning": "Cleaning Cost per Vehicle/Day (€)",
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
         "parking": "APCOA Parking",
@@ -55,16 +55,16 @@ if lang_choice == "English":
         "it_cloud": "IT, Cloud & AI Services",
         "base_legal": "Base Legal & Bookkeeping",
         "base_hq_ins": "Base HQ Insurance (Liability)",
-        "legal_scale": "Legal/Tax Scaling (per added car)",
-        "ins_scale": "Corp Insurance Scaling (per added car)",
+        "legal_scale": "Legal/Tax Scaling (per added vehicle)",
+        "ins_scale": "Corp Insurance Scaling (per added vehicle)",
         "bank_fees": "Bank Fees",
         "ihk": "IHK Membership",
-        "gez": "GEZ (per car)",
+        "gez": "GEZ (per vehicle)",
         "setup_costs": "One-off Setup Costs (Y1)",
         "sec7": "7. CAPEX & DEPRECIATION",
         "base_price": "Base Cybercab Price (USD)",
         "fx": "USD to EUR Exchange Rate",
-        "freight": "Import Freight & Ins. per Car (€)",
+        "freight": "Import Freight & Ins. per Vehicle (€)",
         "duty": "Import Duty (Zoll) %",
         "it_hw": "IT Hardware CapEx (Y1)",
         "sec8": "8. CAPITAL STRUCTURE & FINANCING",
@@ -74,14 +74,14 @@ if lang_choice == "English":
         "loan_type": "Y1 Loan Type",
         "int_rate": "Cash Interest Rate (%)",
         "sec9": "9. OTHER INCOME / SALVAGE",
-        "thg": "THG Quote per car/yr",
+        "thg": "THG Quote per vehicle/yr",
         "salvage": "Vehicle Sale Price (Y4)",
         
         # P&L Lines
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
         "pnl_vat": "Less: 19% VAT (Finanzamt)",
         "pnl_net_rev": "Net Revenue (Umsatzerlöse excl. VAT)",
-        "pnl_tesla_fee": "Less: Tesla Platform Fee (30% on GBV)",
+        "pnl_tesla_fee": "Less: Tesla Platform Fee (Take-Rate on GBV)",
         "pnl_mrrg_net": "MRRG Net Revenue (After Platform Fee)",
         "pnl_energy": "Less: Direct Energy (Variable)",
         "pnl_wear": "Less: Direct Maintenance/Wear (Variable)",
@@ -119,7 +119,7 @@ if lang_choice == "English":
         "liquidity": "Day 1 Liquidity Buffer",
         "output_title": "5-Year Cohort P&L & Scaling Output (HGB)",
         "active_fleet": "Active Fleet",
-        "cars": "Cars",
+        "cars": "Vehicles",
         "tab_pnl": "Income Statement (P&L)",
         "tab_cf": "Cash Flow Statement",
         "tab_bs": "Balance Sheet",
@@ -146,7 +146,7 @@ else:
         "price_km": "Preis pro km (€)",
         "tesla_take": "Tesla Plattformgebühr (%)",
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
-        "cleaning": "Reinigungskosten pro Auto/Tag (€)",
+        "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "APCOA Stellplätze",
@@ -158,16 +158,16 @@ else:
         "it_cloud": "IT, Cloud & AI Services",
         "base_legal": "Basis Rechts- & Beratungskosten",
         "base_hq_ins": "Basis Firmenversicherung (Haftpflicht)",
-        "legal_scale": "Recht/StB Skalierung (pro zus. Auto)",
-        "ins_scale": "Versicherung Skalierung (pro zus. Auto)",
+        "legal_scale": "Recht/StB Skalierung (pro zus. Fahrzeug)",
+        "ins_scale": "Versicherung Skalierung (pro zus. Fahrzeug)",
         "bank_fees": "Bankgebühren",
         "ihk": "IHK Beitrag",
-        "gez": "GEZ (Rundfunkbeitrag pro Auto)",
+        "gez": "GEZ (Rundfunkbeitrag pro Fahrzeug)",
         "setup_costs": "Einmalige Gründungskosten (J1)",
         "sec7": "7. CAPEX & ABSCHREIBUNGEN (AfA)",
         "base_price": "Basis Cybercab Preis (USD)",
         "fx": "Wechselkurs USD zu EUR",
-        "freight": "Importfracht & Vers. pro Auto (€)",
+        "freight": "Importfracht & Vers. pro Fahrzeug (€)",
         "duty": "Zollsatz (%)",
         "it_hw": "IT Hardware CapEx (J1)",
         "sec8": "8. KAPITALSTRUKTUR & FINANZIERUNG",
@@ -177,14 +177,14 @@ else:
         "loan_type": "Kreditart J1",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
-        "thg": "THG-Quote pro Auto/Jahr",
+        "thg": "THG-Quote pro Fahrzeug/Jahr",
         "salvage": "Fahrzeugverkaufspreis (J4)",
         
         # P&L Lines
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
         "pnl_vat": "Abzüglich: 19% Umsatzsteuer (Finanzamt)",
         "pnl_net_rev": "Umsatzerlöse (netto)",
-        "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (30% auf BBW)",
+        "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (auf BBW)",
         "pnl_mrrg_net": "MRRG Nettoerlöse (nach Plattformgebühr)",
         "pnl_energy": "Abzüglich: Direkte Energiekosten (variabel)",
         "pnl_wear": "Abzüglich: Instandhaltung/Verschleiß (variabel)",
@@ -222,7 +222,7 @@ else:
         "liquidity": "Tag 1 Liquiditätspuffer",
         "output_title": "5-Jahres Kohorten-GuV & Skalierungsauswertung (HGB)",
         "active_fleet": "Aktive Flotte",
-        "cars": "Autos",
+        "cars": "Fahrzeuge",
         "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
         "tab_cf": "Kapitalflussrechnung",
         "tab_bs": "Bilanz",
@@ -236,16 +236,16 @@ st.markdown(loc["subtitle"])
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS ---
 st.sidebar.header(loc["sec1a"])
 fleet_size = st.sidebar.slider(loc["fleet_size"], 1, 50, 3)
-vehicle_utilization = st.sidebar.number_input(loc["utilization"], value=95.0) / 100
+vehicle_utilization = st.sidebar.number_input(loc["utilization"], value=90.0) / 100
 active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0)
 avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=22.0)
 deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=30.0) / 100
 
 st.sidebar.header(loc["sec1b"])
-y2_adds = st.sidebar.number_input(f"Year 2 {loc['adds']}", value=0)
-y3_adds = st.sidebar.number_input(f"Year 3 {loc['adds']}", value=0)
-y4_adds = st.sidebar.number_input(f"Year 4 {loc['adds']}", value=0)
-y5_adds = st.sidebar.number_input(f"Year 5 {loc['adds']}", value=0)
+y2_adds = st.sidebar.number_input(f"Year 2 {loc['adds']}", value=6)
+y3_adds = st.sidebar.number_input(f"Year 3 {loc['adds']}", value=12)
+y4_adds = st.sidebar.number_input(f"Year 4 {loc['adds']}", value=15)
+y5_adds = st.sidebar.number_input(f"Year 5 {loc['adds']}", value=21)
 
 st.sidebar.header(loc["sec2"])
 avg_trip_distance_km = st.sidebar.number_input(loc["trip_dist"], value=5.0)
@@ -288,7 +288,7 @@ it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0)
 
 st.sidebar.header(loc["sec8"])
 stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0)
-shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=50000.0)
+shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0)
 vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0) / 100
 loan_cohort = st.sidebar.selectbox(loc["loan_type"], ["KfW Gründerkredit (4.5%, 1yr Grace)"])
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
@@ -373,7 +373,8 @@ pnl_data_dict = {
     loc["pnl_ni"]: []
 }
 
-wear_and_tear_rate = 0.03 
+# Locked per your specific mandate
+wear_and_tear_rate = 0.06 
 energy_rate = 0.05
 months_per_year = 12
 
