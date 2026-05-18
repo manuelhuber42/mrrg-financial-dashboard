@@ -10,6 +10,7 @@ st.markdown("*(Layer 1: Fleet Physics & Topline Revenue Verification)*")
 # --- 1. THE PHYSICS & REVENUE ASSUMPTIONS (From Excel) ---
 st.sidebar.header("1. FLEET PHYSICS (Realistic)")
 fleet_size = st.sidebar.slider("Fleet Size (Num Cars)", 1, 50, 3)
+vehicle_utilization = st.sidebar.number_input("Vehicle Utilization / Uptime (%)", value=95.0) / 100
 active_hours_per_day = st.sidebar.number_input("Active Hours / Day", value=16.0)
 avg_speed_kmh = st.sidebar.number_input("Average Speed (km/h)", value=22.0)
 deadhead_rate = st.sidebar.number_input("Deadhead Rate (%)", value=30.0) / 100
@@ -46,14 +47,14 @@ base_fare_rev_per_day = actual_trips_per_day * base_fare_eur
 distance_rev_per_day = actual_billable_km_per_day * price_per_km_eur
 gross_revenue_per_day_per_car = base_fare_rev_per_day + distance_rev_per_day
 
-# 6. Annual Fleet Topline (Assuming 365 operating days for the baseline)
-operating_days = 365
+# 6. Annual Fleet Topline 
+operating_days = 365 * vehicle_utilization
 annual_gross_revenue_fleet = gross_revenue_per_day_per_car * operating_days * fleet_size
 annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
 annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
 
 # --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
-wear_and_tear_rate = 0.03 
+wear_and_tear_rate = 0.06 
 energy_rate = 0.05
 total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
 annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
