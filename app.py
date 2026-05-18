@@ -27,7 +27,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamic Utilization & Cannibalization)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamic Utilization & Tooltips)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -38,14 +38,19 @@ if lang_choice == "English":
         "active_hours": "Active Hours / Day",
         "speed": "Average Speed (km/h)",
         "deadhead": "Deadhead Rate (%)",
+        "help_deadhead": "Percentage of total kilometers driven without a paying passenger (e.g., driving to chargers, parking, or the next pickup).",
         "sec1c": "1c. UTILIZATION DYNAMICS",
         "util_mode": "Utilization Mode",
         "util_dyn": "Dynamic (Ramp & Cannibalization)",
         "util_fix": "Fixed Rate",
         "target_util": "Target Utilization (%)",
+        "help_target": "The optimal, steady-state utilization your fleet achieves when supply and demand are perfectly balanced.",
         "init_util": "Month 1 Launch Util. (%)",
+        "help_init": "The lower utilization expected in the very first month of business as algorithms map the city and demand is new.",
         "rec_rate": "Monthly Recovery (+%)",
+        "help_rec": "How much the fleet utilization naturally climbs each month (+%) after a new vehicle drop, as demand catches up.",
         "can_fac": "Cannibalization Factor",
+        "help_can": "Measures how much new cars steal rides from existing cars. e.g., A 0.5 factor means a 10% increase in total cars causes a 5% temporary drop in fleet-wide utilization.",
         "util_label": "Avg Util",
         "sec2": "2. TRIP DYNAMICS",
         "trip_dist": "Average Trip Distance (km)",
@@ -65,6 +70,7 @@ if lang_choice == "English":
         "parking": "APCOA Parking",
         "telemetry": "Telemetry & API",
         "tuev": "TÜV / BO-Kraft Accrual",
+        "help_tuev": "Monthly accrual for mandatory commercial passenger transport (BO-Kraft) technical inspections.",
         "charging_sub": "Tesla Charging Sub",
         "sec6": "6. CORPORATE HQ & SCALING (€ / Month, Net)",
         "hq_lease": "HQ Lease (Raumkosten)",
@@ -87,10 +93,13 @@ if lang_choice == "English":
         "stamm": "Stammkapital (€)",
         "sh_loan": "Shareholder Loan (€)",
         "ltv": "Vehicle Loan-to-Value (LTV) %",
-        "loan_type": "Y1 Loan Type",
+        "help_ltv": "Percentage of total vehicle landing costs (including freight and customs) financed via bank debt.",
+        "y1_loan_rate": "KfW Gründerkredit Rate (Y1) %",
+        "y2_loan_rate": "Standard Bank Rate (Y2+) %",
         "int_rate": "Cash Interest Rate (%)",
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
+        "help_thg": "Greenhouse Gas (GHG) Reduction Quota. Tradable certificates sold to oil companies for operating zero-emission vehicles.",
         "salvage": "Vehicle Sale Price (Y4)",
         
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
@@ -140,8 +149,8 @@ if lang_choice == "English":
         "cf_inv": "Net Cash from Investing",
         "cf_eq": "+ Founder Equity Injection",
         "cf_sh": "+ Shareholder Loan Injection",
-        "cf_kfw_draw": "+ KfW Debt Drawdown",
-        "cf_prin": "- KfW Principal Repayment",
+        "cf_kfw_draw": "+ Debt Drawdown (Vehicles)",
+        "cf_prin": "- Principal Repayment",
         "cf_vat_draw": "+ VAT Bridge Loan Drawdown",
         "cf_vat_repay": "- VAT Bridge Loan Repayment",
         "cf_fin": "Net Cash from Financing",
@@ -161,7 +170,7 @@ if lang_choice == "English":
         "bs_teq": "Total Equity",
         "bs_prov_tax": "Steuerrückstellungen (Tax Provision)",
         "bs_tprov": "Total Provisions",
-        "bs_debt_kfw": "Long-Term Debt (KfW Loan)",
+        "bs_debt_kfw": "Long-Term Debt (Vehicle Loans)",
         "bs_debt_vat": "Short-Term Debt (VAT Bridge)",
         "bs_pay_vat": "Umsatzsteuer-Zahllast (VAT Payable)",
         "bs_sh_loan": "Shareholder Loan",
@@ -194,7 +203,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamische Auslastung & Kannibalisierung)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 10: Dynamische Auslastung & Tooltips)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -205,14 +214,19 @@ else:
         "active_hours": "Aktive Stunden / Tag",
         "speed": "Durchschnittsgeschwindigkeit (km/h)",
         "deadhead": "Leerfahrten-Quote (%)",
+        "help_deadhead": "Prozentsatz der gefahrenen Kilometer ohne zahlenden Fahrgast (z.B. Fahrt zum Ladepark, Parkplatz oder zum nächsten Kunden).",
         "sec1c": "1c. AUSLASTUNGSDYNAMIK",
         "util_mode": "Auslastungsmodell",
         "util_dyn": "Dynamisch (Anlauf & Kannibalisierung)",
         "util_fix": "Fester Wert",
         "target_util": "Ziel-Auslastung (%)",
+        "help_target": "Die optimale Dauer-Auslastung der Flotte, wenn Angebot und Nachfrage im Gleichgewicht sind.",
         "init_util": "Start-Auslastung Monat 1 (%)",
+        "help_init": "Niedrigere Auslastung im ersten Geschäftsmonat, da die Algorithmen den Markt erst mappen müssen.",
         "rec_rate": "Monatliche Erholung (+%)",
+        "help_rec": "Um wie viel Prozent die Auslastung monatlich wieder ansteigt, nachdem neue Fahrzeuge hinzugefügt wurden.",
         "can_fac": "Kannibalisierungsfaktor",
+        "help_can": "Bestimmt den Auslastungseinbruch bei Neuzugängen. Ein Faktor von 0,5 bedeutet, dass ein 10%iges Flottenwachstum zu einem temporären Auslastungsrückgang von 5% führt.",
         "util_label": "Ø Auslastung",
         "sec2": "2. FAHRTDYNAMIK",
         "trip_dist": "Durchschnittliche Fahrstrecke (km)",
@@ -232,6 +246,7 @@ else:
         "parking": "APCOA Stellplätze",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
+        "help_tuev": "Monatliche Rückstellung für die gesetzlich vorgeschriebene BO-Kraft Untersuchung zur Fahrgastbeförderung.",
         "charging_sub": "Tesla Lade-Abo",
         "sec6": "6. CORPORATE HQ & SKALIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
@@ -254,10 +269,13 @@ else:
         "stamm": "Stammkapital (€)",
         "sh_loan": "Gesellschafterdarlehen (€)",
         "ltv": "Fremdkapitalquote Fahrzeuge (LTV) %",
-        "loan_type": "Kreditart J1",
+        "help_ltv": "Prozentualer Anteil der gesamten Fahrzeuganschaffungskosten (inkl. Fracht und Zoll), der über Bankdarlehen finanziert wird.",
+        "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
+        "y2_loan_rate": "Standard Bankzins (J2+) %",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
+        "help_thg": "Treibhausgasminderungsquote. Handelbare Zertifikate für den Betrieb von Elektrofahrzeugen.",
         "salvage": "Fahrzeugverkaufspreis (J4)",
         
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
@@ -307,8 +325,8 @@ else:
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
         "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
-        "cf_kfw_draw": "+ Einzahlungen Bankdarlehen",
-        "cf_prin": "- Tilgung Bankdarlehen",
+        "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
+        "cf_prin": "- Tilgung Darlehen",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
         "cf_vat_repay": "- Tilgung USt-Überbrückungskredit",
         "cf_fin": "Cashflow aus Finanzierungstätigkeit",
@@ -328,7 +346,7 @@ else:
         "bs_teq": "Summe Eigenkapital",
         "bs_prov_tax": "Steuerrückstellungen",
         "bs_tprov": "Summe Rückstellungen",
-        "bs_debt_kfw": "Verbindlichkeiten ggü. Kreditinstituten (KfW)",
+        "bs_debt_kfw": "Verbindlichkeiten ggü. Kreditinstituten",
         "bs_debt_vat": "Kurzfristige Verbindlichkeiten (USt-Kredit)",
         "bs_pay_vat": "Umsatzsteuer-Zahllast",
         "bs_sh_loan": "Gesellschafterdarlehen",
@@ -384,15 +402,15 @@ base_fleet_size = sum(parse_adds(y1_adds_str))
 st.sidebar.header(loc["sec1b"])
 active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0)
 avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=22.0)
-deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=30.0) / 100
+deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=30.0, help=loc["help_deadhead"]) / 100
 
 st.sidebar.header(loc["sec1c"])
 util_mode = st.sidebar.radio(loc["util_mode"], [loc["util_dyn"], loc["util_fix"]])
 if util_mode == loc["util_dyn"]:
-    target_util = st.sidebar.number_input(loc["target_util"], value=90.0) / 100
-    init_util = st.sidebar.number_input(loc["init_util"], value=60.0) / 100
-    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0) / 100
-    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.5, step=0.1)
+    target_util = st.sidebar.number_input(loc["target_util"], value=90.0, help=loc["help_target"]) / 100
+    init_util = st.sidebar.number_input(loc["init_util"], value=60.0, help=loc["help_init"]) / 100
+    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0, help=loc["help_rec"]) / 100
+    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.5, step=0.1, help=loc["help_can"])
     flat_util = target_util
 else:
     flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
@@ -417,7 +435,7 @@ st.sidebar.header(loc["sec5"])
 insurance_pm = st.sidebar.number_input(loc["insurance"], value=300.0)
 parking_pm = st.sidebar.number_input(loc["parking"], value=150.0)
 telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0)
-tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0)
+tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, help=loc["help_tuev"])
 charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
 
 st.sidebar.header(loc["sec6"])
@@ -442,12 +460,13 @@ it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0)
 st.sidebar.header(loc["sec8"])
 stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0)
 shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0)
-vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0) / 100
-loan_cohort = st.sidebar.selectbox(loc["loan_type"], ["KfW Gründerkredit (4.5%, 1yr Grace)"])
+vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, help=loc["help_ltv"]) / 100
+y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, step=0.1) / 100
+y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1) / 100
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
 
 st.sidebar.header(loc["sec9"])
-thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0)
+thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0, help=loc["help_thg"])
 salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
 
 # --- 2. CAPEX & COHORT ENGINE ---
@@ -462,7 +481,7 @@ for m in range(60):
     if mo_val > 0:
         capex = mo_val * total_capex_per_car
         loan = capex * vehicle_ltv
-        rate = 0.045 if m < 12 else 0.055
+        rate = y1_loan_rate if m < 12 else y2_loan_rate
         cohorts.append({
             "start_month": m + 1,
             "size": mo_val,
@@ -603,7 +622,6 @@ for m in range(60):
     utilization_by_month.append(current_u)
     prev_fleet = active_fleet
     active_fleet_by_month.append(active_fleet)
-    
     # --- END UTILIZATION LOGIC ---
     
     if current_month == 1: capex_this_mo += it_hardware_capex_y1
@@ -824,7 +842,6 @@ colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 st.divider()
 st.subheader(loc["output_title"])
 
-st.markdown(f"**{loc['view_mode']}**")
 t_col1, t_col2, t_col3, t_col4, t_col5 = st.columns(5)
 exp_y1 = t_col1.toggle(loc["exp_y1"])
 exp_y2 = t_col2.toggle(loc["exp_y2"])
