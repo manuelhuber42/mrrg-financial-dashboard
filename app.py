@@ -24,6 +24,9 @@ base_fare_eur = st.sidebar.number_input("Base Fare (€)", value=2.50)
 price_per_km_eur = st.sidebar.number_input("Price per km (€)", value=1.49)
 tesla_take_rate = st.sidebar.number_input("Tesla Take-Rate (%)", value=30.0) / 100
 
+st.sidebar.header("4. DAILY VARIABLE COSTS")
+cleaning_cost_per_day = st.sidebar.number_input("Cleaning Cost per Car/Day (€)", value=3.00)
+
 # --- 2. THE SCHEDULE ENGINE (Daily Math per Car) ---
 # 1. Total theoretical distance if driving non-stop
 max_theoretical_km = active_hours_per_day * avg_speed_kmh
@@ -54,14 +57,21 @@ annual_tesla_fees = annual_gross_revenue_fleet * tesla_take_rate
 annual_net_revenue = annual_gross_revenue_fleet - annual_tesla_fees
 
 # --- 3. PLACEHOLDERS FOR NEXT LAYERS ---
-wear_and_tear_rate = 0.03 
+wear_and_tear_rate = 0.03 # Updated per your new assumption
 energy_rate = 0.05
 total_km_annual_fleet = actual_total_km_per_day * operating_days * fleet_size
+
+# Variable Costs
 annual_wear_cost = total_km_annual_fleet * wear_and_tear_rate
 annual_energy_cost = total_km_annual_fleet * energy_rate
-annual_fixed_overhead = 4000 * fleet_size # Placeholder
+annual_cleaning_cost = cleaning_cost_per_day * operating_days * fleet_size
 
-ebitda_placeholder = annual_net_revenue - annual_wear_cost - annual_energy_cost - annual_fixed_overhead
+# Deckungsbeitrag (Contribution Margin) Calculation
+deckungsbeitrag = annual_net_revenue - annual_energy_cost - annual_wear_cost - annual_cleaning_cost
+
+annual_fixed_overhead = 4000 * fleet_size # Placeholder for Layer 2
+
+ebitda_placeholder = deckungsbeitrag - annual_fixed_overhead
 
 # --- 4. DASHBOARD RENDER ---
 st.subheader("Layer 1: Unit Economics Verification (Per Car / Per Day)")
@@ -87,6 +97,8 @@ with tabs[0]:
             "Net Revenue (Nettoerlöse)",
             "Less: Direct Energy (Variable)",
             "Less: Direct Maintenance/Wear (Variable)",
+            "Less: Cleaning Cost (Variable)",
+            "Deckungsbeitrag (Contribution Margin)",
             "Less: Fixed Operational Overhead",
             "EBITDA"
         ],
@@ -96,6 +108,8 @@ with tabs[0]:
             annual_net_revenue,
             -annual_energy_cost,
             -annual_wear_cost,
+            -annual_cleaning_cost,
+            deckungsbeitrag,
             -annual_fixed_overhead,
             ebitda_placeholder
         ]
