@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: VAT & Latent Bug Fixes)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: SH Loan Compliance & Final Audit)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -106,7 +106,9 @@ if lang_choice == "English":
         "it_hw": "IT Hardware CapEx (Y1)",
         "sec8": "8. CAPITAL STRUCTURE & FINANCING",
         "stamm": "Stammkapital (€)",
-        "sh_loan": "Shareholder Loan (€)",
+        "sh_loan": "Shareholder Loan (Subord.) (€)",
+        "sh_loan_rate": "SH Loan Interest Rate (%)",
+        "help_sh_rate": "Market rate required by Finanzamt to avoid hidden profit distribution (vGA) tax issues.",
         "ltv": "Vehicle Loan-to-Value (LTV) %",
         "help_ltv": "Percentage of total vehicle landing costs financed via bank debt.",
         "y1_loan_rate": "KfW Gründerkredit Rate (Y1) %",
@@ -147,7 +149,7 @@ if lang_choice == "English":
         "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebit": "EBIT (Operating Income)",
         "pnl_int_inc": "Add: Interest Income (Zinserträge)",
-        "pnl_int_exp": "Less: Interest Expense (Vehicles & VAT Bridge)",
+        "pnl_int_exp": "Less: Interest Expense (Vehicles, VAT Bridge, SH Loan)",
         "pnl_ebt": "EBT (Earnings Before Tax)",
         "pnl_tax": "Less: Corporate Taxes (Ertragsteuern)",
         "pnl_ni": "Net Income (Jahresüberschuss / EAT)",
@@ -190,7 +192,7 @@ if lang_choice == "English":
         "bs_debt_kfw": "Long-Term Debt (Vehicle Loans)",
         "bs_debt_vat": "Short-Term Debt (VAT Bridge)",
         "bs_pay_vat": "Umsatzsteuer-Zahllast (VAT Payable)",
-        "bs_sh_loan": "Shareholder Loan",
+        "bs_sh_loan": "Shareholder Loan (Subordinated)",
         "bs_tliab": "Total Liabilities (Debt)",
         "bs_tleq": "TOTAL LIAB. & EQUITY",
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
@@ -242,7 +244,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: USt & Latente Bug Fixes)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: SH-Darlehen Compliance & Audit)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -306,7 +308,9 @@ else:
         "it_hw": "IT Hardware CapEx (J1)",
         "sec8": "8. KAPITALSTRUKTUR & FINANZIERUNG",
         "stamm": "Stammkapital (€)",
-        "sh_loan": "Gesellschafterdarlehen (€)",
+        "sh_loan": "Gesellschafterdarlehen (Nachrangig) (€)",
+        "sh_loan_rate": "Gesellschafterdarlehen Zins (%)",
+        "help_sh_rate": "Marktüblicher Zins, den das Finanzamt verlangt, um verdeckte Gewinnausschüttungen (vGA) zu vermeiden.",
         "ltv": "Fremdkapitalquote Fahrzeuge (LTV) %",
         "help_ltv": "Prozentualer Anteil der finanzierten Anschaffungskosten.",
         "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
@@ -347,7 +351,7 @@ else:
         "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
-        "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Fahrzeuge & USt-Kredit)",
+        "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Fahrzeuge, USt-Kredit & GD)",
         "pnl_ebt": "EBT (Ergebnis vor Steuern)",
         "pnl_tax": "Abzüglich: Ertragsteuern",
         "pnl_ni": "Jahresüberschuss (EAT)",
@@ -390,7 +394,7 @@ else:
         "bs_debt_kfw": "Verbindlichkeiten ggü. Kreditinstituten",
         "bs_debt_vat": "Kurzfristige Verbindlichkeiten (USt-Kredit)",
         "bs_pay_vat": "Umsatzsteuer-Zahllast",
-        "bs_sh_loan": "Gesellschafterdarlehen",
+        "bs_sh_loan": "Gesellschafterdarlehen (Nachrangig)",
         "bs_tliab": "Summe Verbindlichkeiten",
         "bs_tleq": "SUMME PASSIVA",
         "bs_check": "BILANZKONTROLLE (Aktiva - Passiva)",
@@ -491,7 +495,7 @@ vat_rate = 0.19
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.06, format="%.2f", step=0.01, help=loc["wear_help"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
 energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
@@ -523,6 +527,7 @@ it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0)
 st.sidebar.header(loc["sec8"])
 stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0)
 shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0)
+sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, step=0.1, help=loc["help_sh_rate"]) / 100
 vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, help=loc["help_ltv"]) / 100
 y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, step=0.1) / 100
 y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1) / 100
@@ -734,6 +739,10 @@ for m in range(60):
     ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
+    
+    # SH Loan Interest Accrual
+    sh_int_mo = shareholder_loan * (sh_loan_rate / 12)
+    int_exp += sh_int_mo
     
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
@@ -1193,6 +1202,7 @@ with tabs[5]:
         * **AfA (Absetzung für Abnutzung / Depreciation):** Because cars lose value over time, the government allows us to deduct a portion of the car's value from our taxable profit every month.
         * **Deadhead:** The percentage of kilometers a vehicle drives *without* a paying passenger. 
         * **HGB (Handelsgesetzbuch):** The German Commercial Code. This model strictly follows German accounting rules, specifically regarding how taxes are provisioned and paid.
+        * **Shareholder Loans:** If a founder lends money to the company, German tax law generally expects a market interest rate to avoid hidden profit distributions (vGA). Since banks usually require this loan to act as equity buffer, the principal is locked (subordinated) while interest is accrued or paid monthly.
 
         ---
 
@@ -1229,6 +1239,7 @@ with tabs[5]:
         * **AfA (Absetzung für Abnutzung):** Da Autos im Laufe der Zeit an Wert verlieren, dürfen wir jeden Monat einen Teil des Fahrzeugwerts von unserem steuerpflichtigen Gewinn abziehen.
         * **Leerfahrten (Deadhead):** Der prozentuale Anteil der gefahrenen Kilometer *ohne* zahlenden Fahrgast.
         * **HGB (Handelsgesetzbuch):** Dieses Modell folgt strikt den deutschen Rechnungslegungsvorschriften, insbesondere im Hinblick auf die Bildung und Auszahlung von Steuerrückstellungen.
+        * **Gesellschafterdarlehen:** Gibt ein Gründer dem Unternehmen einen Kredit, erwartet das Finanzamt in der Regel einen Marktzins, um verdeckte Gewinnausschüttungen (vGA) zu vermeiden. Da Banken meist einen Rangrücktritt fordern, bleibt die Kreditsumme gebunden, während die Zinsen monatlich anfallen oder gezahlt werden.
 
         ---
 
