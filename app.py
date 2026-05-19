@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Fully Audited Core)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: VAT & Latent Bug Fixes)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -122,7 +122,7 @@ if lang_choice == "English":
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
         "pnl_vat": "Less: 19% VAT (Finanzamt)",
         "pnl_net_rev": "Net Revenue (Umsatzerlöse excl. VAT)",
-        "pnl_tesla_fee": "Less: Tesla Platform Fee (Take-Rate on GBV)",
+        "pnl_tesla_fee": "Less: Tesla Platform Fee (Take-Rate on Net Rev)",
         "pnl_mrrg_net": "MRRG Net Revenue (After Platform Fee)",
         "pnl_energy": "Less: Direct Energy (Variable, Seasonally Adjusted)",
         "pnl_wear": "Less: Direct Maintenance/Wear (Variable)",
@@ -142,8 +142,8 @@ if lang_choice == "English":
         "pnl_bank": "Less: Bank Fees",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
         "pnl_ebitda": "EBITDA",
-        "pnl_afa_veh": "Less: Vehicle Depreciation (AfA - 48 Mo.)",
-        "pnl_afa_it": "Less: IT Hardware Depreciation (AfA - 36 Mo.)",
+        "pnl_afa_veh": "Less: Vehicle Depreciation (AfA)",
+        "pnl_afa_it": "Less: IT Hardware Depreciation (AfA)",
         "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
         "pnl_ebit": "EBIT (Operating Income)",
         "pnl_int_inc": "Add: Interest Income (Zinserträge)",
@@ -242,7 +242,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: Geprüfte GuV & Darlehenstilgung)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 12: USt & Latente Bug Fixes)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -322,7 +322,7 @@ else:
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
         "pnl_vat": "Abzüglich: 19% Umsatzsteuer (Finanzamt)",
         "pnl_net_rev": "Umsatzerlöse (netto)",
-        "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (auf BBW)",
+        "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (auf Netto)",
         "pnl_mrrg_net": "MRRG Nettoerlöse (nach Plattformgebühr)",
         "pnl_energy": "Abzüglich: Direkte Energiekosten (variabel, saisonal gewichtet)",
         "pnl_wear": "Abzüglich: Instandhaltung/Verschleiß (variabel)",
@@ -342,8 +342,8 @@ else:
         "pnl_bank": "Abzüglich: Bankgebühren",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
         "pnl_ebitda": "EBITDA",
-        "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA - 48 Mon.)",
-        "pnl_afa_it": "Abzüglich: Abschreibung IT Hardware (AfA - 36 Mon.)",
+        "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA)",
+        "pnl_afa_it": "Abzüglich: Abschreibung IT Hardware (AfA)",
         "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
@@ -554,7 +554,8 @@ for m in range(60):
             "original_loan": loan,
             "loan_bal": loan,
             "rate": rate,
-            "afa_per_mo": capex / 48
+            "afa_per_mo": capex / 48,
+            "accum_afa": 0
         })
 
 # Day 1 Math for UI Cards
@@ -617,7 +618,6 @@ prior_year_tax_actual = 0
 current_year_tax_accrued = 0
 prepayments_made_this_year = 0
 true_up_due_this_m5 = 0
-true_up_due_next_m5 = 0
 
 cum_gfa = 0
 cum_depr = 0
@@ -654,6 +654,7 @@ for m in range(60):
     kfw_draw = 0
     capex_this_mo = 0
     capex_sold_this_mo = 0
+    accum_afa_sold_this_mo = 0
     
     for c in cohorts:
         c_start = c["start_month"]
@@ -664,9 +665,9 @@ for m in range(60):
         if current_month >= c_start and current_month < c_start + 48:
             active_fleet += c["size"]
             current_veh_afa += c["afa_per_mo"]
+            c["accum_afa"] += c["afa_per_mo"]
             int_exp += c["loan_bal"] * (c["rate"] / 12)
             
-            # F-06 Fix
             if current_month >= c_start + 12:
                 prin = c["original_loan"] / 48
                 if c["loan_bal"] - prin < 0: prin = c["loan_bal"]
@@ -676,9 +677,10 @@ for m in range(60):
         if current_month == c_start + 48:
             fleet_sale_rev += c["size"] * salvage_value_per_car_y4
             capex_sold_this_mo += c["capex"]
-            # F-02 Fix
+            accum_afa_sold_this_mo += c["accum_afa"]
             prin_pay += c["loan_bal"]
             c["loan_bal"] = 0
+            c["accum_afa"] = 0
 
     # --- DYNAMIC UTILIZATION LOGIC ---
     if util_mode == loc["util_dyn"]:
@@ -703,7 +705,7 @@ for m in range(60):
     gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
     net_rev_mo = gbv_mo / (1 + vat_rate)
     vat_owed_mo = gbv_mo - net_rev_mo
-    tesla_fee_mo = gbv_mo * tesla_take_rate
+    tesla_fee_mo = net_rev_mo * tesla_take_rate
     mrrg_net_mo = net_rev_mo - tesla_fee_mo
     
     total_km_mo = actual_total_km_per_day * op_days * active_fleet
@@ -728,13 +730,11 @@ for m in range(60):
     
     thg_mo = (thg_quote_per_car_py * active_fleet) if (current_month % 12 == 0) else 0
     
-    # F-01 Fix
     ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_mo
     ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
     
-    # F-05 Fix
     vat_draw_mo = capex_this_mo * vat_rate
     vat_loan_bal += vat_draw_mo
     vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
@@ -747,7 +747,6 @@ for m in range(60):
     
     ebt_mo = ebit_mo + int_inc_mo - int_exp
     
-    # F-04 Fix
     tax_exp_mo = max(0, ebt_mo) * tax_schedule[current_year]
     current_year_tax_accrued += tax_exp_mo
     
@@ -767,8 +766,7 @@ for m in range(60):
             prepayments_made_this_year += payment
             
     if current_month % 12 == 0:
-        true_up_due_next_m5 = current_year_tax_accrued - prepayments_made_this_year
-        true_up_due_this_m5 = true_up_due_next_m5
+        true_up_due_this_m5 = current_year_tax_accrued - prepayments_made_this_year
         prior_year_tax_actual = current_year_tax_accrued
         current_year_tax_accrued = 0
         prepayments_made_this_year = 0
@@ -792,7 +790,7 @@ for m in range(60):
     
     # UPDATE BALANCE SHEET STATE
     cum_gfa += capex_this_mo - capex_sold_this_mo
-    cum_depr += total_afa_this_mo - capex_sold_this_mo 
+    cum_depr += total_afa_this_mo - accum_afa_sold_this_mo 
     nfa = cum_gfa - cum_depr
     vat_receivable += vat_draw_mo - vat_refund_inflow
     current_cash = end_cash
@@ -942,24 +940,15 @@ debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["p
 other_inc = df_pnl_combined.loc[loc["pnl_thg"]]
 
 kpi_dict = {}
-
-# 1. DB2 Margin
 kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
-# 2. Variable Expense Ratio
 kpi_dict[loc["kpi_var_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(var_costs, rev_top)]
-# 3. Fixed Expense Ratio
 kpi_dict[loc["kpi_fix_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(fix_costs, rev_top)]
-# 4. Total Expense Ratio
 kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, rev_top)]
-# 5. Other Income Ratio
 kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
-# 6. EBITDA Margin
 kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
-# 7. DSCR
 kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
-# 8. Equity Ratio
 kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
-# 9. Liquidity Runway
+
 runway_arr = []
 for col in df_pnl_combined.columns:
     is_year = "Year" in col or "Jahr" in col
@@ -967,7 +956,7 @@ for col in df_pnl_combined.columns:
     rw = cash[col] / div if div > 0 else 999
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
-# 10. Net LTV
+
 net_debt = tliab - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
 
@@ -1143,7 +1132,7 @@ with tabs[3]:
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
             * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
-            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts) generated as a byproduct of operations.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
             * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
             * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
             """)
@@ -1156,7 +1145,7 @@ with tabs[3]:
             * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
             * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
-            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien), die als Nebenprodukt des Betriebs generiert wird.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
             * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
             * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
             """)
@@ -1213,7 +1202,7 @@ with tabs[5]:
         * **Fleet Scaling:** Instead of adding cars once a year, you type a comma-separated list to drop cars into specific months (e.g., `2, 0, 0, 0, 2` means 2 cars in Jan, 2 in May). 
         * **Utilization Mode:** If set to *Dynamic*, the model simulates reality: when you drop new cars into a city, they temporarily "cannibalize" rides from your existing cars. Your overall utilization drops, and then slowly recovers.
         * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
-        * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws an 8% short-term bridge loan to cover this VAT and pays it off automatically 6 months later when the refund arrives.
+        * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws a short-term bridge loan (rate configured in sidebar) to cover this VAT and pays it off automatically based on the configured refund lag.
 
         ---
 
@@ -1249,7 +1238,7 @@ with tabs[5]:
         * **Flottenskalierung:** Anstatt Autos nur einmal pro Jahr hinzuzufügen, geben Sie eine durch Kommas getrennte Liste ein, um Autos in bestimmten Monaten einzuflotten (z. B. `2, 0, 0, 0, 2` bedeutet 2 Autos im Jan, 2 im Mai).
         * **Auslastungsmodell:** Wenn auf *Dynamisch* gesetzt, simuliert das Modell die Realität: Wenn neue Autos in die Flotte kommen, "kannibalisieren" sie vorübergehend die Fahrten der bestehenden Flotte. Die Gesamtauslastung sinkt und erholt sich dann allmählich.
         * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
-        * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit zu 8% auf, um diese Vorsteuer zu decken, und zahlt ihn 6 Monate später zurück, wenn die Erstattung vom Finanzamt eintrifft.
+        * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit auf (Zinssatz in Seitenleiste konfigurierbar), um diese Vorsteuer zu decken, und zahlt ihn nach der konfigurierten Erstattungsdauer zurück, wenn die Erstattung vom Finanzamt eintrifft.
 
         ---
 
