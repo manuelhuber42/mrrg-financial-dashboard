@@ -42,7 +42,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: SH Loan Compliance & Final Audit)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 13: Annuity Loans & THG Accruals)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -159,6 +159,7 @@ if lang_choice == "English":
         "cf_gain_sale": "- Gain on Sale of Assets",
         "cf_tax_prov": "+ Tax Provision Increase",
         "cf_tax_paid": "- Taxes Paid (Prepayments & True-up)",
+        "cf_wc_thg": "-/+ Delta THG Receivable (WC)",
         "cf_vat_coll": "+ VAT Collected (Operations)",
         "cf_vat_paid": "- VAT Paid (Operations)",
         "cf_op": "Net Cash from Operations",
@@ -181,6 +182,7 @@ if lang_choice == "English":
         "bs_acc_depr": "- Accumulated Depreciation",
         "bs_nfa": "Net Fixed Assets",
         "bs_vat_rec": "VAT Receivable (Finanzamt)",
+        "bs_thg_rec": "THG Quota Receivable",
         "bs_cash": "Ending Cash Balance",
         "bs_tca": "Total Current Assets",
         "bs_ta": "TOTAL ASSETS",
@@ -193,7 +195,7 @@ if lang_choice == "English":
         "bs_debt_vat": "Short-Term Debt (VAT Bridge)",
         "bs_pay_vat": "Umsatzsteuer-Zahllast (VAT Payable)",
         "bs_sh_loan": "Shareholder Loan (Subordinated)",
-        "bs_tliab": "Total Liabilities (Debt)",
+        "bs_tliab": "Total Liabilities",
         "bs_tleq": "TOTAL LIAB. & EQUITY",
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
 
@@ -244,7 +246,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 12: SH-Darlehen Compliance & Audit)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 13: Annuitätendarlehen & THG)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -361,6 +363,7 @@ else:
         "cf_gain_sale": "- Buchgewinn aus Anlagenabgang",
         "cf_tax_prov": "+ Zunahme Steuerrückstellungen",
         "cf_tax_paid": "- Gezahlte Steuern (Vorausz. & Nachzahlung)",
+        "cf_wc_thg": "-/+ Veränderung THG-Forderungen (WC)",
         "cf_vat_coll": "+ Erhaltene Umsatzsteuer (laufender Betrieb)",
         "cf_vat_paid": "- Gezahlte Umsatzsteuer (laufender Betrieb)",
         "cf_op": "Operativer Cashflow",
@@ -383,6 +386,7 @@ else:
         "bs_acc_depr": "- Kumulierte Abschreibungen",
         "bs_nfa": "Netto-Sachanlagen (Anlagevermögen)",
         "bs_vat_rec": "Umsatzsteuerforderungen (Finanzamt)",
+        "bs_thg_rec": "THG-Prämien Forderungen",
         "bs_cash": "Kassenbestand / Bankguthaben",
         "bs_tca": "Summe Umlaufvermögen",
         "bs_ta": "SUMME AKTIVA",
@@ -552,6 +556,14 @@ for m in range(60):
         capex = mo_val * total_capex_per_car
         loan = capex * vehicle_ltv
         rate = y1_loan_rate if m < 12 else y2_loan_rate
+        
+        # F-14 Fix: Exact PMT Annuity Math
+        monthly_rate = rate / 12
+        if monthly_rate > 0:
+            pmt = loan * (monthly_rate * (1 + monthly_rate)**48) / ((1 + monthly_rate)**48 - 1)
+        else:
+            pmt = loan / 48
+            
         cohorts.append({
             "start_month": m + 1,
             "size": mo_val,
@@ -559,6 +571,7 @@ for m in range(60):
             "original_loan": loan,
             "loan_bal": loan,
             "rate": rate,
+            "pmt": pmt,
             "afa_per_mo": capex / 48,
             "accum_afa": 0
         })
@@ -595,14 +608,14 @@ pnl_keys = [
 
 cf_keys = [
     loc["cf_ni"], loc["cf_depr"], loc["cf_gain_sale"], loc["cf_tax_prov"], loc["cf_tax_paid"], 
-    loc["cf_vat_coll"], loc["cf_vat_paid"], loc["cf_op"], 
+    loc["cf_wc_thg"], loc["cf_vat_coll"], loc["cf_vat_paid"], loc["cf_op"], 
     loc["cf_capex"], loc["cf_vat_ref"], loc["cf_sale"], loc["cf_inv"], 
     loc["cf_eq"], loc["cf_sh"], loc["cf_kfw_draw"], loc["cf_prin"], loc["cf_vat_draw"], loc["cf_vat_repay"], loc["cf_fin"], 
     loc["cf_net"], loc["cf_beg"], loc["cf_end"]
 ]
 
 bs_keys = [
-    loc["bs_gfa"], loc["bs_acc_depr"], loc["bs_nfa"], loc["bs_vat_rec"], loc["bs_cash"], loc["bs_tca"], loc["bs_ta"],
+    loc["bs_gfa"], loc["bs_acc_depr"], loc["bs_nfa"], loc["bs_vat_rec"], loc["bs_thg_rec"], loc["bs_cash"], loc["bs_tca"], loc["bs_ta"],
     loc["bs_eq_share"], loc["bs_eq_ret"], loc["bs_teq"], loc["bs_prov_tax"], loc["bs_tprov"],
     loc["bs_debt_kfw"], loc["bs_debt_vat"], loc["bs_pay_vat"], loc["bs_sh_loan"], loc["bs_tliab"], loc["bs_tleq"], loc["bs_check"]
 ]
@@ -618,6 +631,7 @@ current_cash = 0
 vat_loan_bal = 0
 operational_vat_payable = 0
 vat_receivable = 0
+thg_receivable = 0
 tax_provision_bal = 0
 prior_year_tax_actual = 0
 current_year_tax_accrued = 0
@@ -671,10 +685,13 @@ for m in range(60):
             active_fleet += c["size"]
             current_veh_afa += c["afa_per_mo"]
             c["accum_afa"] += c["afa_per_mo"]
-            int_exp += c["loan_bal"] * (c["rate"] / 12)
+            
+            # Interest & Principal Logic (F-14 Fix Applied)
+            int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
+            int_exp += int_for_this_loan
             
             if current_month >= c_start + 12:
-                prin = c["original_loan"] / 48
+                prin = c["pmt"] - int_for_this_loan
                 if c["loan_bal"] - prin < 0: prin = c["loan_bal"]
                 prin_pay += prin
                 c["loan_bal"] -= prin
@@ -733,9 +750,16 @@ for m in range(60):
     hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
     fees_mo = ihk_pm + (gez_pm_per_car * active_fleet)
     
-    thg_mo = (thg_quote_per_car_py * active_fleet) if (current_month % 12 == 0) else 0
+    # F-18 Fix: THG Monthly Accrual & Cash Settlement
+    thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
+    thg_receivable += thg_rev_mo
+    thg_cash_mo = 0
+    if current_month % 3 == 0:
+        thg_cash_mo = thg_receivable
+        thg_receivable = 0
+    thg_wc_delta = thg_cash_mo - thg_rev_mo
     
-    ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_mo
+    ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo
     ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
     
     int_inc_mo = current_cash * (interest_income_rate / 12) if current_cash > 0 else 0
@@ -786,7 +810,7 @@ for m in range(60):
     op_vat_collected = vat_owed_mo
     op_vat_paid = -operational_vat_payable
     
-    op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + op_vat_collected + op_vat_paid
+    op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid
     inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
     
     eq_in = stammkapital if current_month == 1 else 0
@@ -809,7 +833,7 @@ for m in range(60):
     
     kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
     
-    total_assets = nfa + vat_receivable + current_cash
+    total_assets = nfa + vat_receivable + thg_receivable + current_cash
     total_equity = stammkapital + cum_net_income
     total_prov = tax_provision_bal
     total_liab = kfw_loan_bal + vat_loan_bal + operational_vat_payable + shareholder_loan
@@ -838,7 +862,7 @@ for m in range(60):
     pnl_monthly[loc["pnl_hq_ins"]].append(-hq_ins_mo)
     pnl_monthly[loc["pnl_fees"]].append(-fees_mo)
     pnl_monthly[loc["pnl_bank"]].append(-bank_fees_pm)
-    pnl_monthly[loc["pnl_thg"]].append(thg_mo)
+    pnl_monthly[loc["pnl_thg"]].append(thg_rev_mo)
     pnl_monthly[loc["pnl_ebitda"]].append(ebitda_mo)
     pnl_monthly[loc["pnl_afa_veh"]].append(-current_veh_afa)
     pnl_monthly[loc["pnl_afa_it"]].append(-current_it_afa)
@@ -856,6 +880,7 @@ for m in range(60):
     cf_monthly[loc["cf_gain_sale"]].append(-fleet_sale_rev)
     cf_monthly[loc["cf_tax_prov"]].append(tax_exp_mo)
     cf_monthly[loc["cf_tax_paid"]].append(-tax_paid_mo)
+    cf_monthly[loc["cf_wc_thg"]].append(thg_wc_delta)
     cf_monthly[loc["cf_vat_coll"]].append(op_vat_collected)
     cf_monthly[loc["cf_vat_paid"]].append(op_vat_paid)
     cf_monthly[loc["cf_op"]].append(op_cf_mo)
@@ -879,8 +904,9 @@ for m in range(60):
     bs_monthly[loc["bs_acc_depr"]].append(-cum_depr)
     bs_monthly[loc["bs_nfa"]].append(nfa)
     bs_monthly[loc["bs_vat_rec"]].append(vat_receivable)
+    bs_monthly[loc["bs_thg_rec"]].append(thg_receivable)
     bs_monthly[loc["bs_cash"]].append(current_cash)
-    bs_monthly[loc["bs_tca"]].append(vat_receivable + current_cash)
+    bs_monthly[loc["bs_tca"]].append(vat_receivable + thg_receivable + current_cash)
     bs_monthly[loc["bs_ta"]].append(total_assets)
     bs_monthly[loc["bs_eq_share"]].append(stammkapital)
     bs_monthly[loc["bs_eq_ret"]].append(cum_net_income)
@@ -902,9 +928,10 @@ def agg_to_yearly(monthly_dict):
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
-            if loc["cf_end"] in key or key in bs_keys:
+            # F-19 Fix: Explicit equality check instead of substring match
+            if key == loc["cf_end"] or key in bs_keys:
                 yearly_arr.append(chunk[-1])
-            elif loc["cf_beg"] in key:
+            elif key == loc["cf_beg"]:
                 yearly_arr.append(chunk[0])
             else:
                 yearly_arr.append(sum(chunk))
@@ -938,9 +965,12 @@ ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
 ta = df_bs_combined.loc[loc["bs_ta"]]
 teq = df_bs_combined.loc[loc["bs_teq"]]
-tliab = df_bs_combined.loc[loc["bs_tliab"]]
+tliab_all = df_bs_combined.loc[loc["bs_tliab"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
+
+# F-15 Fix: Pure Financial Debt for Leverage Metrics
+fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
@@ -966,7 +996,7 @@ for col in df_pnl_combined.columns:
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
 
-net_debt = tliab - cash
+net_debt = fin_debt - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
@@ -1137,11 +1167,11 @@ with tabs[3]:
             * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*.
             * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
             * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
-            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Liabilities - Cash) / Net Fixed Assets*.
+            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Financial Debt - Cash) / Net Fixed Assets*. Excludes operational pass-through liabilities like VAT.
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
             * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
-            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts) generated as a byproduct of operations.
             * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
             * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
             """)
@@ -1150,11 +1180,11 @@ with tabs[3]:
             * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*.
             * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
             * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
-            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Verbindlichkeiten - Kasse) / Netto-Sachanlagen*.
+            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Finanzverbindlichkeiten - Kasse) / Netto-Sachanlagen*.
             * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
             * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
-            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien), die als Nebenprodukt des Betriebs generiert wird.
             * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
             * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
             """)
