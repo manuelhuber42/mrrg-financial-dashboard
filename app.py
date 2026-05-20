@@ -49,7 +49,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 14: Final Execution Flow Fixed)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 15: Vetted Production Build)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -258,7 +258,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 14: Final Execution Flow Fixed)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 15: Finale Compliance Matrix)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -293,12 +293,12 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab.",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
         "energy_rate": "Basis-Energiekosten pro km (€)",
         "energy_help": "Reiner Sommer-Basistarif. Winterzuschläge erfolgen dynamisch.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
-        "parking": "Münchner APCOA Ladestellplatz",
+        "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
@@ -334,8 +334,8 @@ else:
         "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
         "y2_loan_rate": "Kommerzielle Kfz-Finanzierung Zins (J2+) %",
         "vat_rate_input": "USt-Überbrückungskredit Zins (%)",
-        "vat_lag_input": "USt-Erstattungsdauer (Monate) (F-20)",
-        "cash_buffer_input": "Mindest-Liquiditätsreserve (€) (F-23)",
+        "vat_lag_input": "USt-Erstattungsdauer (Monate)",
+        "cash_buffer_input": "Mindest-Liquiditätsreserve (€)",
         "legal_provision_input": "Monatliche Rechtsrisiko-Rückstellung (€) (§ 249 HGB)",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
@@ -391,7 +391,7 @@ else:
         "cf_sale": "+ Einzahlungen aus Anlagenabgängen",
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
-        "cf_sh": "+ Shareholder Loan Injection",
+        "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
         "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
         "cf_prin": "- Tilgung Darlehen (inkl. Ballon)",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
@@ -466,7 +466,7 @@ else:
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
 # --- SIDEBAR INTERFACE CONTROLS ---
-# We must define all inputs *before* the function to prevent NameErrors in Streamlit
+# UI Inputs defined first to prevent NameErrors in cache engine
 st.sidebar.header(loc["sec1"])
 y1_adds_str = st.sidebar.text_input(loc["y1_adds"], "3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0")
 y2_adds_str = st.sidebar.text_input(loc["y2_adds"], "2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0")
@@ -502,8 +502,7 @@ tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
-# Wear rate is definitively locked at 0.03
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.06, format="%.2f", step=0.01, help=loc["wear_help"])
 energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
@@ -570,29 +569,25 @@ def execute_financial_simulation(
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
     thg_quote_per_car_py, salvage_value_per_car_y4, lang_choice
 ):
-    # Pure Internal Keys Definition inside Caching Workspace (F-30/F-31)
-    VAT_FAC = 0.19
-    V_DEP_MO = 48
-    IT_DEP_MO = 36
-    OD_ANN_RATE = 0.095
-
-    # Re-evaluate Key lists inside isolated memory context
-    p_gbv, p_vat, p_net, p_tfee, p_mnet, p_en, p_wr, p_cl, p_db1, p_ins, p_pk, p_api, p_tv, p_sub, p_db2, p_hq, p_it, p_leg, p_hins, p_fee, p_bnk, p_thg, p_eb, p_af_v, p_af_i, p_sal, p_ebit, p_i_in, p_i_ex, p_ebt, p_tx, p_ni = [
+    # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net", "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
         "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_thg",
         "pnl_ebitda", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
-    c_ni, c_dp, c_gs, c_tp, c_tpd, c_lpr, c_wct, c_vcol, c_vpd, c_op, c_cap, c_vrf, c_sle, c_inv, c_eq, c_sh, c_kfw, c_prn, c_vdr, c_vrp, c_od, c_fin, c_net, c_beg, c_end = [
+    C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END = [
         "cf_ni", "cf_depr", "cf_gain_sale", "cf_tax_prov", "cf_tax_paid", "cf_legal_prov", "cf_wc_thg", "cf_vat_coll", "cf_vat_paid", "cf_op",
         "cf_capex", "cf_vat_ref", "cf_sale", "cf_inv", "cf_eq", "cf_sh", "cf_kfw_draw", "cf_prin", "cf_vat_draw", "cf_vat_repay", "cf_overdraft_delta",
         "cf_fin", "cf_net", "cf_beg", "cf_end"
     ]
 
-    b_gf, b_ad, b_nf, b_vr, b_tr, b_cs, b_tc, b_ta, b_es, b_er, b_tq, b_pt, b_pl, b_tpv, b_dk, b_dv, b_do, b_pv, b_sl, b_tl, b_tq_e, b_ch = [
+    B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
         "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_thg_rec", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
         "bs_prov_tax", "bs_prov_legal", "bs_tprov", "bs_debt_kfw", "bs_debt_vat", "bs_debt_overdraft", "bs_pay_vat", "bs_sh_loan", "bs_tliab", "bs_tleq", "bs_check"
     ]
+    
+    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
 
     def parse_adds(add_str):
         try:
@@ -618,9 +613,9 @@ def execute_financial_simulation(
             
             monthly_rate = rate / 12
             if monthly_rate > 0:
-                pmt = loan * (monthly_rate * (1 + monthly_rate)**V_DEP_MO) / ((1 + monthly_rate)**V_DEP_MO - 1)
+                pmt = loan * (monthly_rate * (1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD) / ((1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD - 1)
             else:
-                pmt = loan / V_DEP_MO
+                pmt = loan / VEHICLE_AMORTIZATION_PERIOD
                 
             cohorts.append({
                 "start_month": m + 1,
@@ -630,7 +625,7 @@ def execute_financial_simulation(
                 "loan_bal": loan,
                 "rate": rate,
                 "pmt": pmt,
-                "afa_per_mo": capex / V_DEP_MO,
+                "afa_per_mo": capex / VEHICLE_AMORTIZATION_PERIOD,
                 "accum_afa": 0,
                 "impaired": False
             })
@@ -650,9 +645,9 @@ def execute_financial_simulation(
     distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
     gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-    pnl_m = {k: [] for k in [p_gbv, p_vat, p_net, p_tfee, p_mnet, p_en, p_wr, p_cl, p_db1, p_ins, p_pk, p_api, p_tv, p_sub, p_db2, p_hq, p_it, p_leg, p_hins, p_fee, p_bnk, p_thg, p_eb, p_af_v, p_af_i, p_sal, p_ebit, p_i_in, p_i_ex, p_ebt, p_tx, p_ni]}
-    cf_m = {k: [] for k in [c_ni, c_dp, c_gs, c_tp, c_tpd, c_lpr, c_wct, c_vcol, c_vpd, c_op, c_cap, c_vrf, c_sle, c_inv, c_eq, c_sh, c_kfw, c_prn, c_vdr, c_vrp, c_od, c_fin, c_net, c_beg, c_end]}
-    bs_m = {k: [] for k in [b_gf, b_ad, b_nf, b_vr, b_tr, b_cs, b_tc, b_ta, b_es, b_er, b_tq, b_pt, b_pl, b_tpv, b_dk, b_dv, b_do, b_pv, b_sl, b_tl, b_tq_e, b_ch]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
+    cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
+    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
     tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
@@ -717,7 +712,7 @@ def execute_financial_simulation(
                 kfw_draw += c["original_loan"]
                 capex_this_mo += c["capex"]
                 
-            if current_month >= c_start and current_month < c_start + V_DEP_MO:
+            if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
                 active_fleet += c["size"]
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
@@ -738,7 +733,7 @@ def execute_financial_simulation(
                     prin_pay += prin
                     c["loan_bal"] -= prin
                     
-            if current_month == c_start + V_DEP_MO:
+            if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD:
                 fleet_sale_rev += c["size"] * salvage_value_per_car_y4
                 capex_sold_this_mo += c["capex"]
                 accum_afa_sold_this_mo += c["accum_afa"]
@@ -763,11 +758,11 @@ def execute_financial_simulation(
         active_fleet_by_month.append(active_fleet)
         
         if current_month == 1: capex_this_mo += it_hardware_capex_y1
-        current_it_afa = (it_hardware_capex_y1 / IT_DEP_MO) if current_month <= IT_DEP_MO else 0
+        current_it_afa = (it_hardware_capex_y1 / IT_AMORTIZATION_PERIOD) if current_month <= IT_AMORTIZATION_PERIOD else 0
         total_afa_this_mo = current_veh_afa + current_it_afa
         
         gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
-        net_rev_mo = gbv_mo / (1.0 + VAT_FAC)
+        net_rev_mo = gbv_mo / (1.0 + VAT_RATE)
         vat_owed_mo = gbv_mo - net_rev_mo
         # F-07 Net Revenue Correction: Platform take fee maps off Net instead of Gross
         tesla_fee_mo = net_rev_mo * tesla_take_rate
@@ -818,7 +813,7 @@ def execute_financial_simulation(
         sh_int_mo = shareholder_loan * (sh_loan_rate / 12.0)
         int_exp += sh_int_mo
         
-        vat_draw_mo = capex_this_mo * VAT_FAC
+        vat_draw_mo = capex_this_mo * VAT_RATE
         vat_loan_bal += vat_draw_mo
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
@@ -829,7 +824,7 @@ def execute_financial_simulation(
         int_exp += vat_int_mo
         
         if overdraft_facility_bal > 0:
-            int_exp += overdraft_facility_bal * (OD_ANN_RATE / 12.0)
+            int_exp += overdraft_facility_bal * (OVERDRAFT_ANNUAL_RATE / 12.0)
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
@@ -910,89 +905,89 @@ def execute_financial_simulation(
         bs_check_val = round(total_assets - total_liab_eq, STANDARD_TAX_ROUNDING)
         
         # Append Metrics out cleanly to insulated dictionaries
-        pnl_m[p_gbv].append(gbv_mo)
-        pnl_m[p_vat].append(-vat_owed_mo)
-        pnl_m[p_net].append(net_rev_mo)
-        pnl_m[p_tfee].append(-tesla_fee_mo)
-        pnl_m[p_mnet].append(mrrg_net_mo)
-        pnl_m[p_en].append(-energy_mo)
-        pnl_m[p_wr].append(-wear_mo)
-        pnl_m[p_cl].append(-clean_mo)
-        pnl_m[p_db1].append(db1_mo)
-        pnl_m[p_ins].append(-ins_mo)
-        pnl_m[p_pk].append(-park_mo)
-        pnl_m[p_api].append(-tel_mo)
-        pnl_m[p_tv].append(-tuev_mo)
-        pnl_m[p_sub].append(-sub_mo)
-        pnl_m[p_db2].append(db2_mo)
-        pnl_m[p_hq].append(-hq_lease_mo)
-        pnl_m[p_it].append(-it_cloud_mo)
-        pnl_m[p_leg].append(-legal_mo)
-        pnl_m[p_hins].append(-hq_ins_mo)
-        pnl_m[p_fee].append(-fees_mo)
-        pnl_m[p_bnk].append(-bank_fees_pm)
-        pnl_m[p_thg].append(thg_rev_mo)
-        pnl_m[p_eb].append(ebitda_mo)
-        pnl_m[p_af_v].append(-current_veh_afa)
-        pnl_m[p_af_i].append(-current_it_afa)
-        pnl_m[p_sal].append(fleet_sale_rev)
-        pnl_m[p_ebit].append(ebit_mo)
-        pnl_m[p_i_in].append(int_inc_mo)
-        pnl_m[p_i_ex].append(-int_exp)
-        pnl_m[p_ebt].append(ebt_mo)
-        pnl_m[p_tx].append(-tax_exp_mo)
-        pnl_m[p_ni].append(net_inc_mo)
+        pnl_m[P_GBV].append(gbv_mo)
+        pnl_m[P_VAT].append(-vat_owed_mo)
+        pnl_m[P_NET].append(net_rev_mo)
+        pnl_m[P_TFEE].append(-tesla_fee_mo)
+        pnl_m[P_MNET].append(mrrg_net_mo)
+        pnl_m[P_EN].append(-energy_mo)
+        pnl_m[P_WR].append(-wear_mo)
+        pnl_m[P_CL].append(-clean_mo)
+        pnl_m[P_DB1].append(db1_mo)
+        pnl_m[P_INS].append(-ins_mo)
+        pnl_m[P_PK].append(-park_mo)
+        pnl_m[P_API].append(-tel_mo)
+        pnl_m[P_TV].append(-tuev_mo)
+        pnl_m[P_SUB].append(-sub_mo)
+        pnl_m[P_DB2].append(db2_mo)
+        pnl_m[P_HQ].append(-hq_lease_mo)
+        pnl_m[P_IT].append(-it_cloud_mo)
+        pnl_m[P_LEG].append(-legal_mo)
+        pnl_m[P_HINS].append(-hq_ins_mo)
+        pnl_m[P_FEE].append(-fees_mo)
+        pnl_m[P_BNK].append(-bank_fees_pm)
+        pnl_m[P_THG].append(thg_rev_mo)
+        pnl_m[P_EB].append(ebitda_mo)
+        pnl_m[P_AF_V].append(-current_veh_afa)
+        pnl_m[P_AF_I].append(-current_it_afa)
+        pnl_m[P_SAL].append(fleet_sale_rev)
+        pnl_m[P_EBIT].append(ebit_mo)
+        pnl_m[P_I_IN].append(int_inc_mo)
+        pnl_m[P_I_EX].append(-int_exp)
+        pnl_m[P_EBT].append(ebt_mo)
+        pnl_m[P_TX].append(-tax_exp_mo)
+        pnl_m[P_NI].append(net_inc_mo)
 
-        cf_m[c_ni].append(net_inc_mo)
-        cf_m[c_dp].append(total_afa_this_mo)
-        cf_m[c_gs].append(-fleet_sale_rev)
-        cf_m[c_tp].append(tax_exp_mo)
-        cf_m[c_tpd].append(-tax_paid_mo)
-        cf_m[c_lpr].append(legal_provision_mo)
-        cf_m[c_wct].append(thg_wc_delta)
-        cf_m[c_vcol].append(op_vat_collected)
-        cf_m[c_vpd].append(op_vat_paid)
-        cf_m[c_op].append(op_cf_mo)
-        cf_m[c_cap].append(-(capex_this_mo + vat_draw_mo))
-        cf_m[c_vrf].append(vat_refund_inflow)
-        cf_m[c_sle].append(fleet_sale_rev)
-        cf_m[c_inv].append(inv_cf_mo)
-        cf_m[c_eq].append(eq_in)
-        cf_m[c_sh].append(sh_in)
-        cf_m[c_kfw].append(kfw_draw)
-        cf_m[c_prn].append(-prin_pay)
-        cf_m[c_vdr].append(vat_draw_mo)
-        cf_m[c_vrp].append(-vat_repay_mo)
-        cf_m[c_od].append(overdraft_net_flow)
-        cf_m[c_fin].append(fin_cf_mo_excl_od + overdraft_net_flow)
-        cf_m[c_net].append(net_before_overdraft + overdraft_net_flow)
-        cf_m[c_beg].append(tentative_ending_cash - net_before_overdraft if tentative_ending_cash >= 0 else current_cash)
-        cf_m[c_end].append(current_cash)
+        cf_m[C_NI].append(net_inc_mo)
+        cf_m[C_DP].append(total_afa_this_mo)
+        cf_m[C_GS].append(-fleet_sale_rev)
+        cf_m[C_TP].append(tax_exp_mo)
+        cf_m[C_TPD].append(-tax_paid_mo)
+        cf_m[C_LPR].append(legal_provision_mo)
+        cf_m[C_WCT].append(thg_wc_delta)
+        cf_m[C_VCOL].append(op_vat_collected)
+        cf_m[C_VPD].append(op_vat_paid)
+        cf_m[C_OP].append(op_cf_mo)
+        cf_m[C_CAP].append(-(capex_this_mo + vat_draw_mo))
+        cf_m[C_VRF].append(vat_refund_inflow)
+        cf_m[C_SLE].append(fleet_sale_rev)
+        cf_m[C_INV].append(inv_cf_mo)
+        cf_m[C_EQ].append(eq_in)
+        cf_m[C_SH].append(sh_in)
+        cf_m[C_KFW].append(kfw_draw)
+        cf_m[C_PRN].append(-prin_pay)
+        cf_m[C_VDR].append(vat_draw_mo)
+        cf_m[C_VRP].append(-vat_repay_mo)
+        cf_m[C_OD].append(overdraft_net_flow)
+        cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
+        cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow)
+        cf_m[C_BEG].append(tentative_ending_cash - net_before_overdraft if tentative_ending_cash >= 0 else current_cash)
+        cf_m[C_END].append(current_cash)
 
-        bs_m[b_gf].append(cum_gfa)
-        bs_m[b_ad].append(-cum_depr)
-        bs_m[b_nf].append(nfa)
-        bs_m[b_vr].append(vat_receivable)
-        bs_m[b_tr].append(thg_receivable)
-        bs_m[b_cs].append(current_cash)
-        bs_m[b_tc].append(vat_receivable + thg_receivable + current_cash)
-        bs_m[b_ta].append(total_assets)
-        bs_m[b_es].append(stammkapital)
-        bs_m[b_er].append(cum_net_income)
-        bs_m[b_tq].append(total_equity)
-        bs_m[b_pt].append(tax_provision_bal)
-        bs_m[b_pl].append(legal_provision_bal)
-        bs_m[b_tpv].append(total_prov)
-        bs_m[b_dk].append(kfw_loan_bal)
-        bs_m[b_dv].append(vat_loan_bal)
-        bs_m[b_do].append(overdraft_facility_bal)
-        bs_m[b_pv].append(operational_vat_payable)
-        bs_m[b_sl].append(shareholder_loan)
-        bs_m[b_tl].append(total_liab_bal)
-        bs_m[b_tleq].append(total_liab_eq)
-        bs_m[b_ch].append(bs_check_val)
+        bs_m[B_GF].append(cum_gfa)
+        bs_m[B_AD].append(-cum_depr)
+        bs_m[B_NF].append(nfa)
+        bs_m[B_VR].append(vat_receivable)
+        bs_m[B_TR].append(thg_receivable)
+        bs_m[B_CS].append(current_cash)
+        bs_m[B_TC].append(vat_receivable + thg_receivable + current_cash)
+        bs_m[B_TA].append(total_assets)
+        bs_m[B_ES].append(stammkapital)
+        bs_m[B_ER].append(cum_net_income)
+        bs_m[B_TEQ].append(total_equity)
+        bs_m[B_PT].append(tax_provision_bal)
+        bs_m[B_PL].append(legal_provision_bal)
+        bs_m[B_TPV].append(total_prov)
+        bs_m[B_DK].append(kfw_loan_bal)
+        bs_m[B_DV].append(vat_loan_bal)
+        bs_m[B_DO].append(overdraft_facility_bal)
+        bs_m[B_PV].append(operational_vat_payable)
+        bs_m[B_SL].append(shareholder_loan)
+        bs_m[B_TL].append(total_liab_bal)
+        bs_m[B_TLEQ].append(total_liab_eq)
+        bs_m[B_CH].append(bs_check_val)
 
-    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys
+    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
 pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
@@ -1002,7 +997,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
     cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
-    transport_manager_pm, base_legal, hq_insurance_pm, legal_scaling_pm,
+    transport_manager_pm, legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
     cybercab_base_usd, usd_eur_rate, import_freight_eur, customs_duty_rate,
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
@@ -1019,9 +1014,9 @@ def agg_to_yearly(monthly_dict):
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
             # F-19 Fix Applied: Structural set definitions completely clean aggregation pathways
-            if key == loc["cf_end"] or key in bs_keys_isolated:
+            if key == "cf_end" or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
-            elif key == loc["cf_beg"]:
+            elif key == "cf_beg":
                 yearly_arr.append(chunk[0])
             else:
                 yearly_arr.append(sum(chunk))
@@ -1045,6 +1040,11 @@ df_cf_combined = pd.concat([df_cf_mo, df_cf_yr], axis=1)
 df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
+
+# Language Loc Mapper for final output tables
+df_pnl_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
+df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
+df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
 hgb_structure = {}
@@ -1228,6 +1228,36 @@ with tabs[1]: st.dataframe(df_hgb_pnl[display_cols].style.format("{:,.0f} €").
 with tabs[2]: st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[3]: st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
 with tabs[4]: st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
+    
+with tabs[4]:
+    st.write("")
+    with st.expander(loc["glossary_title"]):
+        if lang_choice == "English":
+            st.markdown("""
+            * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*.
+            * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
+            * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
+            * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Financial Debt - Cash) / Net Fixed Assets*. Excludes operational pass-through liabilities like VAT.
+            * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
+            * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
+            * **Total Expense Ratio:** Measures total combined efficiency overhead drag against top-line revenues. Calculated as *Total Operational Expenses / Top-line Net Revenue*.
+            * **Other Income Ratio:** The non-core revenue margin (THG Quota payouts & vehicle liquidations) generated as a byproduct of operations.
+            * **Contribution Margin Ratio (DB2):** Measures stand-alone asset portfolio performance before accounting for corporate headquarters drag. Calculated as *Deckungsbeitrag 2 / Top-line Net Revenue*.
+            * **EBITDA Margin:** Core cash profitability metric monitoring standardized operating efficiency. Formula explicitly foots to the other ratios: *EBITDA Margin = 100% - Variable Ratio - Fixed Ratio + Other Income Ratio*.
+            """)
+        else:
+            st.markdown("""
+            * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*.
+            * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
+            * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
+            * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Finanzverbindlichkeiten - Kasse) / Netto-Sachanlagen*.
+            * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
+            * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
+            * **Gesamtkostenquote:** Bildet die gesamte betriebliche Kostenstruktur des operativen Geschäfts ab. Berechnung: *Gesamte betriebliche Kosten / Netto-Umsatzerlöse*.
+            * **Sonstige Ertragsquote:** Die Nicht-Kernumsatzmarge (THG-Prämien & Fahrzeugverkäufe), die als Nebenprodukt des Betriebs generiert wird.
+            * **Deckungsbeitragsmarge (DB2):** Zeigt die reine Rentabilität der Fahrzeugflotte vor Abzug der HQ-Verwaltungskosten. Berechnung: *Deckungsbeitrag 2 / Netto-Umsatzerlöse*.
+            * **EBITDA-Marge:** Der zentrale Indikator für die operative Cash-Rentabilität des Unternehmens. Mathematische Abstimmung: *EBITDA-Marge = 100% - Variable Quote - Fixe Quote + Sonstige Ertragsquote*.
+            """)
 
 with tabs[5]:
     y_rev_v = df_pnl_yr.loc[loc["pnl_net_rev"]].values
@@ -1242,12 +1272,13 @@ with tabs[5]:
     with c2: st.plotly_chart(create_mrrg_chart(year_cols, y_eb_v, loc["chart_ebitda"]), use_container_width=True)
     c3, c4 = st.columns(2)
     with c3: st.plotly_chart(create_mrrg_chart(year_cols, y_ni_v, loc["chart_ni"]), use_container_width=True)
-    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fl_v, loc["chart_fleet"], prefix="", suffix=""), use_container_width=True)
+    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fl_v, loc["chart_fleet"]), use_container_width=True)
     c5, c6 = st.columns(2)
     with c5:
         uc = st.toggle(loc["toggle_fcf"])
         st.plotly_chart(create_mrrg_chart(year_cols, np.cumsum(y_fcf_v) if uc else y_fcf_v, loc["chart_fcf"], hide_cagr=uc), use_container_width=True)
-    with c6: st.plotly_chart(create_mrrg_chart(year_cols, y_ta_v, loc["chart_ta"]), use_container_width=True)
+    with c6:
+        st.plotly_chart(create_mrrg_chart(year_cols, y_ta_v, loc["chart_ta"]), use_container_width=True)
 
 with tabs[6]:
     if lang_choice == "English":
