@@ -4,6 +4,13 @@ import numpy as np
 import calendar
 import plotly.graph_objects as go
 
+# --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE ---
+VAT_RATE = 0.19
+VEHICLE_AMORTIZATION_PERIOD = 48
+IT_AMORTIZATION_PERIOD = 36
+OVERDRAFT_ANNUAL_RATE = 0.095
+STANDARD_TAX_ROUNDING = 2
+
 # --- DASHBOARD CONFIGURATION & CUSTOM CSS ---
 st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide")
 
@@ -42,7 +49,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 13: Fully Balanced & Vetted Audited Engine)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 14: Final Execution Flow Fixed)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -100,7 +107,7 @@ if lang_choice == "English":
         "ihk": "IHK Membership",
         "gez": "GEZ (per vehicle)",
         "setup_costs": "One-off Setup Costs (Y1)",
-        "sec7": "7. CAPEX & ASSET DEPRECIATION RISK",
+        "sec7": "7. CAPEX & ASSET IMPAIRMENT",
         "base_price": "Base Cybercab Price (USD)",
         "fx": "USD to EUR Exchange Rate",
         "freight": "Import Freight & Ins. per Vehicle (€)",
@@ -108,7 +115,7 @@ if lang_choice == "English":
         "it_hw": "IT Hardware CapEx (Y1)",
         "imp_trigger": "Tech Impairment Trigger Month (0=None)",
         "imp_pct": "Extraordinary Impairment Pct (§ 253 HGB) %",
-        "sec8": "8. CAPITAL STRUCTURE & TREASURY POLICIES",
+        "sec8": "8. CAPITAL STRUCTURE & CASH POLICIES",
         "stamm": "Stammkapital (€)",
         "sh_loan": "Shareholder Loan (Subord.) (€)",
         "sh_loan_rate": "SH Loan Interest Rate (%)",
@@ -251,7 +258,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 13: Gesetzliche GuV & Kennzahlen-Prüfung)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 14: Final Execution Flow Fixed)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -286,12 +293,12 @@ else:
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
-        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab. Exklusive 'Black Swan'-Rücklage (im Liquiditätspuffer gehalten).",
+        "wear_help": "Deckt Reifen, Flüssigkeiten und Fahrwerk ab.",
         "energy_rate": "Basis-Energiekosten pro km (€)",
         "energy_help": "Reiner Sommer-Basistarif. Winterzuschläge erfolgen dynamisch.",
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
-        "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
+        "parking": "Münchner APCOA Ladestellplatz",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
@@ -327,8 +334,8 @@ else:
         "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
         "y2_loan_rate": "Kommerzielle Kfz-Finanzierung Zins (J2+) %",
         "vat_rate_input": "USt-Überbrückungskredit Zins (%)",
-        "vat_lag_input": "USt-Erstattungsdauer (Monate)",
-        "cash_buffer_input": "Mindest-Liquiditätsreserve (€)",
+        "vat_lag_input": "USt-Erstattungsdauer (Monate) (F-20)",
+        "cash_buffer_input": "Mindest-Liquiditätsreserve (€) (F-23)",
         "legal_provision_input": "Monatliche Rechtsrisiko-Rückstellung (€) (§ 249 HGB)",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
@@ -370,7 +377,7 @@ else:
         "pnl_ni": "Jahresüberschuss (EAT)",
         
         "cf_ni": "+ Jahresüberschuss",
-        "cf_depr": "+ Abschreibungen (AfA)",
+        "cf_depr": "+ Abschreibungen (AfA inkl. Sonderabschreibung)",
         "cf_gain_sale": "- Buchgewinn aus Anlagenabgang",
         "cf_tax_prov": "+ Zunahme Steuerrückstellungen",
         "cf_tax_paid": "- Gezahlte Steuern (Vorausz. & Nachzahlung)",
@@ -384,7 +391,7 @@ else:
         "cf_sale": "+ Einzahlungen aus Anlagenabgängen",
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
-        "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
+        "cf_sh": "+ Shareholder Loan Injection",
         "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
         "cf_prin": "- Tilgung Darlehen (inkl. Ballon)",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
@@ -458,7 +465,95 @@ else:
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
-# --- 5. MONOLITHIC COMPUTATIONAL CORE (INSULATED FROM NAMEERRORS) ---
+# --- SIDEBAR INTERFACE CONTROLS ---
+# We must define all inputs *before* the function to prevent NameErrors in Streamlit
+st.sidebar.header(loc["sec1"])
+y1_adds_str = st.sidebar.text_input(loc["y1_adds"], "3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0")
+y2_adds_str = st.sidebar.text_input(loc["y2_adds"], "2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0")
+y3_adds_str = st.sidebar.text_input(loc["y3_adds"], "3, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0")
+y4_adds_str = st.sidebar.text_input(loc["y4_adds"], "4, 0, 0, 4, 0, 0, 4, 0, 0, 3, 0, 0")
+y5_adds_str = st.sidebar.text_input(loc["y5_adds"], "6, 0, 0, 5, 0, 0, 5, 0, 0, 5, 0, 0")
+
+st.sidebar.header(loc["sec1b"])
+active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0)
+avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=22.0)
+deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=30.0, help=loc["help_deadhead"]) / 100
+
+st.sidebar.header(loc["sec1c"])
+util_mode = st.sidebar.radio(loc["util_mode"], [loc["util_dyn"], loc["util_fix"]])
+if util_mode == loc["util_dyn"]:
+    target_util = st.sidebar.number_input(loc["target_util"], value=90.0, help=loc["help_target"]) / 100
+    init_util = st.sidebar.number_input(loc["init_util"], value=60.0, help=loc["help_init"]) / 100
+    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0, help=loc["help_rec"]) / 100
+    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.5, step=0.1, help=loc["help_can"])
+    flat_util = target_util
+else:
+    flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
+    target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
+
+st.sidebar.header(loc["sec2"])
+avg_trip_distance_km = st.sidebar.number_input(loc["trip_dist"], value=5.0)
+dwell_time_mins = st.sidebar.number_input(loc["dwell"], value=2.0)
+
+st.sidebar.header(loc["sec3"])
+base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50)
+price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49)
+tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
+
+st.sidebar.header(loc["sec4"])
+cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
+# Wear rate is definitively locked at 0.03
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
+energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
+
+st.sidebar.header(loc["sec5"])
+insurance_pm = st.sidebar.number_input(loc["insurance"], value=300.0)
+parking_pm = st.sidebar.number_input(loc["parking"], value=250.0)
+telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0)
+tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, help=loc["help_tuev"])
+charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
+
+st.sidebar.header(loc["sec6"])
+hq_lease_pm = st.sidebar.number_input(loc["hq_lease"], value=450.0)
+it_cloud_pm = st.sidebar.number_input(loc["it_cloud"], value=320.0)
+transport_manager_pm = st.sidebar.number_input(loc["transport_manager"], value=1200.0, help=loc["help_tm"])
+legal_bookkeeping_pm = st.sidebar.number_input(loc["base_legal"], value=230.0)
+hq_insurance_pm = st.sidebar.number_input(loc["base_hq_ins"], value=250.0)
+legal_scaling_pm = st.sidebar.number_input(loc["legal_scale"], value=25.0)
+insurance_scaling_pm = st.sidebar.number_input(loc["ins_scale"], value=40.0)
+bank_fees_pm = st.sidebar.number_input(loc["bank_fees"], value=20.0)
+ihk_pm = st.sidebar.number_input(loc["ihk"], value=35.0)
+gez_pm_per_car = st.sidebar.number_input(loc["gez"], value=7.0)
+setup_costs_y1 = st.sidebar.number_input(loc["setup_costs"], value=1700.0)
+
+st.sidebar.header(loc["sec7"])
+cybercab_base_usd = st.sidebar.number_input(loc["base_price"], value=30000.0)
+usd_eur_rate = st.sidebar.number_input(loc["fx"], value=1.15)
+import_freight_eur = st.sidebar.number_input(loc["freight"], value=1800.0)
+customs_duty_rate = st.sidebar.number_input(loc["duty"], value=10.0) / 100
+it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0)
+imp_month = st.sidebar.number_input(loc["imp_trigger"], value=0, min_value=0, max_value=60)
+imp_pct_val = st.sidebar.number_input(loc["imp_pct"], value=0.0, step=5.0) / 100
+
+st.sidebar.header(loc["sec8"])
+stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0)
+shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0)
+sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, step=0.1, help=loc["help_sh_rate"]) / 100
+vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, help=loc["help_ltv"]) / 100
+y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, step=0.1) / 100
+y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1) / 100
+vat_bridge_rate = st.sidebar.number_input(loc["vat_rate_input"], value=6.5, step=0.1) / 100
+vat_lag_months = st.sidebar.number_input(loc["vat_lag_input"], value=3, min_value=1, max_value=12)
+min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.0, step=5000.0)
+legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, step=50.0)
+interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
+
+st.sidebar.header(loc["sec9"])
+thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0, help=loc["help_thg"])
+salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
+
+
+# --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION (CACHED) ---
 @st.cache_data
 def execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
@@ -884,7 +979,7 @@ def execute_financial_simulation(
         bs_m[b_ta].append(total_assets)
         bs_m[b_es].append(stammkapital)
         bs_m[b_er].append(cum_net_income)
-        bs_m[b_te].append(total_equity)
+        bs_m[b_tq].append(total_equity)
         bs_m[b_pt].append(tax_provision_bal)
         bs_m[b_pl].append(legal_provision_bal)
         bs_m[b_tpv].append(total_prov)
@@ -907,7 +1002,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
     cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
-    transport_manager_pm, legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
+    transport_manager_pm, base_legal, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
     cybercab_base_usd, usd_eur_rate, import_freight_eur, customs_duty_rate,
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
@@ -924,9 +1019,9 @@ def agg_to_yearly(monthly_dict):
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
             # F-19 Fix Applied: Structural set definitions completely clean aggregation pathways
-            if key == "cf_end" or key in bs_keys_isolated:
+            if key == loc["cf_end"] or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
-            elif key == "cf_beg":
+            elif key == loc["cf_beg"]:
                 yearly_arr.append(chunk[0])
             else:
                 yearly_arr.append(sum(chunk))
@@ -953,15 +1048,15 @@ df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
 hgb_structure = {}
-hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc["pnl_net_rev"].values
-hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc["pnl_thg"] + df_pnl_combined.loc["pnl_salvage"]).values
-hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc["pnl_energy"] + df_pnl_combined.loc["pnl_wear"] + df_pnl_combined.loc["pnl_clean"] + df_pnl_combined.loc["pnl_ins"] + df_pnl_combined.loc["pnl_park"] + df_pnl_combined.loc["pnl_api"] + df_pnl_combined.loc["pnl_tuev"] + df_pnl_combined.loc["pnl_sub"]).values
-hgb_structure[loc["hgb_pos4"]] = (df_pnl_combined.loc["pnl_fees"] * 0.0 + transport_manager_pm).values 
-hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc["pnl_afa_veh"] + df_pnl_combined.loc["pnl_afa_it"]).values
-hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc["pnl_hq_lease"] + df_pnl_combined.loc["pnl_it"] + df_pnl_combined.loc["pnl_legal"] + df_pnl_combined.loc["pnl_hq_ins"] + df_pnl_combined.loc["pnl_bank"] + (df_pnl_combined.loc["pnl_fees"] - transport_manager_pm)).values
-hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc["pnl_int_inc"] + df_pnl_combined.loc["pnl_int_exp"]).values
-hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc["pnl_tax"].values
-hgb_structure[loc["hgb_pos9"]] = df_pnl_combined.loc["pnl_ni"].values
+hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc[loc["pnl_net_rev"]].values
+hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
+hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
+hgb_structure[loc["hgb_pos4"]] = (df_pnl_combined.loc[loc["pnl_fees"]] * 0.0 + transport_manager_pm).values 
+hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
+hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + (df_pnl_combined.loc[loc["pnl_fees"]] - transport_manager_pm)).values
+hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
+hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc[loc["pnl_tax"]].values
+hgb_structure[loc["hgb_pos9"]] = df_pnl_combined.loc[loc["pnl_ni"]].values
 
 df_hgb_pnl = pd.DataFrame(hgb_structure, index=df_pnl_combined.columns).T
 
@@ -969,22 +1064,22 @@ df_hgb_pnl = pd.DataFrame(hgb_structure, index=df_pnl_combined.columns).T
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-rev_top = df_pnl_combined.loc["pnl_net_rev"]
-ebitda = df_pnl_combined.loc["pnl_ebitda"]
-db2 = df_pnl_combined.loc["pnl_db2"]
-ta = df_bs_combined.loc["bs_ta"]
-teq = df_bs_combined.loc["bs_teq"]
-cash = df_bs_combined.loc["bs_cash"]
-nfa = df_bs_combined.loc["bs_nfa"]
+rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]]
+ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
+db2 = df_pnl_combined.loc[loc["pnl_db2"]]
+ta = df_bs_combined.loc[loc["bs_ta"]]
+teq = df_bs_combined.loc[loc["bs_teq"]]
+cash = df_bs_combined.loc[loc["bs_cash"]]
+nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
 # F-15 Fix Applied: Operational pass-through accounts purged from debt metrics evaluation
-fin_debt = df_bs_combined.loc["bs_debt_kfw"] + df_bs_combined.loc["bs_debt_vat"] + df_bs_combined.loc["bs_debt_overdraft"] + df_bs_combined.loc["bs_sh_loan"]
+fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
-var_costs = rev_top - df_pnl_combined.loc["pnl_db1"]
-fix_costs = df_pnl_combined.loc["pnl_db1"] - ebitda + df_pnl_combined.loc["pnl_thg"]
+var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
+fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
-debt_service = -(df_cf_combined.loc["cf_prin"] + df_pnl_combined.loc["pnl_int_exp"])
-other_inc = df_pnl_combined.loc["pnl_thg"]
+debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
+other_inc = df_pnl_combined.loc[loc["pnl_thg"]]
 
 kpi_dict = {}
 kpi_dict[loc["kpi_db2_m"]] = [f"{x*100:.1f}%" for x in safe_div(db2, rev_top)]
@@ -1065,7 +1160,7 @@ st.subheader(loc["sources_title"])
 colA, colB, colC, colD = st.columns(4)
 colA.metric(loc["src_stamm"], f"€ {stammkapital:,.0f}")
 colB.metric(loc["src_sh"], f"€ {shareholder_loan:,.0f}")
-colA.metric(f"{loc['src_veh']} ({vehicle_ltv*100:.0f}%)", f"€ {day_1_loan:,.0f}")
+colC.metric(f"{loc['src_veh']} ({vehicle_ltv*100:.0f}%)", f"€ {day_1_loan:,.0f}")
 colD.metric(loc["liquidity"], f"€ {day_1_cash_ui:,.0f}")
 
 st.divider()
@@ -1101,42 +1196,53 @@ st.write("")
 tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"], loc["tab_readme"]])
 
 def style_pnl_rows(row):
-    if "pnl_mrrg_net" in row.name: return ['font-weight: 600; color: #4DA8DA;'] * len(row)
-    if "pnl_ebitda" in row.name: return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
-    if "pnl_ni" in row.name: return ['font-weight: 700; background-color: #0b2e13; color: #38c172; border-top: 2px solid #38c172;'] * len(row)
+    if loc["pnl_mrrg_net"] in row.name: return ['font-weight: 600; color: #4DA8DA;'] * len(row)
+    if loc["pnl_ebitda"] in row.name: return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    if loc["pnl_ni"] in row.name: return ['font-weight: 700; background-color: #0b2e13; color: #38c172; border-top: 2px solid #38c172;'] * len(row)
     return [''] * len(row)
 
 def style_bs_rows(row):
-    if "bs_nfa" in row.name or "bs_tca" in row.name or "bs_teq" in row.name or "bs_tprov" in row.name or "bs_tliab" in row.name:
+    if loc["bs_nfa"] in row.name or loc["bs_tca"] in row.name or loc["bs_teq"] in row.name or loc["bs_tprov"] in row.name or loc["bs_tliab"] in row.name:
         return ['font-weight: 600; border-top: 1px solid #ffffff40;'] * len(row)
-    elif "bs_ta" in row.name:
+    elif loc["bs_ta"] in row.name:
         return ['font-weight: 700; background-color: #1e1e1e; color: #4DA8DA; border-top: 2px solid #4DA8DA;'] * len(row)
-    elif "bs_tleq" in row.name:
+    elif loc["bs_tleq"] in row.name:
         return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 2px solid #F2A900;'] * len(row)
-    elif "bs_check" in row.name:
+    elif loc["bs_check"] in row.name:
         return ['font-weight: 700; color: #38c172;'] * len(row)
+    return [''] * len(row)
+
+def style_kpi_rows(row):
+    if loc["kpi_db2_m"] in row.name:
+        return ['font-weight: 700; color: #4DA8DA; border-bottom: 1px solid #ffffff40;'] * len(row)
+    elif loc["kpi_ebitda_m"] in row.name:
+        return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 1px solid #ffffff40; border-bottom: 2px solid #F2A900;'] * len(row)
+    elif loc["kpi_dscr"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    elif loc["kpi_net_ltv"] in row.name:
+        return ['font-weight: 700; border-top: 1px solid #ffffff40;'] * len(row)
     return [''] * len(row)
 
 with tabs[0]: st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[1]: st.dataframe(df_hgb_pnl[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[2]: st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[3]: st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
-with tabs[4]: st.dataframe(df_kpi_combined[display_cols], use_container_width=True)
+with tabs[4]: st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
 
 with tabs[5]:
-    y_rev_v = df_pnl_yr.loc["pnl_net_rev"].values
-    y_eb_v = df_pnl_yr.loc["pnl_ebitda"].values
-    y_ni_v = df_pnl_yr.loc["pnl_ni"].values
+    y_rev_v = df_pnl_yr.loc[loc["pnl_net_rev"]].values
+    y_eb_v = df_pnl_yr.loc[loc["pnl_ebitda"]].values
+    y_ni_v = df_pnl_yr.loc[loc["pnl_ni"]].values
     y_fl_v = [active_fleet_by_month[(i*12)+11] for i in range(5)]
-    y_ta_v = df_bs_yr.loc["bs_ta"].values
-    y_fcf_v = (df_cf_yr.loc["cf_op"] + df_cf_yr.loc["cf_inv"]).values
+    y_ta_v = df_bs_yr.loc[loc["bs_ta"]].values
+    y_fcf_v = (df_cf_yr.loc[loc["cf_op"]] + df_cf_yr.loc[loc["cf_inv"]]).values
     
     c1, c2 = st.columns(2)
     with c1: st.plotly_chart(create_mrrg_chart(year_cols, y_rev_v, loc["chart_rev"]), use_container_width=True)
     with c2: st.plotly_chart(create_mrrg_chart(year_cols, y_eb_v, loc["chart_ebitda"]), use_container_width=True)
     c3, c4 = st.columns(2)
     with c3: st.plotly_chart(create_mrrg_chart(year_cols, y_ni_v, loc["chart_ni"]), use_container_width=True)
-    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fl_v, loc["chart_fleet"]), use_container_width=True)
+    with c4: st.plotly_chart(create_mrrg_chart(year_cols, y_fl_v, loc["chart_fleet"], prefix="", suffix=""), use_container_width=True)
     c5, c6 = st.columns(2)
     with c5:
         uc = st.toggle(loc["toggle_fcf"])
