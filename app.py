@@ -97,8 +97,6 @@ if lang_choice == "English":
         "sec6": "6. CORPORATE HQ & REGULATORY (€ / Month, Net)",
         "hq_lease": "HQ Lease (Raumkosten)",
         "it_cloud": "IT, Cloud & AI Services",
-        "transport_manager": "Transport Manager Fee (Verkehrsleiter)",
-        "help_tm": "Regulatory non-negotiable human manager required under § 14 PBefG / BO-Kraft.",
         "base_legal": "Base Legal & Bookkeeping",
         "base_hq_ins": "Base HQ Insurance (Liability)",
         "legal_scale": "Legal/Tax Scaling (per added vehicle)",
@@ -153,8 +151,9 @@ if lang_choice == "English":
         "pnl_it": "Less: IT, Cloud & AI Services",
         "pnl_legal": "Less: Legal, Tax & Bookkeeping (Scaled)",
         "pnl_hq_ins": "Less: Corporate Insurance (Liability, D&O - Scaled)",
-        "pnl_fees": "Less: Subscriptions & Fees (IHK, GEZ, TM Fee)",
+        "pnl_fees": "Less: Subscriptions & Fees (IHK, GEZ)",
         "pnl_bank": "Less: Bank Fees",
+        "pnl_legal_prov": "Less: Legal/Litigation Provision (§ 249 HGB)",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
         "pnl_ebitda": "EBITDA (Management View)",
         "pnl_afa_veh": "Less: Vehicle Depreciation (AfA)",
@@ -229,7 +228,7 @@ if lang_choice == "English":
         "hgb_pos1": "1. Revenues (Umsatzerlöse)",
         "hgb_pos2": "4. Other operating income (Sonstige betriebliche Erträge)",
         "hgb_pos3": "5. Cost of materials (Materialaufwand)",
-        "hgb_pos4": "6. Personnel expenses (Personnel Mandate / TM)",
+        "hgb_pos4": "6. Personnel expenses (Personalaufwand)",
         "hgb_pos5": "7. Depreciation & Amortization (Abschreibungen)",
         "hgb_pos6": "8. Other operating expenses (Sonstige betriebliche Aufwendungen)",
         "hgb_pos7": "Finanzergebnis (Interest Result)",
@@ -326,8 +325,6 @@ else:
         "sec6": "6. CORPORATE HQ & REGULIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
         "it_cloud": "IT, Cloud & AI Services",
-        "transport_manager": "Verkehrsleiter-Vergütung (Mandat)",
-        "help_tm": "Gesetzlich zwingend vorgeschriebener Betriebsleiter gemäß § 14 PBefG / BO-Kraft.",
         "base_legal": "Basis Rechts- & Beratungskosten",
         "base_hq_ins": "Basis Firmenversicherung (Haftpflicht)",
         "legal_scale": "Recht/StB Skalierung (pro zus. Fahrzeug)",
@@ -382,8 +379,9 @@ else:
         "pnl_it": "Abzüglich: IT, Cloud & AI Services",
         "pnl_legal": "Abzüglich: Rechts- & Beratungskosten (skaliert)",
         "pnl_hq_ins": "Abzüglich: Firmenversicherung (Haftpflicht, D&O - skaliert)",
-        "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ, Verkehrsleiter)",
+        "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ)",
         "pnl_bank": "Abzüglich: Bankgebühren",
+        "pnl_legal_prov": "Abzüglich: Zuführung Rückstellung Rechtsrisiken (§ 249 HGB)",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
         "pnl_ebitda": "EBITDA (Management View)",
         "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA)",
@@ -458,7 +456,7 @@ else:
         "hgb_pos1": "1. Umsatzerlöse",
         "hgb_pos2": "4. Sonstige betriebliche Erträge",
         "hgb_pos3": "5. Materialaufwand",
-        "hgb_pos4": "6. Personalaufwand / Verkehrsleiter",
+        "hgb_pos4": "6. Personalaufwand",
         "hgb_pos5": "7. Abschreibungen auf Sachanlagen",
         "hgb_pos6": "8. Sonstige betriebliche Aufwendungen",
         "hgb_pos7": "Finanzergebnis (Zinsertrag ./. Aufwand)",
@@ -560,7 +558,6 @@ charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
 st.sidebar.header(loc["sec6"])
 hq_lease_pm = st.sidebar.number_input(loc["hq_lease"], value=450.0)
 it_cloud_pm = st.sidebar.number_input(loc["it_cloud"], value=320.0)
-transport_manager_pm = st.sidebar.number_input(loc["transport_manager"], value=1200.0, help=loc["help_tm"])
 legal_bookkeeping_pm = st.sidebar.number_input(loc["base_legal"], value=230.0)
 hq_insurance_pm = st.sidebar.number_input(loc["base_hq_ins"], value=250.0)
 legal_scaling_pm = st.sidebar.number_input(loc["legal_scale"], value=25.0)
@@ -606,7 +603,7 @@ def execute_financial_simulation(
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
     cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
-    transport_manager_pm, legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
+    legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
     cybercab_base_usd, usd_eur_rate, import_freight_eur, customs_duty_rate,
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
@@ -621,9 +618,9 @@ def execute_financial_simulation(
     # ============================================================
     
     # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
-    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net", "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
-        "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_thg",
+        "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg",
         "pnl_ebitda", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
@@ -698,7 +695,7 @@ def execute_financial_simulation(
     distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
     gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
@@ -845,7 +842,7 @@ def execute_financial_simulation(
         it_cloud_mo = it_cloud_pm
         legal_mo = legal_bookkeeping_pm + (legal_scaling_pm * add_cars) + (setup_costs_y1 if current_month == 1 else 0)
         hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
-        fees_mo = ihk_pm + (gez_pm_per_car * active_fleet) + transport_manager_pm
+        fees_mo = ihk_pm + (gez_pm_per_car * active_fleet)
         
         # ============================================================
         # === LAYER 17 FEATURE A: OpEx Input VAT (Vorsteuerabzug) ====
@@ -855,7 +852,7 @@ def execute_financial_simulation(
         #
         # VAT-Eligible OpEx (services charging 19% USt):
         #   energy, wear, clean, park, telemetry, TÜV, charging sub,
-        #   HQ lease, IT/cloud, legal/bookkeeping, Verkehrsleiter (TM)
+        #   HQ lease, IT/cloud, legal/bookkeeping
         #
         # VAT-Exempt OpEx (per UStG):
         #   - Insurance: § 4 Nr. 10 UStG
@@ -866,7 +863,7 @@ def execute_financial_simulation(
         # ============================================================
         vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
-                                + it_cloud_mo + legal_mo + transport_manager_pm)
+                                + it_cloud_mo + legal_mo)
         opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
         # P&L impact: ZERO (P&L always books net of VAT — Feature A invariant)
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
@@ -1023,6 +1020,7 @@ def execute_financial_simulation(
         pnl_m[P_HINS].append(-hq_ins_mo)
         pnl_m[P_FEE].append(-fees_mo)
         pnl_m[P_BNK].append(-bank_fees_pm)
+        pnl_m[P_LPR].append(-legal_provision_mo)
         pnl_m[P_THG].append(thg_rev_mo)
         pnl_m[P_EB].append(ebitda_mo)
         pnl_m[P_AF_V].append(-current_veh_afa)
@@ -1096,7 +1094,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
     cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
-    transport_manager_pm, legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
+    legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
     cybercab_base_usd, usd_eur_rate, import_freight_eur, customs_duty_rate,
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
@@ -1171,20 +1169,22 @@ df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
-# === FIX 6 (Optional): Correct HGB sign convention for Personalaufwand and
-# Sonstige betriebliche Aufwendungen so that pos4 + pos6 align with the
-# statutory format and sum-to-NI identity is preserved.
+# === Layer 17 (post TM removal): Geschäftsführer also holds Verkehrsleiter
+# mandate (no separate fee). Personalaufwand = 0. No TM strip-out needed
+# in pos6, since pnl_fees no longer contains a TM component.
+# === C-01 FIX: pnl_tesla_fee (bezogene Leistung — Tesla dispatch platform)
+# now flows into pos3 Materialaufwand; pnl_legal_prov (Zuführung Rückstellung
+# § 249 HGB) now flows into pos6. Both were previously missing from HGB sum.
 hgb_structure = {}
 hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc[loc["pnl_net_rev"]].values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
-hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
-# Personalaufwand: pure TM cost as a negative number (expense reduces profit)
-hgb_structure[loc["hgb_pos4"]] = np.full(len(df_pnl_combined.columns), -transport_manager_pm)
+# Materialaufwand: Aufwendungen für Roh-/Hilfsstoffe UND für bezogene Leistungen (Tesla platform)
+hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]]).values
+# Personalaufwand: zero — GF holds Verkehrsleiter mandate without separate compensation
+hgb_structure[loc["hgb_pos4"]] = np.zeros(len(df_pnl_combined.columns))
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
-# Sonstige betriebliche Aufwendungen: include non-TM portion of pnl_fees (pnl_fees is
-# stored as -(ihk+gez+TM); adding +TM strips out the TM portion already in pos4).
-non_tm_fees = df_pnl_combined.loc[loc["pnl_fees"]] + transport_manager_pm
-hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + non_tm_fees).values
+# Sonstige betriebliche Aufwendungen: clean sum incl. Zuführung Rückstellung Rechtsrisiken
+hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + df_pnl_combined.loc[loc["pnl_fees"]] + df_pnl_combined.loc[loc["pnl_legal_prov"]]).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
 hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc[loc["pnl_tax"]].values
 hgb_structure[loc["hgb_pos9"]] = df_pnl_combined.loc[loc["pnl_ni"]].values
@@ -1442,7 +1442,7 @@ with tabs[6]:
         * **Utilization Mode:** If set to *Dynamic*, the model simulates reality: when you drop new cars into a city, they temporarily "cannibalize" rides from your existing cars. Your overall utilization drops, and then slowly recovers.
         * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
         * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws a short-term bridge loan (rate configured in sidebar) to cover this VAT and pays it off automatically based on the configured refund lag.
-        * **OpEx Input VAT (Vorsteuerabzug, Layer 17):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, the Verkehrsleiter, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
+        * **OpEx Input VAT (Vorsteuerabzug, Layer 17):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, legal services, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
 
         ---
 
@@ -1480,7 +1480,7 @@ with tabs[6]:
         * **Auslastungsmodell:** Wenn auf *Dynamisch* gesetzt, simuliert das Modell die Realität: Wenn neue Autos in die Flotte kommen, "kannibalisieren" sie vorübergehend die Fahrten der bestehenden Flotte. Die Gesamtauslastung sinkt und erholt sich dann allmählich.
         * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
         * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit auf (Zinssatz in Seitenleiste konfigurierbar), um diese Vorsteuer zu decken, und zahlt ihn nach der konfigurierten Erstattungsdauer zurück, wenn die Erstattung vom Finanzamt eintrifft.
-        * **OpEx-Vorsteuerabzug (Layer 17):** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, den Verkehrsleiter usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
+        * **OpEx-Vorsteuerabzug (Layer 17):** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, Rechts- und Beratungsleistungen usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
 
         ---
 
