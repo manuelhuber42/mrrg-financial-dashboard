@@ -1,3 +1,491 @@
+
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- DASHBOARD CONFIGURATION & CUSTOM CSS --- st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide") st.markdown(""" <style> @import url('https://fonts.goo
+
+pasted
+
+You are a senior financial modeling expert, HGB accountant, corporate finance advisor, Python code reviewer, and operational business strategist.
+Analyze the following Python/Streamlit financial model code in depth.
+Your task is to review the model from the perspectives of:
+
+Financial modeling consistency
+Logical coherence
+Mathematical correctness
+Accounting integrity
+HGB conformity (German GAAP / Handelsgesetzbuch)
+Business practicality and realism
+Cash flow logic
+Balance sheet integrity
+Tax treatment correctness
+Debt and financing logic
+KPI validity
+Operational assumptions realism
+Revenue model realism
+Depreciation and asset accounting
+VAT/Umsatzsteuer treatment
+German corporate structure plausibility
+Internal linkage consistency between P&L, Cash Flow, and Balance Sheet
+Risks of misleading investors or banks
+Scalability assumptions
+Technical/code-quality risks affecting financial outputs
+For every issue you identify:
+
+Explain the finding in detail.
+Explain WHY it is a finding.
+Explain the accounting, finance, operational, or coding principle being violated or weakened.
+State the business implications.
+State the HGB implications where applicable.
+Assess severity:
+Critical
+High
+Medium
+Low
+State whether the issue is:
+ 
+Conceptual
+Mathematical
+Accounting-related
+Technical/code-related
+Operational/business-related
+Compliance-related Specifically investigate areas such as:
+
+EBITDA correctness
+EBITDA vs cash flow consistency
+Tax accrual logic
+VAT payable/receivable treatment
+Double-counting risks
+CapEx accounting
+Salvage accounting
+Gain/loss on disposal accounting
+Working capital treatment
+Timing mismatches
+Depreciation schedules
+Debt amortization
+Interest calculations
+Loan balance rollforwards
+Equity treatment
+Retained earnings logic
+Liquidity runway realism
+DSCR correctness
+Asset-liability balancing
+Treatment of provisions under HGB
+Treatment of shareholder loans under HGB
+Use of EBITDA under German accounting standards
+THG quota classification
+Whether vehicle sales are treated correctly under HGB
+Whether VAT bridge loans are economically realistic
+Whether utilization assumptions are commercially plausible
+Whether operational assumptions are internally contradictory
+Whether the model could break under edge cases
+Whether the model structure would survive bank due diligence
+Whether the model structure would survive investor scrutiny
+Whether the assumptions are aggressive/unrealistic
+Whether any KPIs are misleading or incorrectly defined
+Also review the code quality itself:
+
+Hidden bugs
+State mutation risks
+Incorrect aggregation logic
+Potential numerical instability
+Incorrect sign conventions
+Risky assumptions
+Circularity risks
+DataFrame logic issues
+Month/year aggregation risks
+Localization inconsistencies
+UI/UX issues affecting interpretation After the detailed review, produce: FINAL SUMMARY OF FINDINGS Summarize all findings in a concise but structured format. Then generate an additional section titled: AI CHATBOT FOLLOW-UP PROMPT In this section, generate a clean, professional follow-up prompt that can be pasted into another AI chatbot to continue improving the model.
+his follow-up prompt should:
+
+Summarize all critical and high-priority findings
+Request concrete corrections
+Request revised accounting logic
+Request improved HGB compliance
+Request improved financial modeling robustness
+Request implementation recommendations in Python
+Request suggested architectural refactoring
+Request best-practice financial model structures The follow-up prompt should be concise, structured, and optimized for another advanced AI system. Now analyze the attached code
+Show more
+May 18
+
+Checking skills directory before analysis
+Checking skills directory before analysis
+Now let me conduct the deep analysis. This is a comprehensive model — I'll work through every dimension systematically.
+
+
+Ran a command, created a file, read a file
+Ran a command, created a file, read a file
+Here's the complete audit. Let me walk you through the most consequential findings:
+
+Executive Summary: The 6 Critical Issues
+F-01 — Salvage Revenue Inside EBITDA is the most strategically dangerous error. fleet_sale_rev is embedded in the EBITDA line, which means your EBITDA figure is inflated by a one-time capital event in disposal years. Any KfW Hausbank will strip this from their DSCR covenant calculation. You'd pass a covenant on paper that you'd technically breach under their definition.
+
+F-02 + F-06 — The Loan Never Fully Repays. Due to a compounding of two bugs — the 12-month grace period combined with original_loan / 48 as the principal divisor applied over only 35 active months — approximately 27.1% of every vehicle loan remains on the balance sheet permanently after the vehicle is sold. The securing asset is gone; the ghost liability stays. This would be immediately flagged by any credit officer.
+
+F-03 — Munich Tax Rate Is ~42% Too Low. The model uses 19.3–23.52%. The actual combined Munich rate (KSt + Soli + GewSt at Hebesatz 490) is ~32.975%. On Year 1 EBT of ~€84K, this alone understates taxes by roughly €8K. Over 5 years on growing profits, the cumulative misstatement is material — and presenting this to a Hausbank as an HGB model would immediately undermine credibility.
+
+F-04 — Tax Accrues Only in Month 12. For 11 months of every year the monthly P&L shows zero tax expense, making each monthly report look far healthier than reality. The quarterly Vorauszahlungen (German mandatory quarterly tax prepayments) are completely absent from the cash flow — a serious liquidity planning error.
+
+F-05 — Invisible 8% Bridge Rate. The VAT bridge loan carries a hardcoded 8% rate that no user can see, adjust, or question. It silently inflates interest expense. Every other financing rate is a slider — this one is buried in the code.
+
+F-07 — Tesla Fee on VAT-Inclusive GBV. The take-rate is applied to the gross-VAT amount, meaning Tesla is implicitly taking a cut of the 19% tax the Finanzamt is owed. The fee is overstated by ~4%.
+
+Other Highlights Worth Flagging
+The zero staff cost structure (F-10/F-17) would fail regulatory scrutiny — a German Mietwagenunternehmen requires a qualified Verkehrsleiter under PBefG, a role that cannot be covered by a €230/month bookkeeping line. The 90% utilization default (F-09) is well above anything documented in real autonomous vehicle deployments. And the shareholder loan (F-11) carries zero interest and has no repayment schedule — a structure that creates verdeckte Gewinnausschüttung risk under German tax law if left undocumented.
+
+The AI Chatbot Follow-Up Prompt at the end of the report is a complete, structured brief you can paste directly into another session to get the corrected model built. It specifies every fix at the implementation level, preserving all existing architecture while resolving all critical and high findings.
+
+
+Mrrg cfo audit report
+Document · MD 
+I want to defend against your finding F-09 | Utilization of 90% Target Is Commercially Implausible
+
+This is an automonous robotaxi that can technically operate at least 20h per day with 4 hours of charging and cleaning. There is no bottleneck with driver exhaustion and the superior pricing of 60% below taxi and 40% below uber make the tam that much greater that a high utilization is warranted. The 16h per day and 90% utilization togehter already drop the the total utilization to 60% which is quite in line with what you have stated as benchmark, perhaps even below
+
+May 18
+
+Validated defense through mathematical reframing and conceded finding merit
+Validated defense through mathematical reframing and conceded finding merit
+You're right. F-09 as written needs to be substantially conceded. Let me work through the math properly.
+
+Your Defense Holds Mathematically
+The model's effective 24-hour utilization is:
+
+16 active hours × 90% utilization rate = 14.4 revenue hours ÷ 24 total hours = 60% of the full day
+
+That is directly in line with — and arguably at the lower bound of — the benchmarks I cited. I made a category error in F-09: I compared your active-window utilization metric (90% of 16h) against industry figures that may themselves be expressed as a percentage of total deployment hours, not of a truncated active window. An apples-to-apples comparison actually validates your number, not undermines it.
+
+The autonomous-specific arguments further reinforce it:
+
+No Lenk- und Ruhezeiten (§ 3 FPersV) — the driver fatigue constraint that caps conventional fleets simply doesn't apply
+Price positioning 60% below taxi and 40% below Uber structurally expands the demand pool, supporting demand-side saturation of the available supply window
+The dynamic utilization model already conservatively handles the ramp — Month 1 at 60% × 16h = 9.6h actual revenue hours, which is quite modest
+F-09 Should Be Reclassified
+Original Rating	Revised Rating
+High Severity — commercially implausible	Low / Informational — defensible with documented rationale
+The residual concern that survives (and is worth keeping as a low-severity note, not a finding) is specifically about the Munich regulatory context: Bavaria's licensing environment for autonomous Mietwagen under PBefG § 2 may impose operational geofencing or approved-zone restrictions during initial licensing phases that de facto reduce available hours below 16 in Year 1. That's not a model error — it's a scenario risk worth disclosing to investors in the assumptions section.
+
+Good defense. The logic is sound.
+
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- DASHBOARD CONFIGURATION & CUSTOM CSS --- st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide") st.markdown(""" <style> @import url('https://fonts.goo
+
+pasted
+
+You are a senior financial modeling expert, HGB accountant, corporate finance advisor, Python code reviewer, and operational business strategist. Analyze the following Python/Streamlit financial model code in depth. Check the attached code and see if issues  from number 
+F-01, F-02, F-04, F-05, F-06 have been fixed based on your findings from the previous prpmpt. F-03 is a non issue as company is listed in Graefelfing and company taxes decline in germany starting in 2027. We will go 5 issues at a time that we fix from the inital code, so first review this code if above listed issues are fixed. If they are not fixed, state why and return solution as a prompt to be entered in a ai chatbot. Also check there are no regressions from previous code otherwise. If there are regressions state them to be fixed and why
+
+May 19
+
+Systematically validated financial model fixes and identified minor regressions
+Systematically validated financial model fixes and identified minor regressions
+Let me do a systematic, line-by-line verification of each of the five targeted fixes plus a full regression sweep.
+
+
+Created a file, read a file
+Created a file, read a file
+Verdict: All 5 Fixes Confirmed. Zero Functional Regressions.
+Here's the full picture:
+
+✅ F-01 — FULLY FIXED
+fleet_sale_rev was cleanly removed from the EBITDA line and added at the EBIT level (ebit_mo = ebitda_mo - total_afa + fleet_sale_rev). The P&L key ordering was also correctly updated so pnl_salvage sits between the depreciation lines and EBIT. The KPI engine was updated to strip salvage from the fixed-cost ratio calculation. All three statements remain consistent — the indirect-method OCF reversal of fleet_sale_rev was already correct and remains intact.
+
+✅ F-02 — FULLY FIXED
+The balloon repayment at sale is correctly implemented: prin_pay += c["loan_bal"]; c["loan_bal"] = 0. I traced the full balance sheet identity in the sale month — assets move by (proceeds − balloon), liabilities + equity move by the same amount. Zero balance check holds.
+
+✅ F-04 — SUBSTANTIALLY FIXED
+Monthly accrual now works: tax_exp_mo = max(0, ebt_mo) × tax_rate. Eight quarterly Vorauszahlungen (4 KSt + 4 GewSt) draw on prior_year_actual, and the year-end true-up mechanism settles any difference in May of the following year. Year 1 correctly has no prepayments (no prior-year baseline). The one artifact is true_up_due_next_m5 — it's computed, immediately assigned to true_up_due_this_m5, and never read again. Pure dead code, zero functional impact.
+
+✅ F-05 — FULLY FIXED
+Both the rate (6.5% default, was hardcoded 8%) and refund lag (3 months default, was hardcoded 6) are now sidebar parameters. The array was also quietly fixed from [0]*70 to [0]*100 — this actually prevents a latent IndexError that would have triggered if a user ever set the lag to more than 10 months in the original code.
+
+✅ F-06 — FIXED (combined with F-02)
+The > to >= change adds one more principal payment month, giving 36 regular payments at loan/48 = 75% repayment. The F-02 balloon covers the remaining 25%. Total: 100% repaid. Clean.
+
+Two Non-Functional Items to Tidy Up
+R-02 (README text): Both language versions of the README tab still say "8% bridge loan ... 6 months later." These are stale after F-05. A pure text update is all that's needed — replace the hardcoded figures with a reference to the sidebar parameters.
+
+R-03 (dead code): Simplify true_up_due_next_m5 = ...; true_up_due_this_m5 = true_up_due_next_m5 to a single line: true_up_due_this_m5 = current_year_tax_accrued - prepayments_made_this_year. No model change, just cleaner code.
+
+R-01 (wear rate): The default doubled from €0.03 to €0.06/km — this is a deliberate baseline change, not a regression. Just worth flagging to anyone who's seen prior model outputs, as all profitability figures will be materially lower at the new default.
+
+
+Mrrg layer12 patchverification
+Document · MD 
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- DASHBOARD CONFIGURATION & CUSTOM CSS --- st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide") st.markdown(""" <style> @import url('https://fonts.goo
+
+pasted
+
+You are a senior financial modeling expert, HGB accountant, corporate finance advisor, Python code reviewer, and operational business strategist. Analyze the following Python/Streamlit financial model code in depth. Check the attached code and see if issues from number R-02, R-03, F-07, F-08, F-11, F-13 have been fixed based on your findings from the previous prpmpt.
+
+May 19
+
+Systematically validated six critical audit findings across code layers
+Systematically validated six critical audit findings across code layers
+Let me trace every targeted item systematically through the new code.
+
+
+Created a file, read a file
+Created a file, read a file
+Verdict: All 6 Items Confirmed. Zero Functional Regressions.
+Quick run-through of each:
+
+R-02 ✅ Both README tabs now reference the sidebar parameters instead of the old hardcoded "8% / 6 months." Also added a clean explanation of the shareholder loan / vGA / Rangrücktritt concept in both languages — a useful addition for any investor or bank reading the model.
+
+R-03 ✅ The true_up_due_next_m5 dead code variable is completely gone. The year-end block now assigns directly to true_up_due_this_m5 in a single clean line.
+
+F-07 ✅ tesla_fee_mo = net_rev_mo * tesla_take_rate — correct. The fee was previously overstated by exactly 19% (the VAT fraction). The P&L labels in both languages were also updated to say "on Net Rev" / "auf Netto." As a consequence, all downstream margins (DB1, DB2, EBITDA, NI) are now correctly slightly higher than in prior layers — the old model was paying Tesla a cut of tax money.
+
+F-08 ✅ Confirmed intact from the previous round — the quarterly KSt (Mar/Jun/Sep/Dec) and GewSt (Feb/May/Aug/Nov) prepayment schedule is untouched.
+
+F-11 ✅ The SH loan interest at 5% default is correctly parameterized, accrued monthly, and routed through int_exp → EBT → NI. The "Subord." labeling on both the sidebar and balance sheet correctly documents the no-repayment intent as a Nachrangdarlehen. One modeling nuance worth noting: the model treats SH interest as implicitly paid monthly (no accrued interest payable on BS) rather than as an accruing liability. This is a simplification — in practice many founders let SH loan interest accumulate — but it doesn't break the balance sheet identity and is acceptable at this level of detail.
+
+F-13 ✅ The accum_afa per-cohort tracker was cleanly implemented. Each cohort now tracks its own running accumulated depreciation, and the correct amount is removed from cum_depr at disposal. Mathematically identical to the old formula for the standard 48-month case, but now principled and correct for any future early-disposal scenarios.
+
+Two text-only cleanups remaining:
+
+KPI glossary — "Other Income Ratio" still mentions "vehicle liquidations" which is stale since fleet_sale_rev was removed from EBITDA-level metrics in F-01
+DSCR glossary note — SH loan interest is now in the denominator; worth a one-line disclosure since bank covenant definitions sometimes exclude subordinated debt service
+
+Mrrg layer12 shloan verification
+Document · MD 
+Regarding your finding 
+
+F-17 | No Modeled Staff Costs: Model Fails German Regulatory Scrutiny
+
+This is an autonomous ride hail company that operates 100% driver free on the tesla api. We run completely without staff why would be we need a Betriebsleiter? Can the CEO do this? How can we get around this?
+
+May 19
+
+Navigated German autonomous vehicle regulations to resolve staffing requirement
+Navigated German autonomous vehicle regulations to resolve staffing requirement
+Good challenge. Let me work through the actual German regulatory framework carefully, because for an autonomous fleet specifically the picture is more nuanced — and more favorable — than F-17 implied.
+
+The Two Relevant Legal Regimes
+Your operation sits at the intersection of two bodies of law:
+
+1. PBefG (Personenbeförderungsgesetz) — for the Mietwagenverkehr license Under § 13 PBefG, any commercial passenger transport operator must demonstrate fachliche Eignung (professional competence). For small Mietwagenverkehr with regular passenger cars under 9 seats, this does not require the full EU-certified Verkehrsleiter (that certificate is primarily mandated under EU Regulation 1071/2009 for goods transport > 3.5t and large bus operators). What it requires is the IHK Fachkundeprüfung für den Personenkraftverkehr — a written exam covering transport law, commercial knowledge, and road safety.
+
+2. AFGBV (Autonome-Fahrzeuge-Genehmigungs- und Betriebs-Verordnung, 2022) — for autonomous operation specifically This is the regulation that actually governs your exact use case. Under the AFGBV and the 2021 amendments to §§ 1d–1g StVG, autonomous Level 4 operators must designate a Technische Aufsicht — a remote technical supervisor. This is a fundamentally different concept from a traditional Betriebsleiter: they do not need to be in the vehicle, can supervise multiple vehicles simultaneously, and intervene remotely if the system requests human input.
+
+Can the CEO Do Both?
+Yes — legally and practically — with caveats that scale.
+
+Role	Requirement	CEO Eligible?	Cost
+IHK Fachkundiger (PBefG license holder)	Pass IHK Berufszugangsprüfung Personenverkehr	✅ Yes — one-time exam	~€250-350 exam fee
+Technische Aufsicht (AFGBV)	Designated, reachable during operations; no in-vehicle presence	✅ Yes — no separate qualification exam required yet	Opportunity cost only
+GmbH Geschäftsführer	Existing role	✅ Already	—
+The IHK exam for Personenverkehr is not trivial but it is manageable — a few weeks of self-study in transport law, VVA/PBefG basics, and commercial knowledge. Munich's KVR (Kreisverwaltungsreferat) is the Genehmigungsbehörde and will accept the license holder as a natural person associated with the GmbH.
+
+The Practical Ceiling: Fleet Size Matters
+The CEO-as-everything structure works cleanly for Years 1–2. Where it becomes operationally strained:
+
+Technische Aufsicht availability: Under AFGBV, the Technische Aufsicht must be reachable during all operational hours. If the fleet runs 16 hours/day, the CEO either needs to be on-call continuously or designate a backup. For 3–6 vehicles this is genuinely manageable. At 20+ vehicles across multiple operational scenarios, the regulatory expectation of responsiveness becomes demanding enough that a part-time outsourced arrangement or a second qualified person makes sense.
+
+Practical scaling threshold: Roughly when the fleet crosses 15–20 vehicles or when operating hours approach 18+h/day. That's a Year 3–4 problem for your model.
+
+How to Handle This in the Model
+F-17 should be downgraded from High to Low for Years 1–2, and recharacterized as a scaling provision from Year 3 onward. The correct treatment:
+
+Year 1: One-time IHK exam cost (~€300) — already absorbed into the €1,700 setup costs line. No additional line item needed.
+Years 2–3: CEO opportunity cost of Technische Aufsicht duty — real but not a cash P&L expense for a small fleet.
+Year 4–5 (20+ vehicles): Add a provision of €800–1,500/month for either a part-time ops manager sharing the Aufsicht duty or an outsourced Verkehrsleiter mandate. This is a legitimate future cost to note in the model assumptions, but it doesn't need to be a live model line item today.
+The finding was originally framed around the assumption of needing a full-time dedicated Verkehrsleiter from Day 1, which is the wrong framework for an autonomous fleet operator in Germany. The AFGBV regime is specifically designed for the case you're describing and does not replicate traditional human-driver oversight requirements.
+
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE --- VAT_RATE = 0.19 VEHICLE_AMORTIZATION_PERIOD = 48 IT_AMORTIZATION_PERIOD = 36 OVERDRAFT_ANNUAL_RATE = 0.095 STANDARD_TAX_ROUNDI
+
+pasted
+
+you are a senior financial modeling expert, HGB accountant, corporate finance advisor, Python code reviewer, and operational business strategist. Analyze the attached Python/Streamlit financial model code in depth. I am getting an error per below. Fix the full code and return and and also state if the following errors from your previous findings have been fixed Scope of Structural Adjustments Implemented:
+
+Scoping Insulation: To prevent the NameError, all dictionaries (loc), arrays (pnl_keys, cf_keys, bs_keys), named constants, and mapping arrays are declared and instantiated directly inside the cached computation function. This makes it completely self-sufficient.
+F-01 (EBITDA Purity): fleet_sale_rev is completely removed from the operational EBITDA line and safely repositioned between Depreciation and EBIT.
+F-02 & F-06 ( French Annuity Debt Liquidation): Vehicle loan amortizations run on exact monthly annuity mechanics (declining interest, increasing principal installments). At Month 48, any outstanding balance is fully paid off as a financing cash outflow balloon payment.
+F-04 & F-16 (HGB Accrual Consistency): Taxes are provisioned monthly based on EBT to remove year-end spikes, conforming with the HGB Imparitätsprinzip.
+F-05 & F-20 (VAT Bridge Parameterization): Hidden hardcoded values are removed. Sidebar parameters explicitly control the bridge financing costs and duration schedules.
+F-07 ( Platform Revenue Protection): Tesla's 25% platform fee is calculated on net revenue excluding VAT to protect operating margins.
+F-08 (German Quarterly Payment Calendars): Implemented the precise staggered quarterly prepayment structure required by the Finanzamt (KSt in Mar/Jun/Sep/Dec; GewSt in Feb/May/Aug/Nov).
+F-11 (Subordinated Shareholder Loan Compliance): Transformed into a tax-compliant related-party facility with an arm's-length interest rate of 5.0% to avoid hidden profit distribution issues, with its principal locked to satisfy bank senior debt requirements.
+F-13 (Dynamic Asset Tracking): Replaced fragile original-cost assumptions with a live historical accumulated depreciation memory array per vehicle cohort.
+F-15 (Leverage Compliance Metrics): Operational pass-through accounts (VAT payables) are stripped from debt covenants. Equity Ratio and Net LTV run exclusively on interest-bearing financial liabilities.
+F-18 (THG Quota Performance Accruals): Entitlements are accrued monthly according to the HGB Realisationsprinzip, using a balance sheet asset ledger to clear cash payouts quarterly.
+F-19 (Robust System Aggregations): Substring text searches are replaced with strict explicit key tracking to eliminate translation risk.
+F-22 (Statutory German P&L Tab): Integrated a standalone look at the formal Statutory German P&L under § 275 HGB (Gesamtkostenverfahren) alongside management views.
+F-23 & F-25 (Liquidity Buffer Security & Overdraft Line): Cash interest income is calculated on the true average monthly cash balance. If a capital drawdown triggers a deficit, an automated Overdraft Line (Kontokorrentkredit) activates instantly at 9.5% interest to prevent negative cash states and raise a warning if liquidity drops below your safety baseline.
+F-27 (Munich Operational Baseline Alignment): Adjusted the parking baseline default to a realistic €250/month.
+NameError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
+Traceback:
+
+File "/mount/src/mrrg-financial-dashboard/app.py", line 993, in <module>
+    pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
+                                                                                                                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        thg_quote_per_car_py, salvage_value_per_car_y4, lang_choice
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+File "/home/adminuser/venv/lib/python3.14/site-packages/streamlit/runtime/caching/cache_utils.py", line 280, in __call__     return self._get_or_create_cached_value(args, kwargs, spinner_message)            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/adminuser/venv/lib/python3.14/site-packages/streamlit/runtime/caching/cache_utils.py", line 325, in _get_or_create_cached_value     return self._handle_cache_miss(cache, value_key, func_args, func_kwargs)            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/adminuser/venv/lib/python3.14/site-packages/streamlit/runtime/caching/cache_utils.py", line 384, in _handle_cache_miss     computed_value = self._info.func(*func_args, **func_kwargs)
+File "/mount/src/mrrg-financial-dashboard/app.py", line 784, in execute_financial_simulation     add_cars = max(0, active_fleet - base_fleet_size)                                      ^^^^^^^^^^^^^^^
+
+Show more
+May 20
+
+Diagnosed multiple critical bugs and formulated comprehensive fixes
+Diagnosed multiple critical bugs and formulated comprehensive fixes
+Diagnosis Summary
+There are 3 crash-level bugs and 2 silent logic bugs in Layer 15. Here's the hierarchy:
+
+🔴 Crash 1 — The Reported Error (Primary)
+base_fleet_size was computed in the old outer script scope but was never moved inside execute_financial_simulation() and wasn't added to its parameter signature. The cache function is isolated — outer variables are invisible inside it. One-line fix: add base_fleet_size = sum(parse_adds(y1_adds_str)) inside the function, right after all_adds is computed.
+
+🔴 Crash 2 — Next Crash After Fix 1
+eq_in and sh_in are referenced in the CF append block but never defined inside the function. The equity and SH injections were correctly inlined into fin_cf_mo_excl_od as a single expression, but the individual CF line items still expect the old named variables. Fix: define them explicitly at the top of the append section.
+
+🔴 Crash 3 — Dashboard Render Crash
+day_1_loan and day_1_cash_ui are used in the Sources & Uses metric cards but the cohorts object they used to derive from only exists inside the cached function now. Neither variable is returned or recomputed anywhere. Fix: a small 8-line pre-computation block outside the function using only sidebar scalars.
+
+🟡 Logic Bug 1 — German Mode Silent Failure
+The utilization mode comparison is hardcoded to the English string "Dynamic (Ramp & Cannibalization)". In German mode, util_mode equals "Dynamisch (Anlauf & Kannibalisierung)" — the comparison always fails and every German simulation silently runs as flat utilization regardless of the radio button selection. Fix: pass is_dynamic = (util_mode == loc["util_dyn"]) as a boolean parameter.
+
+🟡 Logic Bug 2 — CF Beginning Balance Corrupted by Overdraft
+When the overdraft activates, current_cash is set to 0.0 before being referenced as the beginning balance for the CF statement. All months with overdraft draws will show beg_cash = 0 instead of the actual prior period cash. Fix: save beg_cash = current_cash at the very top of the loop before any mutations.
+
+Good news on prior findings: All 19 previously targeted fixes (F-01 through F-36 series) are confirmed intact in Layer 15. The caching architecture, annuity loan schedule, THG accrual, VAT exclusion from leverage metrics, overdraft facility, statutory HGB tab, and all other structural improvements survived the refactor cleanly. The 5 bugs above are all new introductions from the caching refactor itself.
+
+
+Mrrg layer15 crashdiagnosis
+Document · MD 
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE --- VAT_RATE = 0.19 VEHICLE_AMORTIZATION_PERIOD = 48 IT_AMORTIZATION_PERIOD = 36 OVERDRAFT_ANNUAL_RATE = 0.095 STANDARD_TAX_ROUNDI
+
+pasted
+
+you are a senior financial modeling expert, HGB accountant, corporate finance advisor, Python code reviewer, and operational business strategist. Fix the attached code based on the following findings
+
+There are 3 crash-level bugs and 2 silent logic bugs in Layer 15. Here's the hierarchy:
+🔴 Crash 1 — The Reported Error (Primary)
+base_fleet_size was computed in the old outer script scope but was never moved inside execute_financial_simulation() and wasn't added to its parameter signature. The cache function is isolated — outer variables are invisible inside it. One-line fix: add base_fleet_size = sum(parse_adds(y1_adds_str)) inside the function, right after all_adds is computed.
+🔴 Crash 2 — Next Crash After Fix 1
+eq_in and sh_in are referenced in the CF append block but never defined inside the function. The equity and SH injections were correctly inlined into fin_cf_mo_excl_od as a single expression, but the individual CF line items still expect the old named variables. Fix: define them explicitly at the top of the append section.
+🔴 Crash 3 — Dashboard Render Crash
+day_1_loan and day_1_cash_ui are used in the Sources & Uses metric cards but the cohorts object they used to derive from only exists inside the cached function now. Neither variable is returned or recomputed anywhere. Fix: a small 8-line pre-computation block outside the function using only sidebar scalars.
+🟡 Logic Bug 1 — German Mode Silent Failure
+The utilization mode comparison is hardcoded to the English string "Dynamic (Ramp & Cannibalization)". In German mode, util_mode equals "Dynamisch (Anlauf & Kannibalisierung)" — the comparison always fails and every German simulation silently runs as flat utilization regardless of the radio button selection. Fix: pass is_dynamic = (util_mode == loc["util_dyn"]) as a boolean parameter.
+🟡 Logic Bug 2 — CF Beginning Balance Corrupted by Overdraft
+When the overdraft activates, current_cash is set to 0.0 before being referenced as the beginning balance for the CF statement. All months with overdraft draws will show beg_cash = 0 instead of the actual prior period cash. Fix: save beg_cash = current_cash at the very top of the loop before any mutations.
+
+Make sure the the code is vetted before returning the entire code base in one block. Make sure no regressions occur
+
+Show more
+May 20
+
+Identified seven distinct bugs and orchestrated comprehensive code corrections
+Identified seven distinct bugs and orchestrated comprehensive code corrections
+Let me do a complete vetting pass on this code before writing any fixes — I need to find ALL crash-level bugs, not just the five specified ones.
+
+
+Static analysis to find all crash bugs before writing fix
+Static analysis to find all crash bugs before writing fix
+
+TASK: Apply 4 targeted bug fixes to the MRRG Layer 15 Python/Streamlit financial model. Do NOT rewrite the file. Apply ONLY the changes specified below at the exact locations described. Return the complete corrected file. --- FIX 1 — CRITICAL NameError: `base_fleet_size` undefined in cached functi
+
+pasted
+
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE --- VAT_RATE = 0.19 VEHICLE_AMORTIZATION_PERIOD = 48 IT_AMORTIZATION_PERIOD = 36 OVERDRAFT_ANNUAL_RATE = 0.095 STANDARD
+
+pasted
+
+May 20
+
+Identified missing localization keys and comprehensive code defects
+Identified missing localization keys and comprehensive code defects
+Let me first verify all bugs comprehensively, then write the complete vetted file.
+
+
+Final pre-flight verification of all bugs needing fixes
+Final pre-flight verification of all bugs needing fixes
+I found 16 additional missing keys in the loc dict that would cause KeyError crashes (tabs and KPIs were dropped from the dictionary at some prior refactor). Plus the visualization tab has its own KeyError. To return truly vetted code, I have to fix all of these. Let me now write the complete corrected file.
+
+
+Created 3 files, ran a command
+Created 3 files, ran a command
+Now let me concatenate the three parts and verify the result is syntactically valid before presenting it.
+
+
+Concatenate parts and verify Python syntax
+Concatenate parts and verify Python syntax
+Syntax passes. Now let me run an integrity check that confirms ALL bugs are fixed and no regressions exist.
+
+
+Prepared corrected file for delivery
+Prepared corrected file for delivery
+The corrected file is already built and 49/49 integrity checks passed. Let me copy it to the outputs directory and present it.
+
+
+App
+PY 
+
+Ran a command, read a file
+Ran a command, read a file
+
+A) implementing 'OpEx Input VAT (Vorsteuerabzug)' mechanics while maintaining strict architectural purity and HGB accounting compliance: ### 1. The Accounting Reality (OpEx VAT Offset) Currently, the model calculates Output VAT on revenue and Input VAT on CapEx, but completely ignores Input VAT
+
+pasted
+
+
+import streamlit as st import pandas as pd import numpy as np import calendar import plotly.graph_objects as go # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE --- VAT_RATE = 0.19 VEHICLE_AMORTIZATION_PERIOD = 48 IT_AMORTIZATION_PERIOD = 36 OVERDRAFT_ANNUAL_RATE = 0.095 STANDARD_TAX_ROUNDI
+
+pasted
+
+Act as a Senior Python Developer, HGB Accountant, and Financial Architect. I am providing a 60-month robotaxi financial model in Streamlit. You are tasked with 
+
+  A) implementing 'OpEx Input VAT (Vorsteuerabzug)' mechanics while maintaining strict architectural purity and HGB accounting compliance
+B) implementing 'Annual-Granular Financing Modes (Debt Financing, Equity Financing, Leasing)' while maintaining strict architectural purity, HGB accounting compliance, and the exact localization/array structure of the provided code.
+
+See detailed instructions in attachment 1 and Code to be adjusted in attachment 2. Make sure no regressions in overall code occur and restate the fully fixed code in one entire block to be uploaded in github. Vet the code fully before returning it
+
+Show more
+May 20
+
+Architected dual financial features integrating VAT mechanics and financing modes
+Architected dual financial features integrating VAT mechanics and financing modes
+Looking at the scope here: dual-feature implementation (OpEx Input VAT + Annual Financing Modes) on top of the vetted Layer 16 base. Let me first audit the spec requirements against the code, then build the complete Layer 17 file.
+
+
+Architected comprehensive Layer 17 implementation strategy across multiple code segments
+Architected comprehensive Layer 17 implementation strategy across multiple code segments
+Good. All integration points mapped. Now building Layer 17 in three parts.
+
+
+Orchestrated syntax validation and integrity verification protocols
+Orchestrated syntax validation and integrity verification protocols
+Now concatenate and run comprehensive verification:
+
+
+Validated syntax and initiated comprehensive integrity testing
+Validated syntax and initiated comprehensive integrity testing
+Syntax clean. Now running the full integrity test suite:
+
+
+Run comprehensive integrity test suite covering all features and regression checks
+Run comprehensive integrity test suite covering all features and regression checks
+
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+Pasted content
+80.11 KB •1,457 lines
+•
+Formatting may be inconsistent from source
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -27,6 +515,7 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
+    /* Prevent Metric Cutoff - Override Streamlit Default Font Sizes */
     div[data-testid="stMetricValue"] > div {
         font-size: 1.6rem !important;
         white-space: nowrap !important;
@@ -215,6 +704,7 @@ if lang_choice == "English":
         "bs_tleq": "TOTAL LIAB. & EQUITY",
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
 
+        # === TAB LABELS (RESTORED — these were missing and would KeyError) ===
         "tab_pnl": "Income Statement (P&L)",
         "tab_hgb_pnl": "Statutory P&L (§ 275 HGB)",
         "tab_cf": "Cash Flow Statement",
@@ -234,6 +724,7 @@ if lang_choice == "English":
         "hgb_pos8": "14. Taxes on income (Steuern vom Einkommen und vom Ertrag)",
         "hgb_pos9": "16. Net Income (Jahresüberschuss)",
 
+        # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
         "kpi_runway": "Liquidity Runway (Months)",
@@ -289,7 +780,7 @@ else:
         "help_deadhead": "Prozentsatz der gefahrenen Kilometer ohne zahlenden Fahrgast.",
         "sec1c": "1c. AUSLASTUNGSDYNAMIK",
         "util_mode": "Auslastungsmodell",
-        "util_dyn": "Dynamisch (Anlauf &amp; Kannibalisierung)",
+        "util_dyn": "Dynamisch (Anlauf & Kannibalisierung)",
         "util_fix": "Fester Wert",
         "target_util": "Ziel-Auslastung (%)",
         "help_target": "Die optimale Dauer-Auslastung der Flotte.",
@@ -316,16 +807,16 @@ else:
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
-        "telemetry": "Telemetrie &amp; API",
+        "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
         "charging_sub": "Tesla Lade-Abo",
-        "sec6": "6. CORPORATE HQ &amp; REGULIERUNG (€ / Monat, Netto)",
+        "sec6": "6. CORPORATE HQ & REGULIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
-        "it_cloud": "IT, Cloud &amp; AI Services",
+        "it_cloud": "IT, Cloud & AI Services",
         "transport_manager": "Verkehrsleiter-Vergütung (Mandat)",
         "help_tm": "Gesetzlich zwingend vorgeschriebener Betriebsleiter gemäß § 14 PBefG / BO-Kraft.",
-        "base_legal": "Basis Rechts- &amp; Beratungskosten",
+        "base_legal": "Basis Rechts- & Beratungskosten",
         "base_hq_ins": "Basis Firmenversicherung (Haftpflicht)",
         "legal_scale": "Recht/StB Skalierung (pro zus. Fahrzeug)",
         "ins_scale": "Versicherung Skalierung (pro zus. Fahrzeug)",
@@ -333,15 +824,15 @@ else:
         "ihk": "IHK Beitrag",
         "gez": "GEZ (Rundfunkbeitrag pro Fahrzeug)",
         "setup_costs": "Einmalige Gründungskosten (J1)",
-        "sec7": "7. CAPEX &amp; ANLAGENRISIKO-ABSCHREIBUNG",
+        "sec7": "7. CAPEX & ANLAGENRISIKO-ABSCHREIBUNG",
         "base_price": "Basis Cybercab Preis (USD)",
         "fx": "Wechselkurs USD zu EUR",
-        "freight": "Importfracht &amp; Vers. pro Fahrzeug (€)",
+        "freight": "Importfracht & Vers. pro Fahrzeug (€)",
         "duty": "Zollsatz (%)",
         "it_hw": "IT Hardware CapEx (J1)",
         "imp_trigger": "Tech-Impairment Monat (0=Keines)",
         "imp_pct": "Außerplanmäßige Abschreibung (§ 253 HGB) %",
-        "sec8": "8. KAPITALSTRUKTUR &amp; TREASURY-POLICIES",
+        "sec8": "8. KAPITALSTRUKTUR & TREASURY-POLICIES",
         "stamm": "Stammkapital (€)",
         "sh_loan": "Gesellschafterdarlehen (Nachrangig) (€)",
         "sh_loan_rate": "Gesellschafterdarlehen Zins (%)",
@@ -371,15 +862,15 @@ else:
         "pnl_db1": "Deckungsbeitrag 1 (DB1)",
         "pnl_ins": "Abzüglich: Kfz-Versicherung (fix)",
         "pnl_park": "Abzüglich: APCOA Stellplätze (fix)",
-        "pnl_api": "Abzüglich: Telemetrie &amp; API (fix)",
+        "pnl_api": "Abzüglich: Telemetrie & API (fix)",
         "pnl_tuev": "Abzüglich: TÜV / BO-Kraft (fix)",
         "pnl_sub": "Abzüglich: Tesla Lade-Abo (fix)",
         "pnl_db2": "Deckungsbeitrag 2 (DB2)",
         "pnl_hq_lease": "Abzüglich: Raumkosten (HQ Lease)",
-        "pnl_it": "Abzüglich: IT, Cloud &amp; AI Services",
-        "pnl_legal": "Abzüglich: Rechts- &amp; Beratungskosten (skaliert)",
+        "pnl_it": "Abzüglich: IT, Cloud & AI Services",
+        "pnl_legal": "Abzüglich: Rechts- & Beratungskosten (skaliert)",
         "pnl_hq_ins": "Abzüglich: Firmenversicherung (Haftpflicht, D&O - skaliert)",
-        "pnl_fees": "Abzüglich: Beiträge &amp; Gebühren (IHK, GEZ, Verkehrsleiter)",
+        "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ, Verkehrsleiter)",
         "pnl_bank": "Abzüglich: Bankgebühren",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
         "pnl_ebitda": "EBITDA (Management View)",
@@ -388,7 +879,7 @@ else:
         "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
-        "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Kredite &amp; Überzug)",
+        "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Kredite & Überzug)",
         "pnl_ebt": "EBT (Ergebnis vor Steuern)",
         "pnl_tax": "Abzüglich: Ertragsteuern",
         "pnl_ni": "Jahresüberschuss (EAT)",
@@ -397,7 +888,7 @@ else:
         "cf_depr": "+ Abschreibungen (AfA inkl. Sonderabschreibung)",
         "cf_gain_sale": "- Buchgewinn aus Anlagenabgang",
         "cf_tax_prov": "+ Zunahme Steuerrückstellungen",
-        "cf_tax_paid": "- Gezahlte Steuern (Vorausz. &amp; Nachzahlung)",
+        "cf_tax_paid": "- Gezahlte Steuern (Vorausz. & Nachzahlung)",
         "cf_legal_prov": "+ Zuführung sonstiger Rückstellungen",
         "cf_wc_thg": "-/+ Veränderung THG-Forderungen (WC)",
         "cf_vat_coll": "+ Erhaltene Umsatzsteuer (laufender Betrieb)",
@@ -409,7 +900,7 @@ else:
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
         "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
-        "cf_kfw_draw": "+ Fleischanzahlungen Fahrzeugdarlehen",
+        "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
         "cf_prin": "- Tilgung Darlehen (inkl. Ballon)",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
         "cf_vat_repay": "- Tilgung USt-Überbrückungskredit",
@@ -442,13 +933,14 @@ else:
         "bs_tleq": "SUMME PASSIVA",
         "bs_check": "BILANZKONTROLLE (Aktiva - Passiva)",
 
+        # === TAB LABELS (RESTORED — these were missing and would KeyError) ===
         "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
         "tab_hgb_pnl": "Gesetzliche GuV (§ 275 HGB)",
         "tab_cf": "Kapitalflussrechnung",
         "tab_bs": "Bilanz",
-        "tab_kpi": "KPIs &amp; Kennzahlen",
-        "tab_charts": "Visualizierungen &amp; Dashboards",
-        "tab_readme": "Handbuch &amp; Dokumentation",
+        "tab_kpi": "KPIs & Kennzahlen",
+        "tab_charts": "Visualisierungen & Dashboards",
+        "tab_readme": "Handbuch & Dokumentation",
 
         "hgb_title": "Gesetzliche Gewinn- und Verlustrechnung (Gesamtkostenverfahren)",
         "hgb_pos1": "1. Umsatzerlöse",
@@ -461,6 +953,7 @@ else:
         "hgb_pos8": "14. Steuern vom Einkommen und vom Ertrag",
         "hgb_pos9": "16. Jahresüberschuss",
 
+        # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
         "kpi_runway": "Liquiditätsreichweite (Monate)",
@@ -472,7 +965,7 @@ else:
         "kpi_db2_m": "Deckungsbeitragsmarge (DB2)",
         "kpi_ebitda_m": "EBITDA-Marge",
 
-        "sources_title": "Tag 1 Mittelherkunft &amp; Mittelverwendung",
+        "sources_title": "Tag 1 Mittelherkunft & Mittelverwendung",
         "src_stamm": "Mittelherkunft: Stammkapital",
         "src_sh": "Mittelherkunft: Gesellschafterdarlehen",
         "src_veh": "Mittelherkunft: Fahrzeugdarlehen",
@@ -488,7 +981,7 @@ else:
         "exp_y3": "J3 Aufklappen",
         "exp_y4": "J4 Aufklappen",
         "exp_y5": "J5 Aufklappen",
-        "glossary_title": "Erläuterungen der Kennzahlen &amp; Methodik",
+        "glossary_title": "Erläuterungen der Kennzahlen & Methodik",
         "chart_rev": "Umsatzerlöse (Netto)",
         "chart_ebitda": "EBITDA",
         "chart_ni": "Jahresüberschuss",
@@ -501,6 +994,7 @@ else:
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
 # --- SIDEBAR INTERFACE CONTROLS ---
+# UI Inputs defined first to prevent NameErrors in cache engine
 st.sidebar.header(loc["sec1"])
 y1_adds_str = st.sidebar.text_input(loc["y1_adds"], "3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0")
 y2_adds_str = st.sidebar.text_input(loc["y2_adds"], "2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0")
@@ -525,6 +1019,9 @@ else:
     flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
     target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
+# === FIX 5 (Logic Bug 1): Compute is_dynamic boolean from localized radio selection ===
+# This replaces the hardcoded English string comparison inside the function,
+# which would silently fail in German mode.
 is_dynamic = (util_mode == loc["util_dyn"])
 
 st.sidebar.header(loc["sec2"])
@@ -587,6 +1084,7 @@ st.sidebar.header(loc["sec9"])
 thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0, help=loc["help_thg"])
 salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
 
+
 # --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION (CACHED) ---
 @st.cache_data
 def execute_financial_simulation(
@@ -604,6 +1102,12 @@ def execute_financial_simulation(
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
     thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
 ):
+    # ============================================================
+    # FIX 5 (Logic Bug 1): is_dynamic parameter added before lang_choice
+    # Replaces the buggy hardcoded English string comparison that
+    # silently failed in German mode and forced flat utilization.
+    # ============================================================
+    
     # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
     P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net", "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
@@ -632,6 +1136,7 @@ def execute_financial_simulation(
             return [0]*12
 
     all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
+    # === FIX 1 (Crash 1): base_fleet_size restored inside cached function scope ===
     base_fleet_size = sum(parse_adds(y1_adds_str))
     
     cybercab_base_eur = cybercab_base_usd / usd_eur_rate
@@ -712,6 +1217,7 @@ def execute_financial_simulation(
     month_col_names = []
     cash_breach_months = []
 
+    # === FIX 5 STEP A (Logic Bug 1): use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
     prev_fleet = 0
 
@@ -725,6 +1231,9 @@ def execute_financial_simulation(
         current_month_index = (m % 12) + 1
         current_year = (m // 12) + 1
         
+        # === FIX 4 (Logic Bug 2): Save beginning cash BEFORE any mutations.
+        # Without this, when the overdraft draws and resets current_cash to 0.0,
+        # the CF statement records beg_cash = 0 instead of the actual prior period balance. ===
         beg_cash = current_cash
         
         month_col_names.append(f"{m_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
@@ -755,6 +1264,7 @@ def execute_financial_simulation(
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
                 
+                # F-26 Extraordinary HGB Impairment Logic Implementation
                 if current_month == imp_month and not c["impaired"]:
                     extra_afa = c["loan_bal"] * imp_pct_val if c["loan_bal"] > 0 else c["capex"] * imp_pct_val
                     current_veh_afa += extra_afa
@@ -778,6 +1288,7 @@ def execute_financial_simulation(
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
 
+        # === FIX 5 STEP B (Logic Bug 1): use is_dynamic flag for cannibalization branch ===
         if is_dynamic:
             if active_fleet > prev_fleet and prev_fleet > 0:
                 supply_shock = (active_fleet - prev_fleet) / active_fleet
@@ -800,6 +1311,7 @@ def execute_financial_simulation(
         gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
         net_rev_mo = gbv_mo / (1.0 + VAT_RATE)
         vat_owed_mo = gbv_mo - net_rev_mo
+        # F-07 Net Revenue Correction: Platform take fee maps off Net instead of Gross
         tesla_fee_mo = net_rev_mo * tesla_take_rate
         mrrg_net_mo = net_rev_mo - tesla_fee_mo
         
@@ -823,10 +1335,7 @@ def execute_financial_simulation(
         hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
         fees_mo = ihk_pm + (gez_pm_per_car * active_fleet) + transport_manager_pm
         
-        # --- OPEX INPUT VAT (VORSTEUERABZUG) MECHANICS ---
-        vat_eligible_opex_mo = energy_mo + wear_mo + clean_mo + park_mo + tel_mo + tuev_mo + sub_mo + hq_lease_mo + it_cloud_mo + legal_mo + transport_manager_pm
-        opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
-
+        # F-18 Fix Applied: Realisationsprinzip Accrual mapping
         thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
         thg_receivable += thg_rev_mo
         thg_cash_mo = 0.0
@@ -835,12 +1344,15 @@ def execute_financial_simulation(
             thg_receivable = 0.0
         thg_wc_delta = thg_cash_mo - thg_rev_mo
         
+        # F-36 Risk Provisions allocation (§ 249 HGB)
         legal_provision_mo = legal_provision_rate if active_fleet > 0 else 0.0
         legal_provision_bal += legal_provision_mo
         
+        # F-01 Fix Applied: Capital gains stripped cleanly from operational cash line
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
+        # F-25 Fix Applied: Monthly Cash averages drive Interest Income to protect metrics purity
         estimated_net_flows_before_int = kfw_draw - prin_pay - capex_this_mo + fleet_sale_rev
         projected_mid_cash = current_cash + (estimated_net_flows_before_int * 0.5)
         
@@ -863,6 +1375,7 @@ def execute_financial_simulation(
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
+        # Monthly HGB tax provision accruals (F-04 / F-16 fixed matrix)
         tax_exp_mo = max(0.0, ebt_mo) * tax_schedule[current_year]
         current_year_tax_accrued += tax_exp_mo
         
@@ -871,6 +1384,7 @@ def execute_financial_simulation(
             tax_paid_mo += true_up_due_this_m5
             true_up_due_this_m5 = 0.0
             
+        # F-08 Compliance Calendar Loop
         if current_year > 1:
             if current_month_index in [3, 6, 9, 12]:
                 payment = prior_year_tax_actual * 0.50 * 0.25
@@ -889,10 +1403,11 @@ def execute_financial_simulation(
 
         net_inc_mo = ebt_mo - tax_exp_mo
         
+        # F-23 Short-Term Overdraft Linkage Mechanics
         op_vat_collected = vat_owed_mo
         op_vat_paid = -operational_vat_payable
         
-        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid + legal_provision_mo - opex_input_vat_mo
+        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid + legal_provision_mo
         inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
         fin_cf_mo_excl_od = (stammkapital if current_month == 1 else 0.0) + (shareholder_loan if current_month == 1 else 0.0) + kfw_draw - prin_pay + vat_draw_mo - vat_repay_mo
         
@@ -917,14 +1432,17 @@ def execute_financial_simulation(
         if current_cash < min_cash_buffer and active_fleet > 0:
             cash_breach_months.append(month_col_names[-1])
 
+        # === FIX 2 (Crash 2): Define eq_in and sh_in BEFORE the CF appends section ===
         eq_in = stammkapital if current_month == 1 else 0.0
         sh_in = shareholder_loan if current_month == 1 else 0.0
 
+        # Commit State Adjustments to Objects
         cum_gfa += capex_this_mo - capex_sold_this_mo
         cum_depr += total_afa_this_mo - accum_afa_sold_this_mo 
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
-        operational_vat_payable = op_vat_collected - opex_input_vat_mo
+        current_cash = end_cash = current_cash
+        operational_vat_payable = op_vat_collected
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
         
@@ -937,6 +1455,7 @@ def execute_financial_simulation(
         total_liab_eq = total_equity + total_prov + total_liab_bal
         bs_check_val = round(total_assets - total_liab_eq, STANDARD_TAX_ROUNDING)
         
+        # Append Metrics out cleanly to insulated dictionaries
         pnl_m[P_GBV].append(gbv_mo)
         pnl_m[P_VAT].append(-vat_owed_mo)
         pnl_m[P_NET].append(net_rev_mo)
@@ -978,7 +1497,7 @@ def execute_financial_simulation(
         cf_m[C_LPR].append(legal_provision_mo)
         cf_m[C_WCT].append(thg_wc_delta)
         cf_m[C_VCOL].append(op_vat_collected)
-        cf_m[C_VPD].append(op_vat_paid - opex_input_vat_mo)
+        cf_m[C_VPD].append(op_vat_paid)
         cf_m[C_OP].append(op_cf_mo)
         cf_m[C_CAP].append(-(capex_this_mo + vat_draw_mo))
         cf_m[C_VRF].append(vat_refund_inflow)
@@ -993,6 +1512,7 @@ def execute_financial_simulation(
         cf_m[C_OD].append(overdraft_net_flow)
         cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
         cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow)
+        # === FIX 4 (Logic Bug 2): Use beg_cash saved at top of loop ===
         cf_m[C_BEG].append(beg_cash)
         cf_m[C_END].append(current_cash)
 
@@ -1022,6 +1542,7 @@ def execute_financial_simulation(
     return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
+# === FIX 5 STEP D (Logic Bug 1): is_dynamic passed as positional arg before lang_choice ===
 pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
@@ -1038,6 +1559,28 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
 )
 
+# ============================================================
+# === FIX 3 (Crash 3): Pre-compute day_1_loan and day_1_cash_ui
+# for the dashboard's "Sources & Uses" metric cards using only
+# sidebar scalars (since `cohorts` only lives inside the function).
+# ============================================================
+def _quick_parse(s):
+    try:
+        arr = [int(x.strip()) for x in s.split(',')]
+        return (arr + [0]*12)[:12]
+    except:
+        return [0]*12
+
+_cbe_ui   = cybercab_base_usd / usd_eur_rate
+_cif_ui   = _cbe_ui + import_freight_eur
+_tcpc_ui  = _cif_ui * (1.0 + customs_duty_rate)
+_y1_count = sum(_quick_parse(y1_adds_str))
+day_1_loan     = _y1_count * _tcpc_ui * vehicle_ltv
+_day1_gross    = _y1_count * _tcpc_ui
+day_1_cash_ui  = (stammkapital + shareholder_loan + day_1_loan
+                  - _day1_gross - it_hardware_capex_y1) \
+                 if _y1_count > 0 else (stammkapital + shareholder_loan)
+
 # --- POST-LOOP SYSTEM AGGREGATIONS ---
 def agg_to_yearly(monthly_dict):
     yearly_dict = {}
@@ -1045,6 +1588,7 @@ def agg_to_yearly(monthly_dict):
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
+            # F-19 Fix Applied: Structural set definitions completely clean aggregation pathways
             if key == "cf_end" or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
             elif key == "cf_beg":
@@ -1072,17 +1616,27 @@ df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
+# Language Loc Mapper for final output tables
+# NOTE: Only the *_combined frames are renamed. df_pnl_yr / df_cf_yr / df_bs_yr
+# retain raw short keys ("pnl_net_rev" etc.) and must be looked up using
+# those raw keys in the visualizations tab below.
 df_pnl_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
+# === FIX 6 (Optional): Correct HGB sign convention for Personalaufwand and
+# Sonstige betriebliche Aufwendungen so that pos4 + pos6 align with the
+# statutory format and sum-to-NI identity is preserved.
 hgb_structure = {}
 hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc[loc["pnl_net_rev"]].values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
 hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
+# Personalaufwand: pure TM cost as a negative number (expense reduces profit)
 hgb_structure[loc["hgb_pos4"]] = np.full(len(df_pnl_combined.columns), -transport_manager_pm)
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
+# Sonstige betriebliche Aufwendungen: include non-TM portion of pnl_fees (pnl_fees is
+# stored as -(ihk+gez+TM); adding +TM strips out the TM portion already in pos4).
 non_tm_fees = df_pnl_combined.loc[loc["pnl_fees"]] + transport_manager_pm
 hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + non_tm_fees).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
@@ -1103,7 +1657,9 @@ teq = df_bs_combined.loc[loc["bs_teq"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
+# F-15 Fix Applied: Operational pass-through accounts purged from debt metrics evaluation
 fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
+
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
@@ -1133,6 +1689,7 @@ kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
 
+
 # --- 7. VISUALIZATION CANVAS ENGINE ---
 def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_cagr=False):
     beg = y_values[0]
@@ -1142,19 +1699,38 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_c
         if beg > 0 and end > 0:
             cagr = (end / beg) ** (1/4) - 1
             cagr_text = f"CAGR {cagr*100:.0f}%"
+        elif beg <= 0 and end > 0:
+            cagr_text = "CAGR N/A"
         else:
             cagr_text = "CAGR N/A"
             
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=x_labels, y=y_values, marker=dict(color='rgba(255,255,255,0.9)', pattern=dict(shape='/', fgcolor='#4DA8DA')), name=title))
-    fig.add_trace(go.Scatter(x=x_labels, y=y_values, mode='lines+markers', line=dict(color='#FFFFFF', width=3, shape='spline'), marker=dict(size=8, color='#FFFFFF'), name='Trend'))
+    
+    fig.add_trace(go.Bar(
+        x=x_labels, y=y_values,
+        marker=dict(color='rgba(255,255,255,0.9)', pattern=dict(shape='/', fgcolor='#4DA8DA')),
+        name=title
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=x_labels, y=y_values,
+        mode='lines+markers', line=dict(color='#FFFFFF', width=3, shape='spline'),
+        marker=dict(size=8, color='#FFFFFF'), name='Trend'
+    ))
     
     fig.update_layout(
-        title=dict(text=title, font=dict(size=20, color='white')), plot_bgcolor='#DE6B28', paper_bgcolor='#DE6B28',
-        font=dict(color='white', family='Urbanist'), showlegend=False, margin=dict(l=40, r=40, t=60, b=40)
+        title=dict(text=title, font=dict(size=20, color='white')),
+        plot_bgcolor='#DE6B28', paper_bgcolor='#DE6B28',
+        font=dict(color='white', family='Urbanist'), showlegend=False,
+        margin=dict(l=40, r=40, t=60, b=40)
     )
+    
     if not hide_cagr:
-        fig.add_annotation(x=1, y=1.05, xref='paper', yref='paper', text=f"<b>{cagr_text}</b>", showarrow=False, font=dict(color='white', size=14), bgcolor='#4A86E8', borderpad=6)
+        fig.add_annotation(
+            x=1, y=1.05, xref='paper', yref='paper',
+            text=f"<b>{cagr_text}</b>", showarrow=False,
+            font=dict(color='white', size=14), bgcolor='#4A86E8', borderpad=6
+        )
     
     fig.update_yaxes(tickprefix=prefix, ticksuffix=suffix, showgrid=True, gridcolor='rgba(255,255,255,0.2)', zeroline=False)
     fig.update_xaxes(showgrid=False)
