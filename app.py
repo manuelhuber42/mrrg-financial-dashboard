@@ -6,7 +6,10 @@ import plotly.graph_objects as go
 
 # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE ---
 VAT_RATE = 0.19
-VEHICLE_AMORTIZATION_PERIOD = 48
+# H-03 FIX: AfA period aligned to BMF AfA-Tabellen for Mietwagen/Taxi (intensive use).
+# 60 months = 5 Jahre Nutzungsdauer per § 7 EStG. Loan term also extends to 60 months
+# (KfW Universell + commercial Kfz-Finanzierung both support 5-7y terms).
+VEHICLE_AMORTIZATION_PERIOD = 60
 IT_AMORTIZATION_PERIOD = 36
 OVERDRAFT_ANNUAL_RATE = 0.095
 STANDARD_TAX_ROUNDING = 2
@@ -49,7 +52,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 17: OpEx Input VAT / Vorsteuerabzug)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 18: 5-Yr AfA + Capped Overdraft + Dual Liquidity Signals + HGB EBITDA Bridge)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -125,12 +128,14 @@ if lang_choice == "English":
         "vat_rate_input": "VAT Bridge Loan Rate (%)",
         "vat_lag_input": "VAT Refund Lag (Months)",
         "cash_buffer_input": "Minimum Corporate Cash Buffer (€)",
+        "max_overdraft_input": "Max Overdraft Line / Kontokorrentlinie (€)",
+        "help_max_od": "Bank-approved overdraft ceiling. If model needs more than this, INSOLVENCY is flagged.",
         "legal_provision_input": "Monthly Legal/Litigation Provision (€) (§ 249 HGB)",
         "int_rate": "Cash Interest Rate (%)",
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
         "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates.",
-        "salvage": "Vehicle Sale Price (Y4)",
+        "salvage": "Vehicle Sale Price (End of 5-Yr Useful Life)",
         
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
         "pnl_vat": "Less: 19% VAT (Finanzamt)",
@@ -156,6 +161,7 @@ if lang_choice == "English":
         "pnl_legal_prov": "Less: Legal/Litigation Provision (§ 249 HGB)",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
         "pnl_ebitda": "EBITDA (Management View)",
+        "pnl_ebitda_hgb": "EBITDA (HGB View, incl. Anlagenabgang per § 275 II Nr.4 HGB)",
         "pnl_afa_veh": "Less: Vehicle Depreciation (AfA)",
         "pnl_afa_it": "Less: IT Hardware Depreciation (AfA)",
         "pnl_salvage": "Add: Fleet Liquidation (Asset Sale)",
@@ -271,13 +277,16 @@ if lang_choice == "English":
         "chart_fcf": "Free Cash Flow",
         "chart_ta": "Total Balance Sheet (Assets)",
         "toggle_fcf": "Show Cumulative FCF",
-        "cash_warn": "🚨 CRITICAL: Liquidity Floor Breached! Minimum cash cushion violated in month: "
+        "cash_warn": "🚨 CRITICAL: Liquidity Floor Breached! Minimum cash cushion violated in month: ",
+        "net_liq_warn": "⚠️  Net Liquidity Negative (Cash − Overdraft < Min Buffer) in month: ",
+        "insolv_warn": "💀 INSOLVENCY: Required cash shortfall exceeds the bank-approved overdraft ceiling in month: ",
+        "ebitda_recon_title": "EBITDA Reconciliation Bridge (Mgmt View → HGB View)"
     }
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 17: OpEx Vorsteuerabzug)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 18: 5-J. AfA + gedeckelter Kontokorrent + Duale Liquiditätssignale + HGB-EBITDA-Brücke)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -353,12 +362,14 @@ else:
         "vat_rate_input": "USt-Überbrückungskredit Zins (%)",
         "vat_lag_input": "USt-Erstattungsdauer (Monate)",
         "cash_buffer_input": "Mindest-Liquiditätsreserve (€)",
+        "max_overdraft_input": "Max. Kontokorrentlinie (€)",
+        "help_max_od": "Bankseitig genehmigte Linie. Übersteigt der Modellbedarf diese, wird INSOLVENZ angezeigt.",
         "legal_provision_input": "Monatliche Rechtsrisiko-Rückstellung (€) (§ 249 HGB)",
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
         "help_thg": "Treibhausgasminderungsquote.",
-        "salvage": "Fahrzeugverkaufspreis (J4)",
+        "salvage": "Fahrzeugverkaufspreis (Ende 5-J. Nutzungsdauer)",
         
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
         "pnl_vat": "Abzüglich: 19% Umsatzsteuer (Finanzamt)",
@@ -384,6 +395,7 @@ else:
         "pnl_legal_prov": "Abzüglich: Zuführung Rückstellung Rechtsrisiken (§ 249 HGB)",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
         "pnl_ebitda": "EBITDA (Management View)",
+        "pnl_ebitda_hgb": "EBITDA (HGB-Sicht, inkl. Anlagenabgang gem. § 275 II Nr.4 HGB)",
         "pnl_afa_veh": "Abzüglich: Abschreibung Fahrzeuge (AfA)",
         "pnl_afa_it": "Abzüglich: Abschreibung IT Hardware (AfA)",
         "pnl_salvage": "Zuzüglich: Flottenliquidation (Anlagenverkauf)",
@@ -499,7 +511,10 @@ else:
         "chart_fcf": "Free Cash Flow",
         "chart_ta": "Bilanzsumme (Aktiva)",
         "toggle_fcf": "Kumulierten FCF anzeigen",
-        "cash_warn": "🚨 KRITISCH: Mindestliquidität unterschritten in Monat: "
+        "cash_warn": "🚨 KRITISCH: Mindestliquidität unterschritten in Monat: ",
+        "net_liq_warn": "⚠️  Netto-Liquidität negativ (Kasse − Kontokorrent < Mindestpuffer) in Monat: ",
+        "insolv_warn": "💀 INSOLVENZ: Erforderlicher Liquiditätsbedarf übersteigt die genehmigte Kontokorrentlinie in Monat: ",
+        "ebitda_recon_title": "EBITDA-Überleitung (Management-Sicht → HGB-Sicht)"
     }
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
@@ -545,7 +560,7 @@ tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.06, format="%.2f", step=0.01, help=loc["wear_help"])
 energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
@@ -586,6 +601,7 @@ y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1)
 vat_bridge_rate = st.sidebar.number_input(loc["vat_rate_input"], value=6.5, step=0.1) / 100
 vat_lag_months = st.sidebar.number_input(loc["vat_lag_input"], value=3, min_value=1, max_value=12)
 min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.0, step=5000.0)
+max_overdraft_limit = st.sidebar.number_input(loc["max_overdraft_input"], value=50000.0, step=10000.0, help=loc["help_max_od"])
 legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, step=50.0)
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
 
@@ -609,7 +625,7 @@ def execute_financial_simulation(
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
     sh_loan_rate, vehicle_ltv, y1_loan_rate, y2_loan_rate, vat_bridge_rate,
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
-    thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
+    thg_quote_per_car_py, salvage_value_per_car_y4, max_overdraft_limit, is_dynamic, lang_choice
 ):
     # ============================================================
     # FIX 5 (Logic Bug 1): is_dynamic parameter added before lang_choice
@@ -618,10 +634,10 @@ def execute_financial_simulation(
     # ============================================================
     
     # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
-    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net", "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
         "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg",
-        "pnl_ebitda", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
+        "pnl_ebitda", "pnl_ebitda_hgb", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
     C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END = [
@@ -695,7 +711,7 @@ def execute_financial_simulation(
     distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
     gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
@@ -725,6 +741,9 @@ def execute_financial_simulation(
     utilization_by_month = []
     month_col_names = []
     cash_breach_months = []
+    # H-01 / H-02: Distinct liquidity-stress signals
+    net_liq_breach_months = []   # Cash − Overdraft < min_buffer (going concern stress)
+    insolvency_months = []       # Required draw exceeds bank-approved ceiling
 
     # === FIX 5 STEP A (Logic Bug 1): use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
@@ -827,7 +846,7 @@ def execute_financial_simulation(
         total_km_mo = actual_total_km_per_day * op_days * active_fleet
         wear_mo = total_km_mo * wear_and_tear_rate
         energy_mo = total_km_mo * (energy_rate * season_mult)
-        clean_mo = cleaning_cost_per_day * op_days * active_fleet
+        clean_mo = cleaning_cost_per_day * days_in_mo * active_fleet
         db1_mo = mrrg_net_mo - wear_mo - energy_mo - clean_mo
         
         ins_mo = insurance_pm * active_fleet
@@ -953,12 +972,23 @@ def execute_financial_simulation(
         net_before_overdraft = op_cf_mo + inv_cf_mo + fin_cf_mo_excl_od
         tentative_ending_cash = current_cash + net_before_overdraft
         
+        # =====================================================================
+        # === H-01 + H-02 FIX: Capped Overdraft + Insolvency Detection ========
+        # Overdraft draws are now capped at max_overdraft_limit (bank Linie).
+        # If shortfall exceeds available headroom → INSOLVENCY flagged but
+        # overdraft is still drawn to the cap (engine continues for visibility).
+        # =====================================================================
         overdraft_net_flow = 0.0
         if tentative_ending_cash < 0:
             needed_from_od = -tentative_ending_cash
-            overdraft_net_flow = needed_from_od
-            overdraft_facility_bal += needed_from_od
-            current_cash = 0.0
+            available_od_headroom = max(0.0, max_overdraft_limit - overdraft_facility_bal)
+            actual_od_draw = min(needed_from_od, available_od_headroom)
+            if needed_from_od > available_od_headroom:
+                # Shortfall exceeds approved line → INSOLVENZ-Antragspflicht territory
+                insolvency_months.append(month_col_names[-1])
+            overdraft_net_flow = actual_od_draw
+            overdraft_facility_bal += actual_od_draw
+            current_cash = tentative_ending_cash + actual_od_draw  # may still be negative if insolvent
         else:
             if overdraft_facility_bal > 0:
                 repay_amt = min(tentative_ending_cash, overdraft_facility_bal)
@@ -968,8 +998,15 @@ def execute_financial_simulation(
             else:
                 current_cash = tentative_ending_cash
                 
+        # H-01 FIX: Dual-track liquidity-stress signals
+        # (a) Raw cash floor: traditional "do we have €X on hand?"
         if current_cash < min_cash_buffer and active_fleet > 0:
             cash_breach_months.append(month_col_names[-1])
+        # (b) Net liquidity (cash − overdraft): "are we net positive after debt?"
+        #     This is what bank credit committee computes — Effektive Liquidität.
+        effective_cash = current_cash - overdraft_facility_bal
+        if effective_cash < min_cash_buffer and active_fleet > 0:
+            net_liq_breach_months.append(month_col_names[-1])
 
         # === FIX 2 (Crash 2): Define eq_in and sh_in BEFORE the CF appends section ===
         eq_in = stammkapital if current_month == 1 else 0.0
@@ -1023,6 +1060,8 @@ def execute_financial_simulation(
         pnl_m[P_LPR].append(-legal_provision_mo)
         pnl_m[P_THG].append(thg_rev_mo)
         pnl_m[P_EB].append(ebitda_mo)
+        # H-07 FIX: HGB-view EBITDA = Mgmt EBITDA + Anlagenabgang (per § 275 II Nr.4 HGB)
+        pnl_m[P_EB_HGB].append(ebitda_mo + fleet_sale_rev)
         pnl_m[P_AF_V].append(-current_veh_afa)
         pnl_m[P_AF_I].append(-current_it_afa)
         pnl_m[P_SAL].append(fleet_sale_rev)
@@ -1083,11 +1122,11 @@ def execute_financial_simulation(
         bs_m[B_TLEQ].append(total_liab_eq)
         bs_m[B_CH].append(bs_check_val)
 
-    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
+    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
 # === FIX 5 STEP D (Logic Bug 1): is_dynamic passed as positional arg before lang_choice ===
-pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
+pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
@@ -1100,7 +1139,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
     sh_loan_rate, vehicle_ltv, y1_loan_rate, y2_loan_rate, vat_bridge_rate,
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
-    thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
+    thg_quote_per_car_py, salvage_value_per_car_y4, max_overdraft_limit, is_dynamic, lang_choice
 )
 
 # ============================================================
@@ -1284,6 +1323,11 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_c
 
 
 # --- 8. DASHBOARD RECONCILIATION LAYOUT ---
+# H-01 + H-02: Stacked liquidity-stress warnings
+if len(insolvency_months) > 0:
+    st.error(f"{loc['insolv_warn']}{', '.join(insolvency_months)}")
+if len(net_liq_breach_months) > 0:
+    st.warning(f"{loc['net_liq_warn']}{', '.join(net_liq_breach_months)}")
 if len(cash_breach_months) > 0:
     st.error(f"{loc['cash_warn']}{', '.join(cash_breach_months)}")
 
@@ -1328,7 +1372,8 @@ tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"]
 
 def style_pnl_rows(row):
     if loc["pnl_mrrg_net"] in row.name: return ['font-weight: 600; color: #4DA8DA;'] * len(row)
-    if loc["pnl_ebitda"] in row.name: return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    if loc["pnl_ebitda"] in row.name and "HGB" not in row.name: return ['font-weight: 700; background-color: #2b2b2b; color: #F2A900;'] * len(row)
+    if loc["pnl_ebitda_hgb"] in row.name: return ['font-weight: 600; background-color: #1a2b3a; color: #87CEEB; font-style: italic;'] * len(row)
     if loc["pnl_ni"] in row.name: return ['font-weight: 700; background-color: #0b2e13; color: #38c172; border-top: 2px solid #38c172;'] * len(row)
     return [''] * len(row)
 
@@ -1443,6 +1488,7 @@ with tabs[6]:
         * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
         * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws a short-term bridge loan (rate configured in sidebar) to cover this VAT and pays it off automatically based on the configured refund lag.
         * **OpEx Input VAT (Vorsteuerabzug, Layer 17):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, legal services, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
+        * **Layer 18 fixes:** (a) **Vehicle AfA is now 60 months** (5 Jahre, aligned with BMF AfA-Tabelle for Mietwagen/Taxi per § 7 EStG). (b) **Overdraft is now capped** at a user-defined Kontokorrentlinie; if the model needs more, **INSOLVENCY** is flagged. (c) **Three distinct liquidity warnings:** Insolvency (line exceeded), Net Liquidity Negative (Cash − Overdraft below buffer = bank-grade Effektive Liquidität check), Raw Cash Floor Breached (traditional check). (d) **Cleaning cost** now depends on calendar days × fleet only, not on utilization. (e) **EBITDA HGB View** memo row added below Mgmt EBITDA showing the salvage bridge per § 275 II Nr. 4 HGB.
 
         ---
 
@@ -1481,6 +1527,7 @@ with tabs[6]:
         * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
         * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit auf (Zinssatz in Seitenleiste konfigurierbar), um diese Vorsteuer zu decken, und zahlt ihn nach der konfigurierten Erstattungsdauer zurück, wenn die Erstattung vom Finanzamt eintrifft.
         * **OpEx-Vorsteuerabzug (Layer 17):** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, Rechts- und Beratungsleistungen usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
+        * **Layer 18 Verbesserungen:** (a) **Fahrzeug-AfA jetzt 60 Monate** (5 Jahre, BMF AfA-Tabelle Mietwagen/Taxi gem. § 7 EStG). (b) **Kontokorrent gedeckelt** auf eine benutzerdefinierte Linie; bei Überschreitung wird **INSOLVENZ** angezeigt. (c) **Drei separate Liquiditätssignale:** Insolvenz (Linie überschritten), Netto-Liquidität negativ (Kasse − Kontokorrent unter Puffer = bankübliche Effektive Liquidität), Mindestliquidität unterschritten (klassische Prüfung). (d) **Reinigungskosten** abhängig nur von Kalendertagen × Flotte, nicht von Auslastung. (e) **EBITDA HGB-Sicht** als Memo-Zeile unter Management-EBITDA mit Anlagenabgang-Brücke gem. § 275 II Nr. 4 HGB.
 
         ---
 
