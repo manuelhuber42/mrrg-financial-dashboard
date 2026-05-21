@@ -216,7 +216,7 @@ if lang_choice == "English":
         "bs_tleq": "TOTAL LIAB. & EQUITY",
         "bs_check": "BALANCE CHECK (Assets - Liab & Eq)",
 
-        # === TAB LABELS (RESTORED — these were missing and would KeyError) ===
+        # === TAB LABELS ===
         "tab_pnl": "Income Statement (P&L)",
         "tab_hgb_pnl": "Statutory P&L (§ 275 HGB)",
         "tab_cf": "Cash Flow Statement",
@@ -236,7 +236,7 @@ if lang_choice == "English":
         "hgb_pos8": "14. Taxes on income (Steuern vom Einkommen und vom Ertrag)",
         "hgb_pos9": "16. Net Income (Jahresüberschuss)",
 
-        # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
+        # === KPI LABELS ===
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
         "kpi_eq_ratio": "Equity Ratio",
         "kpi_runway": "Liquidity Runway (Months)",
@@ -445,7 +445,7 @@ else:
         "bs_tleq": "SUMME PASSIVA",
         "bs_check": "BILANZKONTROLLE (Aktiva - Passiva)",
 
-        # === TAB LABELS (RESTORED — these were missing and would KeyError) ===
+        # === TAB LABELS ===
         "tab_pnl": "Gewinn- und Verlustrechnung (GuV)",
         "tab_hgb_pnl": "Gesetzliche GuV (§ 275 HGB)",
         "tab_cf": "Kapitalflussrechnung",
@@ -465,7 +465,7 @@ else:
         "hgb_pos8": "14. Steuern vom Einkommen und vom Ertrag",
         "hgb_pos9": "16. Jahresüberschuss",
 
-        # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
+        # === KPI LABELS ===
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
         "kpi_eq_ratio": "Eigenkapitalquote",
         "kpi_runway": "Liquiditätsreichweite (Monate)",
@@ -506,7 +506,6 @@ else:
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
 # --- SIDEBAR INTERFACE CONTROLS ---
-# UI Inputs defined first to prevent NameErrors in cache engine
 st.sidebar.header(loc["sec1"])
 y1_adds_str = st.sidebar.text_input(loc["y1_adds"], "3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0")
 y2_adds_str = st.sidebar.text_input(loc["y2_adds"], "2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0")
@@ -531,9 +530,6 @@ else:
     flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
     target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
-# === FIX 5 (Logic Bug 1): Compute is_dynamic boolean from localized radio selection ===
-# This replaces the hardcoded English string comparison inside the function,
-# which would silently fail in German mode.
 is_dynamic = (util_mode == loc["util_dyn"])
 
 st.sidebar.header(loc["sec2"])
@@ -614,12 +610,6 @@ def execute_financial_simulation(
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
     thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
 ):
-    # ============================================================
-    # FIX 5 (Logic Bug 1): is_dynamic parameter added before lang_choice
-    # Replaces the buggy hardcoded English string comparison that
-    # silently failed in German mode and forced flat utilization.
-    # ============================================================
-    
     # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
     P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_THG, P_EB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net", "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
@@ -648,7 +638,6 @@ def execute_financial_simulation(
             return [0]*12
 
     all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
-    # === FIX 1 (Crash 1): base_fleet_size restored inside cached function scope ===
     base_fleet_size = sum(parse_adds(y1_adds_str))
     
     cybercab_base_eur = cybercab_base_usd / usd_eur_rate
@@ -729,7 +718,6 @@ def execute_financial_simulation(
     month_col_names = []
     cash_breach_months = []
 
-    # === FIX 5 STEP A (Logic Bug 1): use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
     prev_fleet = 0
 
@@ -743,9 +731,6 @@ def execute_financial_simulation(
         current_month_index = (m % 12) + 1
         current_year = (m // 12) + 1
         
-        # === FIX 4 (Logic Bug 2): Save beginning cash BEFORE any mutations.
-        # Without this, when the overdraft draws and resets current_cash to 0.0,
-        # the CF statement records beg_cash = 0 instead of the actual prior period balance. ===
         beg_cash = current_cash
         
         month_col_names.append(f"{m_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
@@ -776,7 +761,6 @@ def execute_financial_simulation(
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
                 
-                # F-26 Extraordinary HGB Impairment Logic Implementation
                 if current_month == imp_month and not c["impaired"]:
                     extra_afa = c["loan_bal"] * imp_pct_val if c["loan_bal"] > 0 else c["capex"] * imp_pct_val
                     current_veh_afa += extra_afa
@@ -800,7 +784,6 @@ def execute_financial_simulation(
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
 
-        # === FIX 5 STEP B (Logic Bug 1): use is_dynamic flag for cannibalization branch ===
         if is_dynamic:
             if active_fleet > prev_fleet and prev_fleet > 0:
                 supply_shock = (active_fleet - prev_fleet) / active_fleet
@@ -823,7 +806,6 @@ def execute_financial_simulation(
         gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
         net_rev_mo = gbv_mo / (1.0 + VAT_RATE)
         vat_owed_mo = gbv_mo - net_rev_mo
-        # F-07 Net Revenue Correction: Platform take fee maps off Net instead of Gross
         tesla_fee_mo = net_rev_mo * tesla_take_rate
         mrrg_net_mo = net_rev_mo - tesla_fee_mo
         
@@ -846,6 +828,23 @@ def execute_financial_simulation(
         legal_mo = legal_bookkeeping_pm + (legal_scaling_pm * add_cars) + (setup_costs_y1 if current_month == 1 else 0)
         hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
         fees_mo = ihk_pm + (gez_pm_per_car * active_fleet) + transport_manager_pm
+        
+        # === OpEx Input VAT (Vorsteuerabzug) Implementation - HGB/UStG Compliant ===
+        # Step A: Segregate VAT-Eligible vs. VAT-Exempt OpEx
+        # VAT-Eligible: energy_mo, wear_mo, clean_mo, park_mo, tel_mo, tuev_mo, sub_mo, hq_lease_mo, it_cloud_mo, legal_mo, transport_manager_pm
+        # VAT-Exempt (excluded): ins_mo, hq_ins_mo, bank_fees_pm, ihk_mo, gez_mo
+        vat_eligible_opex_mo = (
+            energy_mo + wear_mo + clean_mo + park_mo + tel_mo + 
+            tuev_mo + sub_mo + hq_lease_mo + it_cloud_mo + legal_mo + transport_manager_pm
+        )
+        
+        # Step B: Calculate OpEx Input VAT (Vorsteuer)
+        opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
+        
+        # Step C: Calculate net operational VAT payable to Finanzamt
+        # Net VAT liability = Output VAT (collected from customers) - Input VAT (OpEx Vorsteuer)
+        # This implements the Vorsteuerabzug mechanism under German UStG §15
+        new_operational_vat_payable = vat_owed_mo - opex_input_vat_mo
         
         # F-18 Fix Applied: Realisationsprinzip Accrual mapping
         thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
@@ -896,7 +895,6 @@ def execute_financial_simulation(
             tax_paid_mo += true_up_due_this_m5
             true_up_due_this_m5 = 0.0
             
-        # F-08 Compliance Calendar Loop
         if current_year > 1:
             if current_month_index in [3, 6, 9, 12]:
                 payment = prior_year_tax_actual * 0.50 * 0.25
@@ -915,11 +913,21 @@ def execute_financial_simulation(
 
         net_inc_mo = ebt_mo - tax_exp_mo
         
-        # F-23 Short-Term Overdraft Linkage Mechanics
-        op_vat_collected = vat_owed_mo
-        op_vat_paid = -operational_vat_payable
+        # F-23 Short-Term Overdraft Linkage Mechanics - UPDATED for OpEx Input VAT
+        op_vat_collected = vat_owed_mo  # VAT collected from customers (cash inflow)
+        op_vat_paid = -operational_vat_payable  # Payment of prior month's NET VAT liability (cash outflow)
         
-        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid + legal_provision_mo
+        # OpEx Input VAT: Cash paid to vendors includes VAT portion (recoverable Vorsteuer)
+        # This represents the gross-up amount paid to vendors beyond the net expense booked in P&L
+        # Under HGB, P&L expenses are booked NET; cash flow must reflect GROSS payments
+        opex_vat_cash_outflow = opex_input_vat_mo
+        
+        op_cf_mo = (
+            net_inc_mo + total_afa_this_mo - fleet_sale_rev + 
+            tax_exp_mo - tax_paid_mo + thg_wc_delta + 
+            op_vat_collected + op_vat_paid + legal_provision_mo - 
+            opex_vat_cash_outflow  # Cash outflow for VAT portion of OpEx payments to vendors
+        )
         inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
         fin_cf_mo_excl_od = (stammkapital if current_month == 1 else 0.0) + (shareholder_loan if current_month == 1 else 0.0) + kfw_draw - prin_pay + vat_draw_mo - vat_repay_mo
         
@@ -944,7 +952,6 @@ def execute_financial_simulation(
         if current_cash < min_cash_buffer and active_fleet > 0:
             cash_breach_months.append(month_col_names[-1])
 
-        # === FIX 2 (Crash 2): Define eq_in and sh_in BEFORE the CF appends section ===
         eq_in = stammkapital if current_month == 1 else 0.0
         sh_in = shareholder_loan if current_month == 1 else 0.0
 
@@ -954,12 +961,20 @@ def execute_financial_simulation(
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
         current_cash = end_cash = current_cash
-        operational_vat_payable = op_vat_collected
+        
+        # === CRITICAL: Update operational_vat_payable to netted value for next month ===
+        # This implements the Vorsteuerabzug: liability = Output VAT - Input VAT (OpEx)
+        operational_vat_payable = new_operational_vat_payable
+        
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
         
         kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
         
+        # === Balance Sheet Integrity Check ===
+        # Assets: cash reduced by opex_vat_cash_outflow (via op_cf_mo)
+        # Liabilities: operational_vat_payable reduced by opex_input_vat_mo
+        # These two effects mathematically offset: Assets↓ = Liabilities↓ → Balance holds
         total_assets = nfa + vat_receivable + thg_receivable + current_cash
         total_equity = stammkapital + cum_net_income
         total_prov = tax_provision_bal + legal_provision_bal
@@ -1024,7 +1039,6 @@ def execute_financial_simulation(
         cf_m[C_OD].append(overdraft_net_flow)
         cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
         cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow)
-        # === FIX 4 (Logic Bug 2): Use beg_cash saved at top of loop ===
         cf_m[C_BEG].append(beg_cash)
         cf_m[C_END].append(current_cash)
 
@@ -1054,7 +1068,6 @@ def execute_financial_simulation(
     return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
-# === FIX 5 STEP D (Logic Bug 1): is_dynamic passed as positional arg before lang_choice ===
 pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
@@ -1071,28 +1084,6 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, active
     thg_quote_per_car_py, salvage_value_per_car_y4, is_dynamic, lang_choice
 )
 
-# ============================================================
-# === FIX 3 (Crash 3): Pre-compute day_1_loan and day_1_cash_ui
-# for the dashboard's "Sources & Uses" metric cards using only
-# sidebar scalars (since `cohorts` only lives inside the function).
-# ============================================================
-def _quick_parse(s):
-    try:
-        arr = [int(x.strip()) for x in s.split(',')]
-        return (arr + [0]*12)[:12]
-    except:
-        return [0]*12
-
-_cbe_ui   = cybercab_base_usd / usd_eur_rate
-_cif_ui   = _cbe_ui + import_freight_eur
-_tcpc_ui  = _cif_ui * (1.0 + customs_duty_rate)
-_y1_count = sum(_quick_parse(y1_adds_str))
-day_1_loan     = _y1_count * _tcpc_ui * vehicle_ltv
-_day1_gross    = _y1_count * _tcpc_ui
-day_1_cash_ui  = (stammkapital + shareholder_loan + day_1_loan
-                  - _day1_gross - it_hardware_capex_y1) \
-                 if _y1_count > 0 else (stammkapital + shareholder_loan)
-
 # --- POST-LOOP SYSTEM AGGREGATIONS ---
 def agg_to_yearly(monthly_dict):
     yearly_dict = {}
@@ -1100,7 +1091,6 @@ def agg_to_yearly(monthly_dict):
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
-            # F-19 Fix Applied: Structural set definitions completely clean aggregation pathways
             if key == "cf_end" or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
             elif key == "cf_beg":
@@ -1128,27 +1118,17 @@ df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
-# Language Loc Mapper for final output tables
-# NOTE: Only the *_combined frames are renamed. df_pnl_yr / df_cf_yr / df_bs_yr
-# retain raw short keys ("pnl_net_rev" etc.) and must be looked up using
-# those raw keys in the visualizations tab below.
 df_pnl_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
-# === FIX 6 (Optional): Correct HGB sign convention for Personalaufwand and
-# Sonstige betriebliche Aufwendungen so that pos4 + pos6 align with the
-# statutory format and sum-to-NI identity is preserved.
 hgb_structure = {}
 hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc[loc["pnl_net_rev"]].values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
 hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
-# Personalaufwand: pure TM cost as a negative number (expense reduces profit)
 hgb_structure[loc["hgb_pos4"]] = np.full(len(df_pnl_combined.columns), -transport_manager_pm)
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
-# Sonstige betriebliche Aufwendungen: include non-TM portion of pnl_fees (pnl_fees is
-# stored as -(ihk+gez+TM); adding +TM strips out the TM portion already in pos4).
 non_tm_fees = df_pnl_combined.loc[loc["pnl_fees"]] + transport_manager_pm
 hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + non_tm_fees).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
@@ -1169,7 +1149,6 @@ teq = df_bs_combined.loc[loc["bs_teq"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
-# F-15 Fix Applied: Operational pass-through accounts purged from debt metrics evaluation
 fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
@@ -1357,9 +1336,6 @@ with tabs[4]:
             """)
 
 with tabs[5]:
-    # NOTE: df_pnl_yr / df_cf_yr / df_bs_yr were never renamed (only df_*_combined were).
-    # They retain the raw short keys ("pnl_net_rev" etc.), so we MUST look up by raw key
-    # rather than by loc[...]. Using loc[...] here would KeyError.
     y_rev_v = df_pnl_yr.loc["pnl_net_rev"].values
     y_eb_v  = df_pnl_yr.loc["pnl_ebitda"].values
     y_ni_v  = df_pnl_yr.loc["pnl_ni"].values
