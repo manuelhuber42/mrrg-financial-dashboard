@@ -847,6 +847,10 @@ def execute_financial_simulation(
         hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
         fees_mo = ihk_pm + (gez_pm_per_car * active_fleet) + transport_manager_pm
         
+        # --- OPEX INPUT VAT (VORSTEUERABZUG) MECHANICS ---
+        vat_eligible_opex_mo = energy_mo + wear_mo + clean_mo + park_mo + tel_mo + tuev_mo + sub_mo + hq_lease_mo + it_cloud_mo + legal_mo + transport_manager_pm
+        opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
+
         # F-18 Fix Applied: Realisationsprinzip Accrual mapping
         thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
         thg_receivable += thg_rev_mo
@@ -919,7 +923,7 @@ def execute_financial_simulation(
         op_vat_collected = vat_owed_mo
         op_vat_paid = -operational_vat_payable
         
-        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid + legal_provision_mo
+        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid + legal_provision_mo - opex_input_vat_mo
         inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
         fin_cf_mo_excl_od = (stammkapital if current_month == 1 else 0.0) + (shareholder_loan if current_month == 1 else 0.0) + kfw_draw - prin_pay + vat_draw_mo - vat_repay_mo
         
@@ -954,7 +958,7 @@ def execute_financial_simulation(
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
         current_cash = end_cash = current_cash
-        operational_vat_payable = op_vat_collected
+        operational_vat_payable = op_vat_collected - opex_input_vat_mo
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
         
