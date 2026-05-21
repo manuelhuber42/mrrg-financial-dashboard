@@ -16,7 +16,7 @@ st.set_page_config(page_title="MRRG Master Financial Engine", layout="wide")
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght=300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Urbanist', sans-serif !important;
@@ -27,7 +27,6 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* Prevent Metric Cutoff - Override Streamlit Default Font Sizes */
     div[data-testid="stMetricValue"] > div {
         font-size: 1.6rem !important;
         white-space: nowrap !important;
@@ -49,7 +48,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 16: Full Operational Audit Build)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 15: Vetted Production Build)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -290,7 +289,7 @@ else:
         "help_deadhead": "Prozentsatz der gefahrenen Kilometer ohne zahlenden Fahrgast.",
         "sec1c": "1c. AUSLASTUNGSDYNAMIK",
         "util_mode": "Auslastungsmodell",
-        "util_dyn": "Dynamisch (Anlauf & Kannibalisierung)",
+        "util_dyn": "Dynamisch (Anlauf &amp; Kannibalisierung)",
         "util_fix": "Fester Wert",
         "target_util": "Ziel-Auslastung (%)",
         "help_target": "Die optimale Dauer-Auslastung der Flotte.",
@@ -317,16 +316,16 @@ else:
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
         "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
-        "telemetry": "Telemetrie & API",
+        "telemetry": "Telemetrie &amp; API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
         "charging_sub": "Tesla Lade-Abo",
-        "sec6": "6. CORPORATE HQ & REGULIERUNG (€ / Monat, Netto)",
+        "sec6": "6. CORPORATE HQ &amp; REGULIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
-        "it_cloud": "IT, Cloud & AI Services",
+        "it_cloud": "IT, Cloud &amp; AI Services",
         "transport_manager": "Verkehrsleiter-Vergütung (Mandat)",
         "help_tm": "Gesetzlich zwingend vorgeschriebener Betriebsleiter gemäß § 14 PBefG / BO-Kraft.",
-        "base_legal": "Basis Rechts- & Beratungskosten",
+        "base_legal": "Basis Rechts- &amp; Beratungskosten",
         "base_hq_ins": "Basis Firmenversicherung (Haftpflicht)",
         "legal_scale": "Recht/StB Skalierung (pro zus. Fahrzeug)",
         "ins_scale": "Versicherung Skalierung (pro zus. Fahrzeug)",
@@ -334,15 +333,15 @@ else:
         "ihk": "IHK Beitrag",
         "gez": "GEZ (Rundfunkbeitrag pro Fahrzeug)",
         "setup_costs": "Einmalige Gründungskosten (J1)",
-        "sec7": "7. CAPEX & ANLAGENRISIKO-ABSCHREIBUNG",
+        "sec7": "7. CAPEX &amp; ANLAGENRISIKO-ABSCHREIBUNG",
         "base_price": "Basis Cybercab Preis (USD)",
         "fx": "Wechselkurs USD zu EUR",
-        "freight": "Importfracht & Vers. pro Fahrzeug (€)",
+        "freight": "Importfracht &amp; Vers. pro Fahrzeug (€)",
         "duty": "Zollsatz (%)",
         "it_hw": "IT Hardware CapEx (J1)",
         "imp_trigger": "Tech-Impairment Monat (0=Keines)",
         "imp_pct": "Außerplanmäßige Abschreibung (§ 253 HGB) %",
-        "sec8": "8. KAPITALSTRUKTUR & TREASURY-POLICIES",
+        "sec8": "8. KAPITALSTRUKTUR &amp; TREASURY-POLICIES",
         "stamm": "Stammkapital (€)",
         "sh_loan": "Gesellschafterdarlehen (Nachrangig) (€)",
         "sh_loan_rate": "Gesellschafterdarlehen Zins (%)",
@@ -410,7 +409,7 @@ else:
         "cf_inv": "Cashflow aus Investitionstätigkeit",
         "cf_eq": "+ Einzahlungen Eigenkapital",
         "cf_sh": "+ Einzahlungen Gesellschafterdarlehen",
-        "cf_kfw_draw": "+ Einzahlungen Fahrzeugdarlehen",
+        "cf_kfw_draw": "+ Fleischanzahlungen Fahrzeugdarlehen",
         "cf_prin": "- Tilgung Darlehen (inkl. Ballon)",
         "cf_vat_draw": "+ Einzahlungen USt-Überbrückungskredit",
         "cf_vat_repay": "- Tilgung USt-Überbrückungskredit",
@@ -588,7 +587,6 @@ st.sidebar.header(loc["sec9"])
 thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0, help=loc["help_thg"])
 salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
 
-
 # --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION (CACHED) ---
 @st.cache_data
 def execute_financial_simulation(
@@ -757,7 +755,6 @@ def execute_financial_simulation(
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
                 
-                # ISSUE 7 FIX: Straight line monthly proration logic mapping
                 if current_month == imp_month and not c["impaired"]:
                     extra_afa = c["loan_bal"] * imp_pct_val if c["loan_bal"] > 0 else c["capex"] * imp_pct_val
                     current_veh_afa += extra_afa
@@ -842,11 +839,7 @@ def execute_financial_simulation(
         legal_provision_bal += legal_provision_mo
         
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
-        
-        # ISSUE 4 FIX: Operating income (EBIT) must evaluate asset net book values at liquidation
-        net_book_value_sold = capex_sold_this_mo - accum_afa_sold_this_mo
-        gain_loss_on_sale = fleet_sale_rev - net_book_value_sold if fleet_sale_rev > 0 else 0.0
-        ebit_mo = ebitda_mo - total_afa_this_mo + gain_loss_on_sale
+        ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
         estimated_net_flows_before_int = kfw_draw - prin_pay - capex_this_mo + fleet_sale_rev
         projected_mid_cash = current_cash + (estimated_net_flows_before_int * 0.5)
@@ -865,17 +858,12 @@ def execute_financial_simulation(
         vat_int_mo = vat_loan_bal * (vat_bridge_rate / 12.0)
         int_exp += vat_int_mo
         
-        # ISSUE 6 FIX: Accrue overdraft facilities interest cleanly via mid-month average posture
         if overdraft_facility_bal > 0:
             int_exp += overdraft_facility_bal * (OVERDRAFT_ANNUAL_RATE / 12.0)
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
-        # ISSUE 5 FIX: Implement German Gewerbesteuer taxable base adjustments (§ 8 Nr. 1 GewStG)
-        # 25% of total financing expenses added back to taxable corporate income statement matrix
-        gewst_add_back = int_exp * 0.25 if int_exp > 0 else 0.0
-        taxable_base_hgb = max(0.0, ebt_mo + gewst_add_back)
-        tax_exp_mo = taxable_base_hgb * tax_schedule[current_year]
+        tax_exp_mo = max(0.0, ebt_mo) * tax_schedule[current_year]
         current_year_tax_accrued += tax_exp_mo
         
         tax_paid_mo = 0.0
@@ -883,9 +871,12 @@ def execute_financial_simulation(
             tax_paid_mo += true_up_due_this_m5
             true_up_due_this_m5 = 0.0
             
-        # ISSUE 2 FIX: Convert dual overlapping loop structures into single quarterly calendar sequence
         if current_year > 1:
             if current_month_index in [3, 6, 9, 12]:
+                payment = prior_year_tax_actual * 0.50 * 0.25
+                tax_paid_mo += payment
+                prepayments_made_this_year += payment
+            if current_month_index in [2, 5, 8, 11]:
                 payment = prior_year_tax_actual * 0.50 * 0.25
                 tax_paid_mo += payment
                 prepayments_made_this_year += payment
@@ -981,16 +972,13 @@ def execute_financial_simulation(
 
         cf_m[C_NI].append(net_inc_mo)
         cf_m[C_DP].append(total_afa_this_mo)
-        cf_m[C_GS].append(-gain_loss_on_sale) # Book value adjustment mapping
+        cf_m[C_GS].append(-fleet_sale_rev)
         cf_m[C_TP].append(tax_exp_mo)
         cf_m[C_TPD].append(-tax_paid_mo)
         cf_m[C_LPR].append(legal_provision_mo)
         cf_m[C_WCT].append(thg_wc_delta)
         cf_m[C_VCOL].append(op_vat_collected)
-        
-        # ISSUE 3 FIX: Structural change to prevent the double subtraction of opex input vat arrays
-        cf_m[C_VPD].append(op_vat_paid) 
-        
+        cf_m[C_VPD].append(op_vat_paid - opex_input_vat_mo)
         cf_m[C_OP].append(op_cf_mo)
         cf_m[C_CAP].append(-(capex_this_mo + vat_draw_mo))
         cf_m[C_VRF].append(vat_refund_inflow)
@@ -1089,16 +1077,14 @@ df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
-# ISSUE 1 FIX: Reclassified insurance, APCOA parking leases, and system APIs from Materialaufwand down to pos6
 hgb_structure = {}
 hgb_structure[loc["hgb_pos1"]] = df_pnl_combined.loc[loc["pnl_net_rev"]].values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
-hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
+hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]]).values
 hgb_structure[loc["hgb_pos4"]] = np.full(len(df_pnl_combined.columns), -transport_manager_pm)
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
-
 non_tm_fees = df_pnl_combined.loc[loc["pnl_fees"]] + transport_manager_pm
-hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + non_tm_fees).values
+hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + non_tm_fees).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
 hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc[loc["pnl_tax"]].values
 hgb_structure[loc["hgb_pos9"]] = df_pnl_combined.loc[loc["pnl_ni"]].values
