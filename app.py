@@ -545,7 +545,7 @@ tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.06, format="%.2f", step=0.01, help=loc["wear_help"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.03, format="%.2f", step=0.01, help=loc["wear_help"])
 energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.0424, format="%.4f", step=0.0001, help=loc["energy_help"])
 
 st.sidebar.header(loc["sec5"])
