@@ -170,9 +170,9 @@ if lang_choice == "English":
         "pnl_int_exp": "Less: Interest Expense (Loans & Overdraft)",
         "pnl_ebt": "EBT (Earnings Before Tax)",
         "pnl_tax": "Less: Corporate Taxes (Ertragsteuern)",
-        "pnl_ni": "Net Income (Jahresüberschuss / EAT)",
+        "pnl_ni": "Net Income / Periodenergebnis",
         
-        "cf_ni": "+ Net Income",
+        "cf_ni": "+ Net Income (Periodenergebnis)",
         "cf_depr": "+ Depreciation & Amortization",
         "cf_gain_sale": "- Gain on Sale of Assets",
         "cf_tax_prov": "+ Tax Provision Increase",
@@ -201,13 +201,15 @@ if lang_choice == "English":
         "bs_gfa": "Gross Fixed Assets",
         "bs_acc_depr": "- Accumulated Depreciation",
         "bs_nfa": "Net Fixed Assets",
-        "bs_vat_rec": "VAT Receivable (Finanzamt)",
+        "bs_vat_rec": "VAT Receivable — CapEx Bridge (Finanzamt)",
+        "bs_vat_rec_op": "VAT Receivable — Operational Vorsteuerüberhang (Finanzamt)",
         "bs_thg_rec": "THG Quota Receivable",
+        "bs_tax_rec": "Tax Receivable — Vorauszahlungs-Überhang (§ 246 II HGB Bruttoprinzip)",
         "bs_cash": "Ending Cash Balance",
         "bs_tca": "Total Current Assets",
         "bs_ta": "TOTAL ASSETS",
         "bs_eq_share": "Share Capital (Stammkapital)",
-        "bs_eq_ret": "Retained Earnings / Net Income",
+        "bs_eq_ret": "Retained Earnings (Gewinnvortrag)",
         "bs_teq": "Total Equity",
         "bs_prov_tax": "Steuerrückstellungen (Tax Provision)",
         "bs_prov_legal": "Sonstige Rückstellungen (Legal/Litigation)",
@@ -239,7 +241,7 @@ if lang_choice == "English":
         "hgb_pos6": "8. Other operating expenses (Sonstige betriebliche Aufwendungen)",
         "hgb_pos7": "Finanzergebnis (Interest Result)",
         "hgb_pos8": "14. Taxes on income (Steuern vom Einkommen und vom Ertrag)",
-        "hgb_pos9": "16. Net Income (Jahresüberschuss)",
+        "hgb_pos9": "16. Period Result (Jahresüberschuss per § 275 HGB in annual view)",
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
@@ -257,7 +259,7 @@ if lang_choice == "English":
         "src_stamm": "Sources: Stammkapital",
         "src_sh": "Sources: Shareholder Loan",
         "src_veh": "Sources: Vehicle Loan",
-        "liquidity": "Day 1 Liquidity Buffer",
+        "liquidity": "End of Month 1 Cash (Actual)",
         "output_title": "Master Financial Schedules (HGB)",
         "active_fleet": "Active Fleet",
         "cars": "Vehicles",
@@ -273,7 +275,7 @@ if lang_choice == "English":
         "chart_rev": "Net Revenue",
         "chart_ebitda": "EBITDA",
         "chart_ni": "Net Income",
-        "chart_fleet": "Vehicle Fleet (Year-End)",
+        "chart_fleet": "Vehicle Fleet (End of Year)",
         "chart_fcf": "Free Cash Flow",
         "chart_ta": "Total Balance Sheet (Assets)",
         "toggle_fcf": "Show Cumulative FCF",
@@ -282,7 +284,6 @@ if lang_choice == "English":
         "insolv_warn": "💀 INSOLVENCY: Required cash shortfall exceeds the bank-approved overdraft ceiling in month: ",
         "ebitda_recon_title": "EBITDA Reconciliation Bridge (Mgmt View → HGB View)"
     }
-    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
@@ -404,9 +405,9 @@ else:
         "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Kredite & Überzug)",
         "pnl_ebt": "EBT (Ergebnis vor Steuern)",
         "pnl_tax": "Abzüglich: Ertragsteuern",
-        "pnl_ni": "Jahresüberschuss (EAT)",
+        "pnl_ni": "Periodenergebnis (Nettoergebnis)",
         
-        "cf_ni": "+ Jahresüberschuss",
+        "cf_ni": "+ Periodenergebnis",
         "cf_depr": "+ Abschreibungen (AfA inkl. Sonderabschreibung)",
         "cf_gain_sale": "- Buchgewinn aus Anlagenabgang",
         "cf_tax_prov": "+ Zunahme Steuerrückstellungen",
@@ -435,13 +436,15 @@ else:
         "bs_gfa": "Brutto-Sachanlagen",
         "bs_acc_depr": "- Kumulierte Abschreibungen",
         "bs_nfa": "Netto-Sachanlagen (Anlagevermögen)",
-        "bs_vat_rec": "Umsatzsteuerforderungen (Finanzamt)",
+        "bs_vat_rec": "Umsatzsteuerforderungen — CapEx-Brücke (Finanzamt)",
+        "bs_vat_rec_op": "Umsatzsteuerforderungen — Vorsteuerüberhang Betrieb (Finanzamt)",
         "bs_thg_rec": "THG-Prämien Forderungen",
+        "bs_tax_rec": "Steuerforderungen — Vorauszahlungs-Überhang (§ 246 II HGB Bruttoprinzip)",
         "bs_cash": "Kassenbestand / Bankguthaben",
         "bs_tca": "Summe Umlaufvermögen",
         "bs_ta": "SUMME AKTIVA",
         "bs_eq_share": "Gezeichnetes Kapital (Stammkapital)",
-        "bs_eq_ret": "Gewinnvortrag / Jahresüberschuss",
+        "bs_eq_ret": "Gewinnvortrag / Periodenergebnis",
         "bs_teq": "Summe Eigenkapital",
         "bs_prov_tax": "Steuerrückstellungen",
         "bs_prov_legal": "Sonstige Rückstellungen (Rechtsrisiken)",
@@ -473,7 +476,7 @@ else:
         "hgb_pos6": "8. Sonstige betriebliche Aufwendungen",
         "hgb_pos7": "Finanzergebnis (Zinsertrag ./. Aufwand)",
         "hgb_pos8": "14. Steuern vom Einkommen und vom Ertrag",
-        "hgb_pos9": "16. Jahresüberschuss",
+        "hgb_pos9": "16. Periodenergebnis (Jahresüberschuss i.S.d. § 275 HGB bei Jahresansicht)",
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
@@ -491,7 +494,7 @@ else:
         "src_stamm": "Mittelherkunft: Stammkapital",
         "src_sh": "Mittelherkunft: Gesellschafterdarlehen",
         "src_veh": "Mittelherkunft: Fahrzeugdarlehen",
-        "liquidity": "Tag 1 Liquiditätspuffer",
+        "liquidity": "Endbestand Kasse nach Monat 1 (Ist)",
         "output_title": "Master-Finanzpläne (HGB)",
         "active_fleet": "Aktive Flotte",
         "cars": "Fahrzeuge",
@@ -516,7 +519,6 @@ else:
         "insolv_warn": "💀 INSOLVENZ: Erforderlicher Liquiditätsbedarf übersteigt die genehmigte Kontokorrentlinie in Monat: ",
         "ebitda_recon_title": "EBITDA-Überleitung (Management-Sicht → HGB-Sicht)"
     }
-    month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
 
 # --- SIDEBAR INTERFACE CONTROLS ---
 # UI Inputs defined first to prevent NameErrors in cache engine
@@ -526,6 +528,23 @@ y2_adds_str = st.sidebar.text_input(loc["y2_adds"], "2, 0, 0, 0, 2, 0, 0, 0, 0, 
 y3_adds_str = st.sidebar.text_input(loc["y3_adds"], "3, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0")
 y4_adds_str = st.sidebar.text_input(loc["y4_adds"], "4, 0, 0, 4, 0, 0, 4, 0, 0, 3, 0, 0")
 y5_adds_str = st.sidebar.text_input(loc["y5_adds"], "6, 0, 0, 5, 0, 0, 5, 0, 0, 5, 0, 0")
+
+# L-04 FIX: Surface bad fleet input to the user (rather than silently zeroing out).
+def _validate_fleet_str(label, s):
+    try:
+        arr = [int(x.strip()) for x in s.split(',')]
+    except ValueError:
+        st.sidebar.error(f"⚠️ {label}: invalid number(s) — parsed as zero fleet. Use comma-separated integers.")
+        return
+    if len(arr) != 12:
+        st.sidebar.warning(f"ℹ️ {label}: expected 12 values, got {len(arr)}. Engine pads/truncates to 12.")
+    if any(x < 0 for x in arr):
+        st.sidebar.warning(f"ℹ️ {label}: negative additions detected — typically fleet additions are ≥ 0.")
+
+for _label, _s in [(loc["y1_adds"], y1_adds_str), (loc["y2_adds"], y2_adds_str),
+                   (loc["y3_adds"], y3_adds_str), (loc["y4_adds"], y4_adds_str),
+                   (loc["y5_adds"], y5_adds_str)]:
+    _validate_fleet_str(_label, _s)
 
 st.sidebar.header(loc["sec1b"])
 active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0)
@@ -646,12 +665,11 @@ def execute_financial_simulation(
         "cf_fin", "cf_net", "cf_beg", "cf_end"
     ]
 
-    B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
-        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_thg_rec", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
+    B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
+        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_vat_rec_op", "bs_thg_rec", "bs_tax_rec", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
         "bs_prov_tax", "bs_prov_legal", "bs_tprov", "bs_debt_kfw", "bs_debt_vat", "bs_debt_overdraft", "bs_pay_vat", "bs_sh_loan", "bs_tliab", "bs_tleq", "bs_check"
     ]
-    
-    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
+    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
 
     def parse_adds(add_str):
         try:
@@ -713,7 +731,7 @@ def execute_financial_simulation(
 
     pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
-    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_TR, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
+    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
     tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
@@ -905,11 +923,14 @@ def execute_financial_simulation(
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
-        # F-25 Fix Applied: Monthly Cash averages drive Interest Income to protect metrics purity
-        estimated_net_flows_before_int = kfw_draw - prin_pay - capex_this_mo + fleet_sale_rev
-        projected_mid_cash = current_cash + (estimated_net_flows_before_int * 0.5)
-        
-        int_inc_mo = projected_mid_cash * (interest_income_rate / 12.0) if projected_mid_cash > 0 else 0.0
+        # === M-03 FIX (supersedes F-25) ===
+        # Interest income accrues on Beginning-of-Period cash balance.
+        # Rationale: F-25's projected_mid hack used only capex/financing flows,
+        # excluding operating CF, which materially under-estimated interest
+        # in profitable years (Y4-5 with €3M+ cash). BoP basis is conservative,
+        # standard treasury practice, free of circularity, and rigorously
+        # defensible to bank credit committees.
+        int_inc_mo = beg_cash * (interest_income_rate / 12.0) if beg_cash > 0 else 0.0
         sh_int_mo = shareholder_loan * (sh_loan_rate / 12.0)
         int_exp += sh_int_mo
         
@@ -918,7 +939,9 @@ def execute_financial_simulation(
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
         vat_refund_inflow = vat_repay_schedule[current_month]
-        vat_repay_mo = vat_refund_inflow
+        # M-05 FIX: Defensive cap — vat_repay cannot exceed outstanding bridge loan.
+        # Excess refund still flows through inv_cf_mo as a real cash inflow.
+        vat_repay_mo = min(vat_refund_inflow, vat_loan_bal)
         vat_loan_bal -= vat_repay_mo
         vat_int_mo = vat_loan_bal * (vat_bridge_rate / 12.0)
         int_exp += vat_int_mo
@@ -1017,21 +1040,36 @@ def execute_financial_simulation(
         cum_depr += total_afa_this_mo - accum_afa_sold_this_mo 
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
-        current_cash = end_cash = current_cash
         # === LAYER 17 FEATURE A: NET VAT Payable ===
         # operational_vat_payable = Output VAT − OpEx Input VAT (Vorsteuer offset)
         # The cash drain to vendors (-opex_input_vat_mo above) exactly offsets
         # this -opex_input_vat_mo reduction in the payable. BS stays balanced.
+        # Note: this is the INTERNAL signed state — may be negative when input VAT
+        # exceeds output VAT. Gross BS presentation handled below (M-01).
         operational_vat_payable = op_vat_collected - opex_input_vat_mo
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
         
         kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
         
-        total_assets = nfa + vat_receivable + thg_receivable + current_cash
+        # =====================================================================
+        # === M-01 FIX: Gross BS presentation for operational VAT position ===
+        # Internal state `operational_vat_payable` carries the signed net
+        # (can be negative when Vorsteuerüberhang exists). For BS reporting,
+        # § 246 III HGB Bruttoprinzip requires gross presentation: split into
+        # a payable (liability, ≥ 0) and a receivable (asset, ≥ 0).
+        # === M-02 FIX: Same pattern for tax_provision_bal — when prepayments
+        # exceed accrual (e.g., declining-profit year), a Steuerforderung exists.
+        # =====================================================================
+        op_vat_payable_bs = max(0.0, operational_vat_payable)       # liability
+        op_vat_receivable_bs = max(0.0, -operational_vat_payable)   # asset
+        tax_provision_bs = max(0.0, tax_provision_bal)              # liability
+        tax_receivable_bs = max(0.0, -tax_provision_bal)            # asset
+        
+        total_assets = nfa + vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + current_cash
         total_equity = stammkapital + cum_net_income
-        total_prov = tax_provision_bal + legal_provision_bal
-        total_liab_bal = kfw_loan_bal + vat_loan_bal + overdraft_facility_bal + operational_vat_payable + shareholder_loan
+        total_prov = tax_provision_bs + legal_provision_bal
+        total_liab_bal = kfw_loan_bal + vat_loan_bal + overdraft_facility_bal + op_vat_payable_bs + shareholder_loan
         total_liab_eq = total_equity + total_prov + total_liab_bal
         bs_check_val = round(total_assets - total_liab_eq, STANDARD_TAX_ROUNDING)
         
@@ -1103,20 +1141,22 @@ def execute_financial_simulation(
         bs_m[B_AD].append(-cum_depr)
         bs_m[B_NF].append(nfa)
         bs_m[B_VR].append(vat_receivable)
+        bs_m[B_OPVRX].append(op_vat_receivable_bs)          # M-01: gross asset side
         bs_m[B_TR].append(thg_receivable)
+        bs_m[B_TRX].append(tax_receivable_bs)               # M-02: gross asset side
         bs_m[B_CS].append(current_cash)
-        bs_m[B_TC].append(vat_receivable + thg_receivable + current_cash)
+        bs_m[B_TC].append(vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + current_cash)
         bs_m[B_TA].append(total_assets)
         bs_m[B_ES].append(stammkapital)
         bs_m[B_ER].append(cum_net_income)
         bs_m[B_TEQ].append(total_equity)
-        bs_m[B_PT].append(tax_provision_bal)
+        bs_m[B_PT].append(tax_provision_bs)                 # M-02: gross liability side (≥ 0)
         bs_m[B_PL].append(legal_provision_bal)
         bs_m[B_TPV].append(total_prov)
         bs_m[B_DK].append(kfw_loan_bal)
         bs_m[B_DV].append(vat_loan_bal)
         bs_m[B_DO].append(overdraft_facility_bal)
-        bs_m[B_PV].append(operational_vat_payable)
+        bs_m[B_PV].append(op_vat_payable_bs)                # M-01: gross liability side (≥ 0)
         bs_m[B_SL].append(shareholder_loan)
         bs_m[B_TL].append(total_liab_bal)
         bs_m[B_TLEQ].append(total_liab_eq)
@@ -1143,9 +1183,13 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
 )
 
 # ============================================================
-# === FIX 3 (Crash 3): Pre-compute day_1_loan and day_1_cash_ui
-# for the dashboard's "Sources & Uses" metric cards using only
-# sidebar scalars (since `cohorts` only lives inside the function).
+# === L-02 + M-04 FIX: Day-1 Sources/Uses Display
+# Use the engine-returned total_capex_per_car (instead of duplicating
+# the calculation in the dashboard).
+# Day-1 Liquidity metric now shows ACTUAL end-of-Month-1 cash from the
+# engine — previously the metric was a sources-uses snapshot that
+# ignored first-month opex, revenue, and VAT bridge flows, and could
+# read €19K when actual was €27K.
 # ============================================================
 def _quick_parse(s):
     try:
@@ -1154,15 +1198,10 @@ def _quick_parse(s):
     except:
         return [0]*12
 
-_cbe_ui   = cybercab_base_usd / usd_eur_rate
-_cif_ui   = _cbe_ui + import_freight_eur
-_tcpc_ui  = _cif_ui * (1.0 + customs_duty_rate)
 _y1_count = sum(_quick_parse(y1_adds_str))
-day_1_loan     = _y1_count * _tcpc_ui * vehicle_ltv
-_day1_gross    = _y1_count * _tcpc_ui
-day_1_cash_ui  = (stammkapital + shareholder_loan + day_1_loan
-                  - _day1_gross - it_hardware_capex_y1) \
-                 if _y1_count > 0 else (stammkapital + shareholder_loan)
+day_1_loan = _y1_count * total_capex_per_car * vehicle_ltv  # uses returned scalar (L-02)
+# M-04 FIX: actual end-of-Month-1 cash from engine, not sources-uses snapshot
+day_1_cash_ui = bs_monthly["bs_cash"][0]
 
 # --- POST-LOOP SYSTEM AGGREGATIONS ---
 def agg_to_yearly(monthly_dict):
@@ -1403,9 +1442,8 @@ with tabs[0]: st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} �
 with tabs[1]: st.dataframe(df_hgb_pnl[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[2]: st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[3]: st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
-with tabs[4]: st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
-    
 with tabs[4]:
+    st.dataframe(df_kpi_combined[display_cols].style.apply(style_kpi_rows, axis=1), use_container_width=True)
     st.write("")
     with st.expander(loc["glossary_title"]):
         if lang_choice == "English":
