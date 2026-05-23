@@ -52,7 +52,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 21: Utilization Recalibration + Two-Stream Revenue (Passenger + B2B Delivery))*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 22: Energy Decomposition + Insurance/Parking/Cleaning Recalibration + Active Hours Expansion + Adjustable Monthly Seasonality)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -106,18 +106,47 @@ if lang_choice == "English":
         "delivery_ramp_y5": "Delivery Activation % Year 5",
         "help_delivery_ramp": "Tesla Network delivery service activation by year. Default 0/0/30/70/100 reflects Tesla launching delivery as Y2H2 product, mature by Y4. Stress-test by setting all to 0% (pure passenger) or 100% (immediate launch).",
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
-        "cleaning": "Cleaning Cost per Vehicle/Day (€)",
+        "cleaning": "Cleaning Cost per Vehicle/Day (€, Net of Tesla Fees)",
+        "help_cleaning": "Layer 22 update. Cleaning cost €2/day NET reflects Tesla cleaning-fee revenue pass-through. Tesla published Robotaxi terms (Dec 2025): $50 moderate / $150 severe per incident, deducted automatically from rider via in-cabin cameras. Gross cleaning cost ~€5/day (depot deep-clean + sensor washer fluid + ozone treatment) less ~€3/day fee pass-through revenue at 12 severe + 30 moderate incidents/car/year mature state = €2/day net. Operationally, dirty cars route to depot during charging window — zero productive-shift impact.",
         "wear_rate": "Maintenance/Wear per km (€)",
         "wear_help": "Management-view levelized rate reflecting 4-5y vehicle scrap strategy (post-AfA exhaustion). Breakdown: tires €0.027, sensor maintenance €0.034 (Cybercab onboard cleaning reduces vs Waymo benchmark), body wear €0.012, fluids/suspension €0.005, HVAC/inspections €0.005, accident reserve €0.008, contingency €0.005. Benchmarked vs Sixt+, Free Now, MOIA published data. Below Waymo (€0.12-0.16) due to simpler Cybercab sensor stack and German labor rates.",
-        "energy_rate": "Base Energy Cost per km (€)",
-        "energy_help": "Base case: 0.17 kWh/km real-world consumption × €0.41/kWh blended Supercharger rate ÷ 0.84 charging efficiency = €0.085/km net base. Seasonality multiplier applied dynamically in engine (winter +45%, shoulder +30%, hot summer +10%). Benchmarked vs Sixt fleet operating cost data 2024.",
+        # === LAYER 22: Energy 3-slider build (was single energy_rate slider in L21) ===
+        "energy_kwh": "Cybercab Consumption (kWh/km)",
+        "help_energy_kwh": "Real-world Cybercab energy consumption. Anchored on Tesla VP Lars Moravy's May 21, 2026 announcement at Model S/X SE event: Cybercab certified at 165 Wh/mile = 0.103 kWh/km (most efficient EV ever certified, 40% better than Model 3). Real-world urban operation typically adds 8-15% over EPA-style certified rating (HVAC, accessories, stop-and-go). Default 0.115 kWh/km applies 12% real-world derate. Cybercab achieves this via: teardrop aerodynamics (Cd estimated <0.20), 2-seat layout (no rear seats/structure), no steering wheel/pedals/mirrors, narrower purpose-built tires, sub-50 kWh battery, no driver-aggressive driving profile.",
+        "energy_eur": "Energy Price Blended (€/kWh)",
+        "help_energy_eur": "Blended cost per kWh at the meter. Anchored on (a) German wholesale 2am-6am charging window historically €0.04-0.09/kWh (EPEX off-peak base 2025: €0.088/kWh average), (b) Tesla Supercharger Germany 2026 off-peak rates €0.31-0.46/kWh, (c) fleet operator subscription discount (parallel to Tesla Insurance fleet model). Central case €0.22/kWh = 70% depot inductive overnight at €0.18 (wholesale + 8ct grid/margin) + 30% V4 Supercharger off-peak at €0.32 (with fleet subscription). Tesla incentive structure supports this: they extract more via 25% platform take-rate than they'd lose offering near-wholesale energy.",
+        "charging_eff": "Charging Efficiency (0.50-1.00)",
+        "help_charging_eff": "Energy delivered to battery as fraction of energy drawn from grid. Anchored on Tesla's October 2024 statement that Cybercab inductive charging is 'well over 90%' efficient (responding to Marques Brownlee's 75% estimate). Wired V4 Supercharger achieves 96-97%. Default 0.94 reflects 70% inductive (92%) + 30% wired (96%) blend. Wiferion tech Tesla acquired supports 22 kW wireless. Tesla received FCC waiver Feb 2026 for UWB positioning enabling precise pad alignment.",
+        "energy_derived_caption": "→ Derived Energy Cost: €{rate:.4f}/km (before seasonality)",
+        # === LAYER 22: Section 5 fixed costs — insurance/parking recalibrated, cargo insurance added ===
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
+        "help_insurance": "Layer 22 recalibration: €300 → €180/month. Bottom-up build: theft component ~€0 (Cybercab cannot be driven outside Tesla Network — Waymo Phoenix 7yr data shows ~0 successful thefts), but vandalism (€20), battery/fire (€20), weather (€12), passenger damage (€15), cyber liability (€40), legal reserve (€30), residual bodily injury/property damage liability after 70% FSD safety credit (€55), passenger transport mandatory coverage per PBefG (€18) sum to ~€210, less ~15% Tesla Insurance bundling discount and 5-year averaging = €180. Y1-Y2 actuals may run €250-300 before declining as Munich-specific claims data accumulates. Risk: if Tesla Insurance Europe GmbH licensing delays force pure third-party German insurance, premium could rise to €280-350.",
         "parking": "APCOA Charging Capable Space (Munich)",
+        "help_parking": "Layer 22 recalibration: €250 → €170/month. APCOA published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 = central case €160-220. At Y5 fleet of 57 cars, bulk discount 15-25% reduces to €140-180 range. €170 sits at midpoint of negotiable bulk-fleet rate. Includes inductive charging pad access where deployed Y3+, wired V4 fallback in Y1-Y2.",
         "telemetry": "Telemetry & API",
         "tuev": "TÜV / BO-Kraft Accrual",
         "help_tuev": "Monthly accrual for mandatory passenger transport inspections.",
         "charging_sub": "Tesla Charging Sub",
+        "cargo_ins": "Cargo Insurance (Verkehrshaftungsversicherung)",
+        "help_cargo_ins": "Layer 22 NEW LINE. Mandatory transport liability insurance when B2B delivery toggle is ON. Covers cargo value, theft in transit, weather damage, in-transit handling claims. Doesn't benefit from FSD safety credit (these risks don't depend on driver behavior). €20/car/month reflects 2024 German Verkehrshaftungsversicherung rates for low-value parcel/food courier operations. Only billed when delivery stream is active.",
+        # === LAYER 22 NEW: Monthly seasonality multipliers (12 months adjustable) ===
+        "sec_season": "1d. SEASONALITY (Winter Penalty)",
+        "season_expander": "📅 Monthly Energy Multipliers",
+        "season_caption": "Adjust per-month energy cost multipliers. Affects energy line in P&L. Empirical anchors: ADAC Wintertest 2023 (-35-55% EV range Dec-Feb), Geotab fleet study (+8-15% summer A/C). Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells.",
+        "month_jan": "January Multiplier",
+        "month_feb": "February Multiplier",
+        "month_mar": "March Multiplier",
+        "month_apr": "April Multiplier",
+        "month_may": "May Multiplier",
+        "month_jun": "June Multiplier",
+        "month_jul": "July Multiplier",
+        "month_aug": "August Multiplier",
+        "month_sep": "September Multiplier",
+        "month_oct": "October Multiplier",
+        "month_nov": "November Multiplier",
+        "month_dec": "December Multiplier",
+        "season_blend_caption": "→ Annual blend: {blend:.4f}× (1.0 = no seasonality)",
         "sec6": "6. CORPORATE HQ & REGULATORY (€ / Month, Net)",
         "hq_lease": "HQ Lease (Raumkosten)",
         "it_cloud": "IT, Cloud & AI Services",
@@ -315,7 +344,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 21: Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse (Personenverkehr + B2B-Lieferdienst))*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 22: Energie-Dekomposition + Versicherung/Stellplatz/Reinigung-Rekalibrierung + Aktive-Stunden-Erweiterung + Anpassbare Monatssaisonalität)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -369,18 +398,47 @@ else:
         "delivery_ramp_y5": "Lieferdienst-Aktivierung % Jahr 5",
         "help_delivery_ramp": "Tesla Network Lieferdienst-Aktivierung nach Jahr. Standard 0/0/30/70/100 reflektiert Tesla Lieferdienst-Launch J2H2, reif J4. Stresstest: alle 0% (reiner Personenverkehr) oder 100% (sofortiger Start).",
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
-        "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€)",
+        "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€, netto Tesla-Gebühren)",
+        "help_cleaning": "Layer 22 Update. Reinigungskosten €2/Tag NETTO unter Berücksichtigung der Tesla-Reinigungsgebühr-Erlöse. Tesla Robotaxi AGB (Dez 2025): $50 mittlere / $150 schwere Verschmutzungen pro Vorfall, automatisch über Innenraumkameras dem Fahrgast belastet. Bruttoreinigungskosten ~€5/Tag (Depot-Tiefenreinigung + Sensor-Waschflüssigkeit + Ozonbehandlung) abzüglich ~€3/Tag Gebührenerlöse bei 12 schweren + 30 mittleren Vorfällen pro Fahrzeug/Jahr im Reifezustand = €2/Tag netto. Verschmutzte Fahrzeuge fahren während des Ladefensters zum Depot — null Auswirkung auf die produktive Schicht.",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
         "wear_help": "Management-Sicht: nivellierter Verschleißsatz für 4-5j Scrap-Strategie (nach AfA-Schild). Aufschlüsselung: Reifen €0,027, Sensorwartung €0,034 (Cybercab Onboard-Reinigung reduziert ggü. Waymo-Benchmark), Innenraumverschleiß €0,012, Flüssigkeiten/Fahrwerk €0,005, HVAC/Inspektionen €0,005, Unfallrückstellung €0,008, Reserve €0,005. Benchmarks: Sixt+, Free Now, MOIA. Unter Waymo (€0,12-0,16) wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten.",
-        "energy_rate": "Basis-Energiekosten pro km (€)",
-        "energy_help": "Basisfall: 0,17 kWh/km Real-Verbrauch × €0,41/kWh Supercharger-Mischpreis ÷ 0,84 Ladewirkungsgrad = €0,085/km Netto-Basis. Saisonzuschläge dynamisch im Engine (Winter +45%, Übergang +30%, Hochsommer +10%). Benchmarks: Sixt Flottenbetriebskosten 2024.",
+        # === LAYER 22: Energie 3-Slider-Aufbau ===
+        "energy_kwh": "Cybercab Verbrauch (kWh/km)",
+        "help_energy_kwh": "Realer Cybercab-Energieverbrauch. Verankert in der Ankündigung von Tesla-VP Lars Moravy am 21. Mai 2026 beim Model S/X SE Event: Cybercab zertifiziert mit 165 Wh/Meile = 0,103 kWh/km (effizientestes EV aller Zeiten, 40% besser als Model 3). Real-Verbrauch im Stadtverkehr typisch 8-15% über EPA-Zertifizierung (HVAC, Verbraucher, Stop-and-Go). Standard 0,115 kWh/km wendet 12% Real-Aufschlag an. Cybercab erreicht dies durch: Tropfenform-Aerodynamik (Cd geschätzt <0,20), 2-Sitzer (keine Rücksitze/Struktur), kein Lenkrad/Pedale/Spiegel, schmalere Spezial-Reifen, Sub-50 kWh-Batterie, kein aggressives Fahrprofil.",
+        "energy_eur": "Energie-Mischpreis (€/kWh)",
+        "help_energy_eur": "Mischkosten pro kWh am Zähler. Verankert in (a) deutschem Großhandel 2-6 Uhr historisch €0,04-0,09/kWh (EPEX Off-Peak Base 2025: Ø €0,088/kWh), (b) Tesla Supercharger Deutschland 2026 Off-Peak €0,31-0,46/kWh, (c) Flotten-Abonnement-Rabatt (parallel zu Tesla Insurance Flotten-Modell). Basisfall €0,22/kWh = 70% Depot-Induktion über Nacht zu €0,18 (Großhandel + 8ct Netz/Marge) + 30% V4 Supercharger Off-Peak zu €0,32 (mit Flotten-Abo). Tesla-Anreizstruktur unterstützt dies: Tesla generiert mehr über 25% Plattform-Take-Rate als beim Nahe-Großhandel-Preis verloren ginge.",
+        "charging_eff": "Ladewirkungsgrad (0,50-1,00)",
+        "help_charging_eff": "Energie ins Akkupack als Bruchteil der aus dem Netz bezogenen Energie. Verankert in Teslas Aussage Oktober 2024: Cybercab-Induktivladung 'deutlich über 90%' effizient (auf Marques Brownlees 75%-Schätzung antwortend). Kabel-V4-Supercharger erreicht 96-97%. Standard 0,94 reflektiert 70% Induktion (92%) + 30% Kabel (96%) Mischung. Wiferion-Technologie (Tesla erworben) unterstützt 22 kW kabellos. Tesla erhielt FCC-Waiver Feb 2026 für UWB-Positionierung zur präzisen Pad-Ausrichtung.",
+        "energy_derived_caption": "→ Abgeleitete Energiekosten: €{rate:.4f}/km (vor Saisonalität)",
+        # === LAYER 22: Abschnitt 5 Fixkosten — Versicherung/Stellplatz rekalibriert ===
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
+        "help_insurance": "Layer 22 Rekalibrierung: €300 → €180/Monat. Bottom-up-Aufbau: Diebstahl-Komponente ~€0 (Cybercab außerhalb Tesla Network nicht fahrbar — Waymo Phoenix 7J-Daten zeigen ~0 erfolgreiche Diebstähle), aber Vandalismus (€20), Batterie/Brand (€20), Wetter (€12), Passagierschäden (€15), Cyber-Haftung (€40), Rechtsrücklage (€30), Rest-Personen-/Sachschadenshaftung nach 70% FSD-Sicherheitsbonus (€55), gesetzliche Passagiertransport-Deckung gem. PBefG (€18) = ~€210, abzüglich ~15% Tesla Insurance-Bundle-Rabatt und 5-Jahres-Mittelung = €180. J1-J2 Ist-Werte können €250-300 betragen, bevor sie mit aufgebauter Münchener Schadensdatenhistorie sinken. Risiko: bei Verzögerungen der Tesla Insurance Europe-Lizenzierung könnte die Prämie auf €280-350 steigen.",
         "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
+        "help_parking": "Layer 22 Rekalibrierung: €250 → €170/Monat. APCOA veröffentlichte 2024 Münchner Monatsparkplätze €120-180 + Ladefähigkeits-Aufschlag €40-80 = Basisfall €160-220. Bei J5 Flotte von 57 Fahrzeugen reduziert Mengenrabatt 15-25% auf €140-180. €170 entspricht Mittelpunkt verhandelbarer Flotten-Mengenrabatt-Rate. Beinhaltet induktiven Ladepad-Zugang ab J3+, kabelgebundene V4-Backup in J1-J2.",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
         "charging_sub": "Tesla Lade-Abo",
+        "cargo_ins": "Verkehrshaftungsversicherung (Frachtgut)",
+        "help_cargo_ins": "Layer 22 NEUE POSITION. Gesetzliche Transporthaftpflicht bei aktivem B2B-Lieferdienst-Toggle. Deckt Frachtwert, Diebstahl in Transit, Wetterschäden, Handhabungsansprüche. Profitiert NICHT vom FSD-Sicherheitsbonus (Risiken hängen nicht vom Fahrverhalten ab). €20/Fahrzeug/Monat entspricht 2024 deutschen Verkehrshaftungsversicherungs-Tarifen für niedrigwertige Paket-/Food-Kurier-Operationen. Nur fakturiert wenn Lieferstrom aktiv.",
+        # === LAYER 22 NEU: Monatliche Saisonalitäts-Multiplikatoren ===
+        "sec_season": "1d. SAISONALITÄT (Winter-Aufschlag)",
+        "season_expander": "📅 Monatliche Energie-Multiplikatoren",
+        "season_caption": "Pro-Monat Energiekosten-Multiplikatoren anpassen. Wirkt auf Energieposten in GuV. Empirische Anker: ADAC Wintertest 2023 (-35-55% EV-Reichweite Dez-Feb), Geotab Flottenstudie (+8-15% Sommer-Klimaanlage). Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen.",
+        "month_jan": "Januar Multiplikator",
+        "month_feb": "Februar Multiplikator",
+        "month_mar": "März Multiplikator",
+        "month_apr": "April Multiplikator",
+        "month_may": "Mai Multiplikator",
+        "month_jun": "Juni Multiplikator",
+        "month_jul": "Juli Multiplikator",
+        "month_aug": "August Multiplikator",
+        "month_sep": "September Multiplikator",
+        "month_oct": "Oktober Multiplikator",
+        "month_nov": "November Multiplikator",
+        "month_dec": "Dezember Multiplikator",
+        "season_blend_caption": "→ Jahresmittel: {blend:.4f}× (1,0 = keine Saisonalität)",
         "sec6": "6. CORPORATE HQ & REGULIERUNG (€ / Monat, Netto)",
         "hq_lease": "Raumkosten (HQ Lease)",
         "it_cloud": "IT, Cloud & AI Services",
@@ -603,7 +661,7 @@ for _label, _s in [(loc["y1_adds"], y1_adds_str), (loc["y2_adds"], y2_adds_str),
     _validate_fleet_str(_label, _s)
 
 st.sidebar.header(loc["sec1b"])
-active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=13.5, help=loc["help_active_hours"])
+active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0, help=loc["help_active_hours"])
 avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=19.0, help=loc["help_speed"])
 deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=22.0, help=loc["help_deadhead"]) / 100
 
@@ -654,17 +712,66 @@ else:
     delivery_take_rate = 0.0
     delivery_ramp_y1 = delivery_ramp_y2 = delivery_ramp_y3 = delivery_ramp_y4 = delivery_ramp_y5 = 0.0
 
+# === LAYER 22 CHANGE 5: Monthly Seasonality Multipliers — fully adjustable ===
+# Prior Layers 20/21 hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10).
+# Layer 22 exposes all 12 months as individual sliders so user can stress-test
+# winter penalty assumptions (e.g., dry-cathode 4680 battery reduces winter penalty).
+# Annual blend computed at runtime; default values preserve Layer 21 1.2125× blend.
+st.sidebar.header(loc["sec_season"])
+with st.sidebar.expander(loc["season_expander"], expanded=False):
+    st.caption(loc["season_caption"])
+    season_jan = st.number_input(loc["month_jan"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_feb = st.number_input(loc["month_feb"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_mar = st.number_input(loc["month_mar"], value=1.30, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_apr = st.number_input(loc["month_apr"], value=1.05, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_may = st.number_input(loc["month_may"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_jun = st.number_input(loc["month_jun"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_jul = st.number_input(loc["month_jul"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_aug = st.number_input(loc["month_aug"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_sep = st.number_input(loc["month_sep"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_oct = st.number_input(loc["month_oct"], value=1.05, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_nov = st.number_input(loc["month_nov"], value=1.30, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+    season_dec = st.number_input(loc["month_dec"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
+# Assemble lookup dict (month index 1-12 → multiplier)
+seasonality_by_month = {
+    1: season_jan, 2: season_feb, 3: season_mar, 4: season_apr,
+    5: season_may, 6: season_jun, 7: season_jul, 8: season_aug,
+    9: season_sep, 10: season_oct, 11: season_nov, 12: season_dec
+}
+_season_blend = sum(seasonality_by_month.values()) / 12
+st.sidebar.caption(loc["season_blend_caption"].format(blend=_season_blend))
+
 st.sidebar.header(loc["sec4"])
-cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=3.00)
+cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, help=loc["help_cleaning"])
 wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, format="%.2f", step=0.01, help=loc["wear_help"])
-energy_rate = st.sidebar.number_input(loc["energy_rate"], value=0.085, format="%.4f", step=0.0001, help=loc["energy_help"])
+# === LAYER 22 CHANGE 1: Energy decomposed into 3 sliders ===
+# Prior Layer 21 had a single energy_rate = €0.085/km combining all three.
+# Layer 22 makes each driver visible and adjustable for stress-testing.
+# Combined: 0.115 * 0.22 / 0.94 = €0.0269/km (vs prior €0.085 — 68% reduction).
+# Empirical anchors documented in tooltips and README Layer 22 section.
+energy_kwh_per_km = st.sidebar.number_input(loc["energy_kwh"], value=0.115, format="%.3f", step=0.005, help=loc["help_energy_kwh"])
+energy_eur_per_kwh = st.sidebar.number_input(loc["energy_eur"], value=0.220, format="%.3f", step=0.01, help=loc["help_energy_eur"])
+charging_efficiency = st.sidebar.number_input(loc["charging_eff"], value=0.94, format="%.2f", step=0.01, min_value=0.50, max_value=1.00, help=loc["help_charging_eff"]) 
+# Derived: effective €/km consumed (before seasonality multiplier in engine)
+energy_rate = (energy_kwh_per_km * energy_eur_per_kwh) / charging_efficiency
+# Visible read-out in sidebar so user can see the combined number
+st.sidebar.caption(loc["energy_derived_caption"].format(rate=energy_rate))
 
 st.sidebar.header(loc["sec5"])
-insurance_pm = st.sidebar.number_input(loc["insurance"], value=300.0)
-parking_pm = st.sidebar.number_input(loc["parking"], value=250.0)
+# Layer 22: Insurance recalibrated €300 → €180 (Tesla bundling thesis, FSD safety credit, theft-zero)
+insurance_pm = st.sidebar.number_input(loc["insurance"], value=180.0, help=loc["help_insurance"])
+# Layer 22: APCOA parking recalibrated €250 → €170 (published APCOA rates + bulk discount)
+parking_pm = st.sidebar.number_input(loc["parking"], value=170.0, help=loc["help_parking"])
 telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0)
 tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, help=loc["help_tuev"])
 charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
+# === LAYER 22 CHANGE 4: Cargo insurance — only applies when delivery toggle ON ===
+# Verkehrshaftungsversicherung for B2B goods transport. Doesn't benefit from FSD
+# safety credit (covers cargo theft, weather damage, in-transit handling claims).
+if delivery_enabled:
+    delivery_cargo_insurance_pm = st.sidebar.number_input(loc["cargo_ins"], value=20.0, help=loc["help_cargo_ins"])
+else:
+    delivery_cargo_insurance_pm = 0.0
 
 st.sidebar.header(loc["sec6"])
 hq_lease_pm = st.sidebar.number_input(loc["hq_lease"], value=450.0)
@@ -702,7 +809,7 @@ legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], val
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
 
 st.sidebar.header(loc["sec9"])
-thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=200.0, help=loc["help_thg"])
+thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, help=loc["help_thg"])
 salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
 
 
@@ -725,6 +832,7 @@ def execute_financial_simulation(
     delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
+    delivery_cargo_insurance_pm, seasonality_by_month,
     is_dynamic, lang_choice
 ):
     # ============================================================
@@ -899,29 +1007,20 @@ def execute_financial_simulation(
         days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
         
         # ============================================================
-        # === LAYER 20 CHANGE 1b: 4-tier seasonality (replaces 3-tier) ===
-        # Empirical basis:
-        #   - Winter (Dec-Feb) 1.45×: ADAC Wintertest 2023 shows +35-55% EV
-        #     consumption at sustained sub-zero ambient. Munich Dec-Feb avg
-        #     low -3 to -5°C. Robotaxis cannot pre-condition while plugged.
-        #   - Shoulder (Nov, Mar) 1.30×: partial battery thermal load.
-        #   - Cool summer (Apr, Oct) 1.05×: minimal HVAC load.
-        #   - Hot summer (May-Sep) 1.10×: A/C draw 8-15% per Geotab fleet
-        #     data; Munich has multi-week heat waves (2018, 2022, 2023, 2024).
-        # Annual blend (unweighted): (3×1.45 + 2×1.30 + 2×1.05 + 5×1.10)/12 = 1.2125
-        # Day-weighted blend (Munich calendar): 1.2114
-        # Note: Earlier scoping referenced 1.19× as the target; the multipliers
-        # themselves are empirically primary, so the engine implements the
-        # multipliers as specified and the realized blend is 1.2125×.
+        # === LAYER 22 CHANGE 5: Seasonality is now a 12-month lookup ===
+        # Prior Layer 21 hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05,
+        # May-Sep 1.10) — annual blend 1.2125×.
+        # Layer 22 reads from `seasonality_by_month` dict (1-12 → multiplier)
+        # populated from 12 individual sidebar sliders. Defaults preserve Layer 21
+        # blend exactly. User can stress-test (e.g., dry-cathode 4680 reduces
+        # winter penalty 10-15%) by adjusting individual month sliders.
+        # Empirical defaults:
+        #   - Winter (Dec-Feb) 1.45×: ADAC Wintertest 2023, Munich Dec-Feb avg low -3 to -5°C
+        #   - Shoulder (Nov, Mar) 1.30×: partial battery thermal load
+        #   - Cool summer (Apr, Oct) 1.05×: minimal HVAC load
+        #   - Hot summer (May-Sep) 1.10×: A/C draw 8-15% per Geotab fleet data
         # ============================================================
-        if current_month_index in [12, 1, 2]:
-            season_mult = 1.45
-        elif current_month_index in [11, 3]:
-            season_mult = 1.30
-        elif current_month_index in [4, 10]:
-            season_mult = 1.05
-        else:  # May-Sep
-            season_mult = 1.10
+        season_mult = seasonality_by_month.get(current_month_index, 1.0)
             
         active_fleet = 0
         current_veh_afa = 0
@@ -1022,7 +1121,12 @@ def execute_financial_simulation(
         total_mrrg_net_mo = mrrg_net_mo + delivery_mrrg_net_mo
         db1_mo = total_mrrg_net_mo - wear_mo - energy_mo - clean_mo
         
-        ins_mo = insurance_pm * active_fleet
+        # === LAYER 22: Cargo insurance (Verkehrshaftungsversicherung) ===
+        # Only billed when delivery toggle is ON AND delivery is ramped > 0 in current year.
+        # Doesn't benefit from FSD safety credit (covers cargo theft, weather, handling).
+        # Scales with active fleet × ramp factor — partial-year ramp = partial-month billing.
+        cargo_ins_mo = delivery_cargo_insurance_pm * active_fleet * delivery_ramp_factor
+        ins_mo = (insurance_pm * active_fleet) + cargo_ins_mo
         park_mo = parking_pm * active_fleet
         tel_mo = telemetry_pm * active_fleet
         tuev_mo = tuev_pm * active_fleet
@@ -1346,6 +1450,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
+    delivery_cargo_insurance_pm, seasonality_by_month,
     is_dynamic, lang_choice
 )
 
@@ -1710,7 +1815,9 @@ with tabs[6]:
 
         **Layer 21 Utilization Recalibration + Two-Stream Revenue:** The initial Layer 20 utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. Layer 21 recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~31% asset utilization and Y5 mature state sits at ~41% — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 18h Tesla Network productivity (75% 24h asset utilization). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
 
-        **Empirical sources:** TomTom Traffic Index 2024 (Munich congestion); ADAC Wintertest 2023 + Geotab fleet study (EV winter consumption); Waymo NHTSA filings (sensor reliability, dwell time, ramp curves); Sixt+ / Free Now / MOIA published operator data (€/km maintenance benchmarks); Uber/Lyft Marketplace blog data (mature European deadhead rates).
+        **Layer 22 — Energy Decomposition + Calibration Refinements + Adjustable Seasonality:** Six coordinated updates after detailed CFO/CPA audit conversations. (1) **Energy cost decomposed into 3 sliders:** consumption €0.115 kWh/km (anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world derate), blended price €0.22/kWh (German wholesale off-peak €0.04-0.09 + Tesla Supercharger off-peak €0.31-0.46, weighted 70/30 depot inductive / V4 wired with fleet subscription), charging efficiency 0.94 (Tesla's stated "well over 90%" inductive at 22 kW × 0.70 + V4 wired 96% × 0.30). Combined effective rate: €0.027/km vs prior €0.085 — 68% reduction reflecting actual Cybercab efficiency. (2) **Insurance €300 → €180/month** via bottom-up rebuild: theft component ~€0 (Cybercab undriveable outside Tesla Network, Waymo Phoenix 7yr data confirms), Tesla Insurance bundling thesis (-15% discount), FSD safety credit (70% reduction on bodily injury/property damage liability), residual categories (vandalism €20, battery/fire €20, weather €12, passenger damage €15, cyber €40, legal reserve €30, BI/PD post-FSD €55, PBefG €18) sum to ~€210, less Tesla bundle discount and 5-year averaging = €180. (3) **APCOA parking €250 → €170/month** per published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 less 15-25% Y5 bulk discount. (4) **Cleaning €3 → €2/day net** reflecting Tesla's published Robotaxi cleaning fee policy ($50 moderate / $150 severe, live Dec 2025) — gross cost ~€5/day depot deep-clean less ~€3/day Tesla fee pass-through revenue. (5) **Active hours 13.5h → 16.0h** unlocked by corrected Cybercab efficiency math (lower kWh/km consumption + 90%+ inductive efficiency = no battery-capacity constraint on extended shifts even in winter peak weeks). (6) **NEW cargo insurance €20/car/month** Verkehrshaftungsversicherung, only billed when delivery toggle is active (covers cargo value, theft in transit, weather damage — doesn't benefit from FSD safety credit). (7) **NEW adjustable monthly seasonality:** 12 individual month sliders in collapsible expander replace the prior hardcoded 4-tier. Defaults preserve Layer 21 blend (1.2125×) — Dec/Jan/Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10. User can stress-test winter penalty assumptions (e.g., Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells). THG quote €200 → €280/car/year per 2024 German actuals also bundled in this layer.
+
+        **Empirical sources:** TomTom Traffic Index 2024 (Munich congestion); ADAC Wintertest 2023 + Geotab fleet study (EV winter consumption); Waymo NHTSA filings (sensor reliability, dwell time, ramp curves); Sixt+ / Free Now / MOIA published operator data (€/km maintenance benchmarks); Uber/Lyft Marketplace blog data (mature European deadhead rates); Tesla May 2026 Model S/X SE event (Cybercab 165 Wh/mi certification); EPEX Spot 2025 German wholesale electricity data (off-peak hours €0.04-0.09/kWh); Tesla Supercharger pricing Germany 2026 (€0.31-0.46/kWh Tesla off-peak); Tesla Robotaxi cleaning fee policy December 2025 ($50/$150 tiers).
 
         ---
 
@@ -1758,7 +1865,9 @@ with tabs[6]:
 
         **Layer 21 Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Layer 20 Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. Layer 21 rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~31% Asset-Auslastung und der reife Zustand in J5 liegt bei ~41% — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 18h Tesla Network-Produktivität (75% 24h-Asset-Auslastung). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
 
-        **Empirische Quellen:** TomTom Traffic Index 2024 (Münchner Verkehrsdichte); ADAC Wintertest 2023 + Geotab Flottenstudie (EV-Winterverbrauch); Waymo NHTSA-Meldungen (Sensorzuverlässigkeit, Standzeit, Ramp-Kurven); Sixt+ / Free Now / MOIA veröffentlichte Betreiberdaten (€/km Wartungs-Benchmarks); Uber/Lyft Marketplace-Blog (mature europäische Leerfahrtenquoten).
+        **Layer 22 — Energie-Dekomposition + Kalibrierungs-Verfeinerungen + Anpassbare Saisonalität:** Sechs koordinierte Updates nach detaillierten CFO/CPA-Audit-Gesprächen. (1) **Energiekosten in 3 Slider zerlegt:** Verbrauch €0,115 kWh/km (verankert in Tesla-VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% Real-Aufschlag), Mischpreis €0,22/kWh (deutscher Großhandel Off-Peak €0,04-0,09 + Tesla Supercharger Off-Peak €0,31-0,46, gewichtet 70/30 Depot-Induktion / V4 kabelgebunden mit Flotten-Abo), Ladewirkungsgrad 0,94 (Teslas "deutlich über 90%" Induktion bei 22 kW × 0,70 + V4 kabelgebunden 96% × 0,30). Effektivrate kombiniert: €0,027/km ggü. zuvor €0,085 — 68% Reduktion reflektiert tatsächliche Cybercab-Effizienz. (2) **Versicherung €300 → €180/Monat** via Bottom-up: Diebstahl-Komponente ~€0 (Cybercab nicht fahrbar außerhalb Tesla Network, Waymo Phoenix 7J-Daten bestätigen), Tesla Insurance-Bundling-These (-15%), FSD-Sicherheitsbonus (70% Reduktion auf Personen-/Sachschadenshaftung), Restkategorien (Vandalismus €20, Batterie/Brand €20, Wetter €12, Passagierschäden €15, Cyber €40, Rechtsrücklage €30, P/S-Haftung post-FSD €55, PBefG €18) ≈ €210, abzüglich Tesla-Bundle-Rabatt und 5-Jahres-Mittelung = €180. (3) **APCOA Stellplatz €250 → €170/Monat** gem. veröffentlichten 2024 Münchner Monatsparkplätzen €120-180 + Ladefähigkeits-Aufschlag €40-80 abzüglich 15-25% J5 Mengenrabatt. (4) **Reinigung €3 → €2/Tag netto** unter Berücksichtigung von Teslas veröffentlichter Robotaxi-Reinigungsgebühr-Politik ($50 mittel / $150 schwer, live Dez 2025) — Bruttokosten ~€5/Tag Depot-Tiefenreinigung abzüglich ~€3/Tag Tesla-Gebühren-Erlöse. (5) **Aktive Stunden 13,5h → 16,0h** durch korrigierte Cybercab-Effizienz-Mathematik ermöglicht (geringerer kWh/km Verbrauch + 90%+ Induktions-Wirkungsgrad = keine Batteriekapazitäts-Beschränkung für verlängerte Schichten auch in Winter-Spitzenwochen). (6) **NEUE Frachtversicherung €20/Fahrzeug/Monat** Verkehrshaftungsversicherung, nur bei aktivem Lieferdienst-Toggle (deckt Frachtwert, Diebstahl im Transit, Wetterschäden — kein FSD-Sicherheitsbonus). (7) **NEUE anpassbare Monatssaisonalität:** 12 einzelne Monats-Slider im aufklappbaren Bereich ersetzen die zuvor hartcodierten 4 Stufen. Standardwerte erhalten Layer 21 Jahresmittel (1,2125×) — Dez/Jan/Feb 1,45, Nov/Mär 1,30, Apr/Okt 1,05, Mai-Sep 1,10. Nutzer können Winter-Aufschlags-Annahmen stresstesten (z.B. Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen). THG-Quote €200 → €280/Fahrzeug/Jahr gemäß 2024 deutschen Ist-Werten ebenfalls in diesem Layer enthalten.
+
+        **Empirische Quellen:** TomTom Traffic Index 2024 (Münchner Verkehrsdichte); ADAC Wintertest 2023 + Geotab Flottenstudie (EV-Winterverbrauch); Waymo NHTSA-Meldungen (Sensorzuverlässigkeit, Standzeit, Ramp-Kurven); Sixt+ / Free Now / MOIA veröffentlichte Betreiberdaten (€/km Wartungs-Benchmarks); Uber/Lyft Marketplace-Blog (mature europäische Leerfahrtenquoten); Tesla Mai 2026 Model S/X SE Event (Cybercab 165 Wh/mi Zertifizierung); EPEX Spot 2025 deutsche Großhandels-Stromdaten (Off-Peak-Stunden €0,04-0,09/kWh); Tesla Supercharger-Preise Deutschland 2026 (€0,31-0,46/kWh Tesla Off-Peak); Tesla Robotaxi Reinigungsgebühren-Politik Dezember 2025 ($50/$150 Stufen).
 
         ---
 
