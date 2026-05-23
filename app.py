@@ -292,7 +292,7 @@ if lang_choice == "English":
         # === LAYER 24: Monte Carlo Risk & Variance Analysis ===
         "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
         "mc_header": "Risk & Variance Analysis — Stochastic Monte Carlo",
-        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The 12 most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
+        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
         "mc_run_button": "🎲 Run Monte Carlo Simulation",
         "mc_n_iterations": "Number of Iterations (N)",
         "mc_n_help": "5,000 produces stable percentiles in ~30-60 seconds. 10,000 produces near-final convergence in ~60-120 seconds. Below 1,000 is statistically unreliable.",
