@@ -1031,18 +1031,12 @@ def execute_financial_simulation(
         capex_this_mo = 0
         capex_sold_this_mo = 0
         accum_afa_sold_this_mo = 0
-        # === LAYER 23 FIX — Track NEW cars added this month for THG ===
-        # Distinct from active_fleet (cumulative roster); this counts only
-        # the cars whose c_start == current_month, used for THG accrual.
-        cars_added_this_month = 0
         
         for c in cohorts:
             c_start = c["start_month"]
             if current_month == c_start:
                 kfw_draw += c["original_loan"]
                 capex_this_mo += c["capex"]
-                # === LAYER 23 FIX — Capture cars added this month for THG ===
-                cars_added_this_month += c["size"]
                 
             if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
                 active_fleet += c["size"]
@@ -1171,38 +1165,8 @@ def execute_financial_simulation(
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
         # BS impact: operational_vat_payable netted by -opex_input_vat_mo below
         
-        # === LAYER 23 FIX — THG Quote per German legal mechanics ===
-        # § 7 Abs. 1 38. BImSchV + 38. BImSchV § 6: per-vehicle annual flat
-        # payment, paid in full regardless of registration timing within the
-        # calendar year. Deadline for current-year claim: November 15.
-        # Sources verified: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.
-        #
-        # Prior implementation pro-rated (thg/12)*active_fleet — incorrect.
-        # Correct model:
-        #   (a) NEW cars added in Jan-Oct: full €280 booked in addition month
-        #   (b) NEW cars added in Nov-Dec: deferred to following January (past
-        #       Nov 15 deadline = ineligible for current year, eligible next)
-        #   (c) EXISTING fleet (carried over from prior calendar year): full
-        #       €280 each booked once per year, in January of new calendar year
-        # Cash collection: assumed within Q of accrual (THG providers typically
-        # pay within 4-12 weeks of application). Quarterly settlement preserved
-        # from F-18 to match Realisationsprinzip cash-timing pattern.
-        current_calendar_month = ((current_month - 1) % 12) + 1  # 1=Jan ... 12=Dec
-        thg_rev_mo = 0.0
-        # (a) New cars added Jan-Oct → book full annual amount NOW
-        if current_calendar_month <= 10:
-            thg_rev_mo += thg_quote_per_car_py * cars_added_this_month
-        else:
-            # (b) Nov/Dec additions → defer to next January
-            thg_deferred_next_year += thg_quote_per_car_py * cars_added_this_month
-        # (c) Existing fleet annual re-claim in January
-        if current_calendar_month == 1:
-            existing_fleet_carryover = active_fleet - cars_added_this_month
-            thg_rev_mo += thg_quote_per_car_py * existing_fleet_carryover
-            # Release any deferred Nov/Dec registrations from prior year
-            thg_rev_mo += thg_deferred_next_year
-            thg_deferred_next_year = 0.0
-        # Receivable + quarterly cash collection (unchanged from F-18 pattern)
+        # F-18 Fix Applied: Realisationsprinzip Accrual mapping
+        thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
         thg_receivable += thg_rev_mo
         thg_cash_mo = 0.0
         if current_month % 3 == 0:
