@@ -331,6 +331,12 @@ if lang_choice == "English":
         "mc_p_price": "Price per km σ (€)",
         "mc_p_salvage": "Salvage Value σ (€)",
         "mc_p_winter": "Winter Seasonality σ (×)",
+        # === LAYER 25: New operational variance parameters ===
+        "mc_p_active_hours": "Active Hours σ (h/day)",
+        "mc_p_speed": "Average Speed σ (km/h)",
+        "mc_p_dwell": "Dwell Time σ (min)",
+        "mc_p_wsi": "Winter Severity Index (Min/Mode/Max)",
+        "mc_wsi_help": "Composite winter severity. 1.0 = normal winter (baseline). Below 1.0 = milder winter (less energy penalty, faster speeds, better operations). Above 1.0 = harsher winter (higher energy penalty, slower speeds, longer dwell times, demand surge boost). Triggers correlated mutations across 5 downstream parameters: energy multiplier, active hours, average speed, dwell time, demand surge effect on utilization.",
         "mc_running_msg": "🔄 Monte Carlo simulation in progress. Please wait...",
         "mc_complete_msg": "✅ Monte Carlo simulation complete: {n} iterations processed in {t:.1f} seconds.",
 
@@ -666,6 +672,12 @@ else:
         "mc_p_price": "Preis pro km σ (€)",
         "mc_p_salvage": "Restwert σ (€)",
         "mc_p_winter": "Winter-Saisonalität σ (×)",
+        # === LAYER 25: Neue operative Varianzparameter ===
+        "mc_p_active_hours": "Aktive Stunden σ (h/Tag)",
+        "mc_p_speed": "Durchschnittsgeschwindigkeit σ (km/h)",
+        "mc_p_dwell": "Standzeit σ (Min)",
+        "mc_p_wsi": "Winter Severity Index (Min/Mode/Max)",
+        "mc_wsi_help": "Zusammengesetzter Winterschweregrad. 1,0 = normaler Winter (Basis). Unter 1,0 = milderer Winter. Über 1,0 = härterer Winter (höhere Energiestrafe, langsamere Geschwindigkeit, längere Standzeit, Nachfrageschub). Korrelierte Mutationen über 5 abhängige Parameter: Energie-Multiplikator, aktive Stunden, Durchschnittsgeschwindigkeit, Standzeit, Nachfrageschub auf Auslastung.",
         "mc_running_msg": "🔄 Monte-Carlo-Simulation läuft. Bitte warten...",
         "mc_complete_msg": "✅ Monte-Carlo-Simulation abgeschlossen: {n} Iterationen in {t:.1f} Sek. verarbeitet.",
 
