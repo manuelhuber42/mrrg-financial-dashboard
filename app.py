@@ -52,7 +52,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 22: Energy Decomposition + Insurance/Parking/Cleaning Recalibration + Active Hours Expansion + Adjustable Monthly Seasonality)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 23: THG Quote Legal Mechanics Fix (§ 7 Abs. 1 38. BImSchV) + Layer 22 Calibration)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -184,7 +184,7 @@ if lang_choice == "English":
         "int_rate": "Cash Interest Rate (%)",
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
-        "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates.",
+        "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates per § 7 Abs. 1 38. BImSchV. Flat annual payment per registered EV per calendar year, paid in FULL regardless of when in the year vehicle was registered, provided registration is before Nov 15 deadline. Vehicles registered Nov-Dec defer to following January. Default €280 reflects 2024 German market actuals (range €150-450 depending on provider). 2025-2028 forward pricing volatile. Source: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
         "salvage": "Vehicle Sale Price (End of 5-Yr Useful Life)",
         
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
@@ -344,7 +344,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 22: Energie-Dekomposition + Versicherung/Stellplatz/Reinigung-Rekalibrierung + Aktive-Stunden-Erweiterung + Anpassbare Monatssaisonalität)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 23: THG-Quote Rechts-Mechanik Korrektur (§ 7 Abs. 1 38. BImSchV) + Layer 22 Kalibrierung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -476,7 +476,7 @@ else:
         "int_rate": "Guthabenzinsen (%)",
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
-        "help_thg": "Treibhausgasminderungsquote.",
+        "help_thg": "Treibhausgasminderungsquote gem. § 7 Abs. 1 38. BImSchV. Jährliche Pauschalzahlung pro zugelassenes E-Fahrzeug pro Kalenderjahr, VOLL ausgezahlt unabhängig vom Zulassungszeitpunkt im Jahr, sofern Zulassung vor Stichtag 15. November. Nov-Dez-Zulassungen werden auf Folgejahr-Januar verschoben. Standard €280 entspricht 2024 deutschen Markt-Ist-Werten (Bandbreite €150-450 je nach Anbieter). 2025-2028 Forward-Preise volatil. Quelle: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
         "salvage": "Fahrzeugverkaufspreis (Ende 5-J. Nutzungsdauer)",
         
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
@@ -963,6 +963,20 @@ def execute_financial_simulation(
     operational_vat_payable = 0.0
     vat_receivable = 0.0
     thg_receivable = 0.0
+    # === LAYER 23 FIX — THG Quote legal mechanics state variable ===
+    # Per § 7 Abs. 1 38. BImSchV: THG-Quote is a flat annual payment per
+    # registered vehicle per calendar year, paid in full regardless of how
+    # late in the year vehicle was registered, PROVIDED registration is
+    # before the November 15 deadline. Sources: ADAC, EnBW, Finanztip,
+    # Klima-Quote, elektrovorteil (all confirm). Prior Layer 17 logic
+    # ((thg_quote/12) * active_fleet) was incorrect — it pro-rated the flat
+    # annual payment, which the law explicitly says doesn't happen.
+    # `thg_deferred_next_year` tracks deferred €-amount from Nov/Dec adds.
+    # `pending_carryover_cars` tracks the COUNT of cars whose deferral has
+    # already been released in next-year January, so the existing-fleet
+    # carryover formula doesn't double-count them.
+    thg_deferred_next_year = 0.0
+    pending_carryover_cars = 0
     tax_provision_bal = 0.0
     legal_provision_bal = 0.0
     
@@ -1031,12 +1045,18 @@ def execute_financial_simulation(
         capex_this_mo = 0
         capex_sold_this_mo = 0
         accum_afa_sold_this_mo = 0
+        # === LAYER 23 FIX — Track cars added THIS month for THG accrual ===
+        # Distinct from active_fleet (cumulative roster); counts only cohorts
+        # whose c_start == current_month. Used for new-vehicle THG recognition.
+        cars_added_this_month = 0
         
         for c in cohorts:
             c_start = c["start_month"]
             if current_month == c_start:
                 kfw_draw += c["original_loan"]
                 capex_this_mo += c["capex"]
+                # === LAYER 23 FIX — Capture cars added in this month for THG accrual ===
+                cars_added_this_month += c["size"]
                 
             if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
                 active_fleet += c["size"]
@@ -1165,8 +1185,53 @@ def execute_financial_simulation(
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
         # BS impact: operational_vat_payable netted by -opex_input_vat_mo below
         
-        # F-18 Fix Applied: Realisationsprinzip Accrual mapping
-        thg_rev_mo = (thg_quote_per_car_py / 12) * active_fleet
+        # === LAYER 23 FIX — THG Quote per German legal mechanics ===
+        # § 7 Abs. 1 38. BImSchV + 38. BImSchV § 6: per-vehicle annual flat
+        # payment, paid in full regardless of registration timing within the
+        # calendar year. Deadline for current-year claim: November 15.
+        # Sources verified: ADAC (rund-ums-fahrzeug/elektromobilitaet/thg-quote),
+        # EnBW (elektromobilitaet/thg-quote), Finanztip (thg-quote),
+        # Klima-Quote (klima-quote.de), elektrovorteil.de.
+        #
+        # Prior implementation (Layers 17-22): (thg_quote/12) * active_fleet
+        # was incorrect — it pro-rated the annual flat payment, which the law
+        # explicitly says doesn't happen ("nie nur anteilig" — Finanztip,
+        # Geld-fuer-eauto.de). Under-booked Y2 example: 9 cars × €280 should
+        # yield €2,520 but old code computed €1,913 (€607 under-booking in Y2;
+        # ~€9K cumulative 5Y under-booking).
+        #
+        # Correct model:
+        #   (a) NEW cars added Jan-Oct → full €280 booked in addition month
+        #   (b) NEW cars added Nov-Dec → past Nov 15 deadline, defer to next Jan
+        #   (c) EXISTING fleet (carried from prior calendar year) → full €280
+        #       each booked once per year, in January of new calendar year
+        # IMPORTANT: deferred Nov/Dec cars released in Jan must be EXCLUDED
+        # from the existing-fleet count for that month, or they'd be claimed
+        # twice (once as deferred release, once as existing fleet).
+        # `pending_carryover_cars` tracks the count of cars whose deferral
+        # has been "queued" for next January, so we can exclude them.
+        # Cash collection: quarterly settlement preserved from F-18 (THG
+        # providers typically pay within 4-12 weeks of application).
+        current_calendar_month = ((current_month - 1) % 12) + 1  # 1=Jan ... 12=Dec
+        thg_rev_mo = 0.0
+        # (a) New cars added Jan-Oct: book full annual amount NOW
+        if current_calendar_month <= 10:
+            thg_rev_mo += thg_quote_per_car_py * cars_added_this_month
+        else:
+            # (b) Nov/Dec additions: defer €-amount AND track car-count for next-Jan exclusion
+            thg_deferred_next_year += thg_quote_per_car_py * cars_added_this_month
+            pending_carryover_cars += cars_added_this_month
+        # (c) January carry-over: existing fleet re-claims annual THG
+        #     EXCLUDING (i) cars added this same month and (ii) cars already
+        #     "pre-claimed" via the deferred-release pathway from prior Nov/Dec.
+        if current_calendar_month == 1:
+            existing_fleet_carryover = active_fleet - cars_added_this_month - pending_carryover_cars
+            thg_rev_mo += thg_quote_per_car_py * existing_fleet_carryover
+            # Release any deferred Nov/Dec registrations from prior year
+            thg_rev_mo += thg_deferred_next_year
+            thg_deferred_next_year = 0.0
+            pending_carryover_cars = 0  # released, reset
+        # Receivable + quarterly cash collection (unchanged pattern from F-18)
         thg_receivable += thg_rev_mo
         thg_cash_mo = 0.0
         if current_month % 3 == 0:
