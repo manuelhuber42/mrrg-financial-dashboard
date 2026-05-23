@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import calendar
 import plotly.graph_objects as go
+import time as _time
 
 # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE ---
 VAT_RATE = 0.19
@@ -52,7 +53,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 23: THG Quote Legal Mechanics Fix (§ 7 Abs. 1 38. BImSchV) + Layer 22 Calibration)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 24: Monte Carlo Risk & Variance Analysis + THG Legal Mechanics + Layer 22 Calibration)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -288,6 +289,50 @@ if lang_choice == "English":
         "tab_kpi": "KPIs & Ratios",
         "tab_charts": "Visualizations & Dashboards",
         "tab_readme": "README & User Manual",
+        # === LAYER 24: Monte Carlo Risk & Variance Analysis ===
+        "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
+        "mc_header": "Risk & Variance Analysis — Stochastic Monte Carlo",
+        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The 12 most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
+        "mc_run_button": "🎲 Run Monte Carlo Simulation",
+        "mc_n_iterations": "Number of Iterations (N)",
+        "mc_n_help": "5,000 produces stable percentiles in ~30-60 seconds. 10,000 produces near-final convergence in ~60-120 seconds. Below 1,000 is statistically unreliable.",
+        "mc_section_dist": "📊 Distribution Parameters (Override Defaults)",
+        "mc_section_outputs": "📈 Simulation Results",
+        "mc_progress_label": "Running Monte Carlo iteration {i} of {n}...",
+        "mc_no_results": "ℹ️ Click the **Run Monte Carlo Simulation** button above to generate stochastic risk analysis.",
+        "mc_kpi_header": "Key Risk Indicators — Percentile Distribution",
+        "mc_kpi_p5": "P5 (Severe Downside)",
+        "mc_kpi_p25": "P25 (Conservative)",
+        "mc_kpi_p50": "P50 (Median)",
+        "mc_kpi_p75": "P75 (Optimistic)",
+        "mc_kpi_p95": "P95 (Blue Sky)",
+        "mc_kpi_ni_cum": "5-Year Cumulative Net Income (€)",
+        "mc_kpi_y5_ebitda": "Year 5 EBITDA (€)",
+        "mc_kpi_min_cash": "Minimum Cash Balance (€)",
+        "mc_kpi_insolvency": "Probability of Insolvency Event",
+        "mc_chart_ni_title": "Distribution: 5-Year Cumulative Net Income",
+        "mc_chart_cash_title": "Distribution: Minimum Cash Balance vs. Buffer Threshold",
+        "mc_chart_tornado_title": "Sensitivity Tornado — Pearson r vs. 5Y Cumulative Net Income",
+        "mc_tornado_xaxis": "Pearson Correlation Coefficient (r)",
+        "mc_buffer_line_label": "Min Cash Buffer Threshold",
+        "mc_p5_label": "P5",
+        "mc_p95_label": "P95",
+        "mc_p50_label": "P50 (Median)",
+        # MC parameter labels for sliders + tornado
+        "mc_p_wear": "Wear & Tear σ (€/km)",
+        "mc_p_energy_eur": "Energy Price σ (€/kWh)",
+        "mc_p_target_util": "Target Util Range",
+        "mc_p_insurance": "Insurance €/mo (Min/Mode/Max)",
+        "mc_p_take_rate": "Tesla Take-Rate (Min/Mode/Max)",
+        "mc_p_kwh_per_km": "Cybercab Consumption σ (kWh/km)",
+        "mc_p_deadhead": "Deadhead Rate σ",
+        "mc_p_trip_dist": "Trip Distance σ (km)",
+        "mc_p_delivery_y3": "Delivery Y3 Ramp (Min/Mode/Max)",
+        "mc_p_price": "Price per km σ (€)",
+        "mc_p_salvage": "Salvage Value σ (€)",
+        "mc_p_winter": "Winter Seasonality σ (×)",
+        "mc_running_msg": "🔄 Monte Carlo simulation in progress. Please wait...",
+        "mc_complete_msg": "✅ Monte Carlo simulation complete: {n} iterations processed in {t:.1f} seconds.",
 
         "hgb_title": "Statutory Income Statement (Gesamtkostenverfahren)",
         "hgb_pos1": "1. Revenues (Umsatzerlöse)",
@@ -344,7 +389,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 23: THG-Quote Rechts-Mechanik Korrektur (§ 7 Abs. 1 38. BImSchV) + Layer 22 Kalibrierung)*",
+        "subtitle": "*(HGB 3-Statement Model - Layer 24: Monte-Carlo-Risiko- & Varianzanalyse + THG-Rechts-Mechanik + Layer 22 Kalibrierung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -580,6 +625,49 @@ else:
         "tab_kpi": "KPIs & Kennzahlen",
         "tab_charts": "Visualisierungen & Dashboards",
         "tab_readme": "Handbuch & Dokumentation",
+        # === LAYER 24: Monte Carlo Risiko- & Varianzanalyse ===
+        "tab_mc": "🎲 Risiko- & Varianzanalyse (Monte Carlo)",
+        "mc_header": "Risiko- & Varianzanalyse — Stochastische Monte-Carlo-Simulation",
+        "mc_intro": "Dieses Modul kapselt die deterministische 60-Monats-Engine in einer stochastischen Monte-Carlo-Simulation. Die 12 varianztreibenden Parameter werden aus empirisch verankerten Wahrscheinlichkeitsverteilungen über N Iterationen gezogen. Der deterministische Basisfall in den anderen Tabs bleibt unverändert — diese Analyse ist eine ergänzende Risikozerlegung für Bank-Kreditkomitees und Project-Finance-Bewertung.",
+        "mc_run_button": "🎲 Monte-Carlo-Simulation starten",
+        "mc_n_iterations": "Anzahl Iterationen (N)",
+        "mc_n_help": "5.000 produziert stabile Perzentile in ~30-60 Sek. 10.000 produziert nahezu finale Konvergenz in ~60-120 Sek. Unter 1.000 statistisch unzuverlässig.",
+        "mc_section_dist": "📊 Verteilungsparameter (Standardwerte anpassen)",
+        "mc_section_outputs": "📈 Simulationsergebnisse",
+        "mc_progress_label": "Monte-Carlo-Iteration {i} von {n} läuft...",
+        "mc_no_results": "ℹ️ Klicken Sie oben auf **Monte-Carlo-Simulation starten**, um die stochastische Risikoanalyse zu generieren.",
+        "mc_kpi_header": "Schlüssel-Risikoindikatoren — Perzentilverteilung",
+        "mc_kpi_p5": "P5 (Severer Downside)",
+        "mc_kpi_p25": "P25 (Konservativ)",
+        "mc_kpi_p50": "P50 (Median)",
+        "mc_kpi_p75": "P75 (Optimistisch)",
+        "mc_kpi_p95": "P95 (Blue Sky)",
+        "mc_kpi_ni_cum": "5-Jahres Kumulierter Jahresüberschuss (€)",
+        "mc_kpi_y5_ebitda": "Jahr 5 EBITDA (€)",
+        "mc_kpi_min_cash": "Minimaler Kassenstand (€)",
+        "mc_kpi_insolvency": "Insolvenz-Wahrscheinlichkeit",
+        "mc_chart_ni_title": "Verteilung: 5-Jahres Kumulierter Jahresüberschuss",
+        "mc_chart_cash_title": "Verteilung: Minimaler Kassenstand ggü. Pufferschwelle",
+        "mc_chart_tornado_title": "Sensitivitäts-Tornado — Pearson r ggü. 5J Kumuliertem Jahresüberschuss",
+        "mc_tornado_xaxis": "Pearson-Korrelationskoeffizient (r)",
+        "mc_buffer_line_label": "Mindestkassen-Pufferschwelle",
+        "mc_p5_label": "P5",
+        "mc_p95_label": "P95",
+        "mc_p50_label": "P50 (Median)",
+        "mc_p_wear": "Verschleiß σ (€/km)",
+        "mc_p_energy_eur": "Energiepreis σ (€/kWh)",
+        "mc_p_target_util": "Zielauslastung Bereich",
+        "mc_p_insurance": "Versicherung €/Mo (Min/Mode/Max)",
+        "mc_p_take_rate": "Tesla Plattformgebühr (Min/Mode/Max)",
+        "mc_p_kwh_per_km": "Cybercab Verbrauch σ (kWh/km)",
+        "mc_p_deadhead": "Leerfahrtenrate σ",
+        "mc_p_trip_dist": "Fahrtdistanz σ (km)",
+        "mc_p_delivery_y3": "Lieferdienst J3 Ramp (Min/Mode/Max)",
+        "mc_p_price": "Preis pro km σ (€)",
+        "mc_p_salvage": "Restwert σ (€)",
+        "mc_p_winter": "Winter-Saisonalität σ (×)",
+        "mc_running_msg": "🔄 Monte-Carlo-Simulation läuft. Bitte warten...",
+        "mc_complete_msg": "✅ Monte-Carlo-Simulation abgeschlossen: {n} Iterationen in {t:.1f} Sek. verarbeitet.",
 
         "hgb_title": "Gesetzliche Gewinn- und Verlustrechnung (Gesamtkostenverfahren)",
         "hgb_pos1": "1. Umsatzerlöse",
@@ -1750,7 +1838,7 @@ for i in range(5):
 
 st.write("") 
 
-tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"], loc["tab_readme"]])
+tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"], loc["tab_mc"], loc["tab_readme"]])
 
 def style_pnl_rows(row):
     if loc["pnl_mrrg_net"] in row.name: return ['font-weight: 600; color: #4DA8DA;'] * len(row)
@@ -1842,7 +1930,375 @@ with tabs[5]:
     with c6:
         st.plotly_chart(create_mrrg_chart(year_cols, y_ta_v, loc["chart_ta"]), use_container_width=True)
 
+# ==========================================================================
+# === LAYER 24: MONTE CARLO RISK & VARIANCE ANALYSIS TAB ====================
+# ==========================================================================
+# Wraps the deterministic execute_financial_simulation() core in a stochastic
+# Monte Carlo simulation. The 12 most variance-driving parameters are sampled
+# from empirically-anchored probability distributions across N iterations.
+# Outputs: percentile table (P5/P25/P50/P75/P95), insolvency probability,
+# and three Plotly charts (NI histogram, min cash histogram, sensitivity
+# tornado via Pearson r). The deterministic engine logic itself is fully
+# preserved — this layer only adds a stochastic harness around it.
+# ==========================================================================
 with tabs[6]:
+    st.markdown(f"### {loc['mc_header']}")
+    st.caption(loc["mc_intro"])
+
+    # --- Configuration row ---
+    mc_col1, mc_col2 = st.columns([1, 2])
+    with mc_col1:
+        n_iterations = st.number_input(
+            loc["mc_n_iterations"], min_value=500, max_value=10000,
+            value=5000, step=500, help=loc["mc_n_help"]
+        )
+    with mc_col2:
+        st.write("")  # spacer
+        st.write("")  # spacer
+        run_mc = st.button(loc["mc_run_button"], type="primary", use_container_width=True)
+
+    # --- Distribution overrides (collapsible) ---
+    with st.expander(loc["mc_section_dist"], expanded=False):
+        dist_c1, dist_c2, dist_c3 = st.columns(3)
+        with dist_c1:
+            mc_sigma_wear = st.number_input(loc["mc_p_wear"], value=0.012, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
+            mc_sigma_energy_eur = st.number_input(loc["mc_p_energy_eur"], value=0.040, min_value=0.001, max_value=0.20, step=0.005, format="%.3f")
+            mc_target_util_min = st.number_input("Target Util Min", value=0.65, min_value=0.40, max_value=0.95, step=0.01, format="%.2f")
+            mc_target_util_max = st.number_input("Target Util Max", value=0.82, min_value=0.50, max_value=0.99, step=0.01, format="%.2f")
+        with dist_c2:
+            mc_ins_min = st.number_input("Insurance Min €/mo", value=140.0, min_value=50.0, max_value=500.0, step=10.0)
+            mc_ins_mode = st.number_input("Insurance Mode €/mo", value=180.0, min_value=50.0, max_value=500.0, step=10.0)
+            mc_ins_max = st.number_input("Insurance Max €/mo", value=280.0, min_value=50.0, max_value=600.0, step=10.0)
+            mc_take_min = st.number_input("Tesla Take Min", value=0.25, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
+            mc_take_mode = st.number_input("Tesla Take Mode", value=0.25, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
+            mc_take_max = st.number_input("Tesla Take Max", value=0.30, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
+        with dist_c3:
+            mc_sigma_kwh = st.number_input(loc["mc_p_kwh_per_km"], value=0.012, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
+            mc_sigma_dh = st.number_input(loc["mc_p_deadhead"], value=0.025, min_value=0.005, max_value=0.10, step=0.005, format="%.3f")
+            mc_sigma_trip = st.number_input(loc["mc_p_trip_dist"], value=0.5, min_value=0.1, max_value=2.0, step=0.1, format="%.1f")
+            mc_sigma_price = st.number_input(loc["mc_p_price"], value=0.10, min_value=0.01, max_value=0.50, step=0.01, format="%.2f")
+            mc_sigma_salvage = st.number_input(loc["mc_p_salvage"], value=2500.0, min_value=500.0, max_value=10000.0, step=500.0)
+            mc_sigma_winter = st.number_input(loc["mc_p_winter"], value=0.10, min_value=0.01, max_value=0.50, step=0.01, format="%.2f")
+        dist_c4, dist_c5, _ = st.columns(3)
+        with dist_c4:
+            mc_dy3_min = st.number_input("Delivery Y3 Min", value=0.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy3_mode = st.number_input("Delivery Y3 Mode", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy3_max = st.number_input("Delivery Y3 Max", value=0.60, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+
+    # --- Execute Monte Carlo if button pressed ---
+    if run_mc:
+        # ---- Statistical Mapping: Beta distribution method-of-moments
+        # Given desired mean μ in [a, b] with concentration shaping:
+        # transform to standard Beta(α, β) on [0,1] then linearly map to [a, b].
+        # We pick a moderate concentration (α + β = 10) so distribution covers
+        # the full range without being uniform or too peaked.
+        def _sample_beta_scaled(rng, mean, a, b, concentration=10.0):
+            """Beta distribution scaled to [a, b] with method-of-moments mean."""
+            mean_unit = (mean - a) / (b - a) if (b - a) > 0 else 0.5
+            mean_unit = max(0.01, min(0.99, mean_unit))
+            alpha = mean_unit * concentration
+            beta_param = (1 - mean_unit) * concentration
+            samples_unit = rng.beta(alpha, beta_param, size=1)[0]
+            return a + samples_unit * (b - a)
+
+        def _sample_triangular(rng, low, mode, high):
+            if low > high: low, high = high, low
+            mode = max(low, min(high, mode))
+            return rng.triangular(low, mode, high)
+
+        # The MC core: rerun execute_financial_simulation with sampled params
+        # All non-stochastic params come from current sidebar state.
+        rng = np.random.default_rng(seed=42)  # deterministic seed for reproducibility
+        ni_cum_arr = np.zeros(n_iterations)
+        y5_ebitda_arr = np.zeros(n_iterations)
+        min_cash_arr = np.zeros(n_iterations)
+        insolvency_flags = np.zeros(n_iterations, dtype=bool)
+        # Store sampled parameter arrays for tornado correlation analysis
+        param_samples = {
+            "wear_and_tear_rate": np.zeros(n_iterations),
+            "energy_eur_per_kwh": np.zeros(n_iterations),
+            "target_util": np.zeros(n_iterations),
+            "insurance_pm": np.zeros(n_iterations),
+            "tesla_take_rate": np.zeros(n_iterations),
+            "energy_kwh_per_km": np.zeros(n_iterations),
+            "deadhead_rate": np.zeros(n_iterations),
+            "avg_trip_distance_km": np.zeros(n_iterations),
+            "delivery_ramp_y3": np.zeros(n_iterations),
+            "price_per_km_eur": np.zeros(n_iterations),
+            "salvage_value_per_car_y4": np.zeros(n_iterations),
+            "seasonality_winter": np.zeros(n_iterations),
+        }
+
+        # Real-time progress UI (decoupled from heavy numerical loop)
+        progress_bar = st.progress(0.0, text=loc["mc_running_msg"])
+        t_start = _time.time()
+
+        for i in range(int(n_iterations)):
+            # ---- Sample the 12 stochastic parameters ----
+            # 1. wear_and_tear_rate: Normal(0.10, 0.012) [we use 0.10 as μ, not 0.06 from spec
+            #    because Layer 22 baseline is €0.10/km; σ scales from spec value 0.012]
+            wear_sampled = max(0.001, rng.normal(wear_and_tear_rate, mc_sigma_wear))
+            # 2. energy_eur_per_kwh: Log-Normal with median = €0.22/kWh, σ = 0.040
+            #    Log-Normal: if X ~ Normal(μ_log, σ_log), then exp(X) is log-normal.
+            #    We compute μ_log from median: median = exp(μ_log) → μ_log = ln(0.22).
+            mu_log = np.log(max(0.01, energy_eur_per_kwh))
+            sigma_log_for_lognormal = mc_sigma_energy_eur / max(0.01, energy_eur_per_kwh)  # relative σ
+            energy_eur_sampled = float(rng.lognormal(mean=mu_log, sigma=sigma_log_for_lognormal))
+            # 3. target_util: Beta scaled to [mc_target_util_min, mc_target_util_max]
+            target_util_sampled = _sample_beta_scaled(rng, target_util, mc_target_util_min, mc_target_util_max)
+            # 4. insurance_pm: Triangular
+            insurance_sampled = _sample_triangular(rng, mc_ins_min, mc_ins_mode, mc_ins_max)
+            # 5. tesla_take_rate: Triangular (left-bounded asymmetry)
+            take_sampled = _sample_triangular(rng, mc_take_min, mc_take_mode, mc_take_max)
+            # 6. energy_kwh_per_km: Normal
+            kwh_per_km_sampled = max(0.05, rng.normal(energy_kwh_per_km, mc_sigma_kwh))
+            # 7. deadhead_rate: Normal
+            deadhead_sampled = max(0.05, min(0.50, rng.normal(deadhead_rate, mc_sigma_dh)))
+            # 8. avg_trip_distance_km: Normal
+            trip_dist_sampled = max(1.0, rng.normal(avg_trip_distance_km, mc_sigma_trip))
+            # 9. delivery_ramp_y3: Triangular
+            dy3_sampled = _sample_triangular(rng, mc_dy3_min, mc_dy3_mode, mc_dy3_max)
+            # 10. price_per_km_eur: Normal
+            price_sampled = max(0.10, rng.normal(price_per_km_eur, mc_sigma_price))
+            # 11. salvage_value_per_car_y4: Normal
+            salvage_sampled = max(0.0, rng.normal(salvage_value_per_car_y4, mc_sigma_salvage))
+            # 12. seasonality_winter (Dec/Jan/Feb multiplier): Normal, bounded ≥ 1.0
+            winter_sampled = max(1.00, rng.normal(seasonality_by_month[1], mc_sigma_winter))
+
+            # Store for tornado correlation analysis
+            param_samples["wear_and_tear_rate"][i] = wear_sampled
+            param_samples["energy_eur_per_kwh"][i] = energy_eur_sampled
+            param_samples["target_util"][i] = target_util_sampled
+            param_samples["insurance_pm"][i] = insurance_sampled
+            param_samples["tesla_take_rate"][i] = take_sampled
+            param_samples["energy_kwh_per_km"][i] = kwh_per_km_sampled
+            param_samples["deadhead_rate"][i] = deadhead_sampled
+            param_samples["avg_trip_distance_km"][i] = trip_dist_sampled
+            param_samples["delivery_ramp_y3"][i] = dy3_sampled
+            param_samples["price_per_km_eur"][i] = price_sampled
+            param_samples["salvage_value_per_car_y4"][i] = salvage_sampled
+            param_samples["seasonality_winter"][i] = winter_sampled
+
+            # Derived energy rate from sampled components
+            energy_rate_sampled = (kwh_per_km_sampled * energy_eur_sampled) / charging_efficiency
+            # Mutate seasonality dict for this iteration: Dec/Jan/Feb get winter_sampled
+            seasonality_iter = dict(seasonality_by_month)
+            seasonality_iter[1] = winter_sampled
+            seasonality_iter[2] = winter_sampled
+            seasonality_iter[12] = winter_sampled
+
+            # ---- Invoke the deterministic engine with sampled params ----
+            try:
+                pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk = execute_financial_simulation(
+                    y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
+                    active_hours_per_day, avg_speed_kmh, deadhead_sampled, util_mode,
+                    target_util_sampled, init_util, rec_rate, can_fac, flat_util, trip_dist_sampled,
+                    dwell_time_mins, base_fare_eur, price_sampled, take_sampled,
+                    cleaning_cost_per_day, wear_sampled, energy_rate_sampled, insurance_sampled,
+                    parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
+                    legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
+                    insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
+                    cybercab_base_usd, usd_eur_rate, import_freight_eur, customs_duty_rate,
+                    it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
+                    sh_loan_rate, vehicle_ltv, y1_loan_rate, y2_loan_rate, vat_bridge_rate,
+                    vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
+                    thg_quote_per_car_py, salvage_sampled, max_overdraft_limit,
+                    delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
+                    delivery_trips_per_hour, delivery_take_rate,
+                    delivery_ramp_y1, delivery_ramp_y2, dy3_sampled, delivery_ramp_y4, delivery_ramp_y5,
+                    delivery_cargo_insurance_pm, seasonality_iter,
+                    is_dynamic, lang_choice
+                )
+                ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
+                y5_ebitda_arr[i] = float(sum(pnl_mc["pnl_ebitda"][48:60]))
+                min_cash_arr[i] = float(min(bs_mc["bs_cash"]))
+                insolvency_flags[i] = (len(insolvency_mc) > 0)
+            except Exception as _e:
+                # On rare edge case (e.g., degenerate Beta/Triangular sample), record NaN
+                ni_cum_arr[i] = np.nan
+                y5_ebitda_arr[i] = np.nan
+                min_cash_arr[i] = np.nan
+                insolvency_flags[i] = False
+
+            # Update progress bar every 50 iterations to minimize UI overhead
+            if (i + 1) % 50 == 0 or (i + 1) == int(n_iterations):
+                progress_bar.progress((i + 1) / int(n_iterations),
+                                      text=loc["mc_progress_label"].format(i=i+1, n=int(n_iterations)))
+
+        t_elapsed = _time.time() - t_start
+        progress_bar.empty()
+
+        # Persist in session_state so results survive interaction reruns
+        st.session_state["mc_results"] = {
+            "n": int(n_iterations),
+            "elapsed": t_elapsed,
+            "ni_cum": ni_cum_arr,
+            "y5_ebitda": y5_ebitda_arr,
+            "min_cash": min_cash_arr,
+            "insolvency_flags": insolvency_flags,
+            "param_samples": param_samples,
+            "min_cash_buffer": min_cash_buffer,
+        }
+        st.success(loc["mc_complete_msg"].format(n=int(n_iterations), t=t_elapsed))
+
+    # --- Render results (if cached or just computed) ---
+    if "mc_results" in st.session_state:
+        mcr = st.session_state["mc_results"]
+        ni_arr = mcr["ni_cum"]
+        eb_arr = mcr["y5_ebitda"]
+        cash_arr = mcr["min_cash"]
+        insol_flags = mcr["insolvency_flags"]
+        param_samples_stored = mcr["param_samples"]
+        buffer_threshold = mcr["min_cash_buffer"]
+        # Drop NaN for percentile robustness
+        ni_valid = ni_arr[~np.isnan(ni_arr)]
+        eb_valid = eb_arr[~np.isnan(eb_arr)]
+        cash_valid = cash_arr[~np.isnan(cash_arr)]
+
+        st.divider()
+        st.subheader(loc["mc_kpi_header"])
+        # Percentile table
+        def _pct(arr, p):
+            return float(np.percentile(arr, p)) if len(arr) > 0 else 0.0
+        prob_insolvency = float(np.mean(insol_flags)) * 100
+
+        df_percentiles = pd.DataFrame({
+            loc["mc_kpi_p5"]:  [_pct(ni_valid, 5),  _pct(eb_valid, 5),  _pct(cash_valid, 5)],
+            loc["mc_kpi_p25"]: [_pct(ni_valid, 25), _pct(eb_valid, 25), _pct(cash_valid, 25)],
+            loc["mc_kpi_p50"]: [_pct(ni_valid, 50), _pct(eb_valid, 50), _pct(cash_valid, 50)],
+            loc["mc_kpi_p75"]: [_pct(ni_valid, 75), _pct(eb_valid, 75), _pct(cash_valid, 75)],
+            loc["mc_kpi_p95"]: [_pct(ni_valid, 95), _pct(eb_valid, 95), _pct(cash_valid, 95)],
+        }, index=[loc["mc_kpi_ni_cum"], loc["mc_kpi_y5_ebitda"], loc["mc_kpi_min_cash"]])
+        st.dataframe(df_percentiles.style.format("€ {:,.0f}"), use_container_width=True)
+
+        # Insolvency probability prominent metric row
+        mc_metric_c1, mc_metric_c2, mc_metric_c3 = st.columns(3)
+        with mc_metric_c1:
+            st.metric(loc["mc_kpi_insolvency"], f"{prob_insolvency:.2f}%",
+                      delta=None, help="Fraction of MC runs producing at least one insolvency month event.")
+        with mc_metric_c2:
+            st.metric("Median 5Y NI", f"€ {_pct(ni_valid, 50):,.0f}")
+        with mc_metric_c3:
+            st.metric("P5 5Y NI (Severe Downside)", f"€ {_pct(ni_valid, 5):,.0f}")
+
+        st.divider()
+        st.subheader(loc["mc_section_outputs"])
+
+        # --- Chart 1: NI Histogram ---
+        ni_p5 = _pct(ni_valid, 5)
+        ni_p50 = _pct(ni_valid, 50)
+        ni_p95 = _pct(ni_valid, 95)
+        fig_ni = go.Figure()
+        fig_ni.add_trace(go.Histogram(
+            x=ni_valid, nbinsx=60, marker=dict(color="#4DA8DA", line=dict(color="#1a1a1a", width=0.5)),
+            opacity=0.85, name="5Y Cumulative NI"
+        ))
+        fig_ni.add_vline(x=ni_p5, line_dash="dash", line_color="#E74C3C", line_width=2,
+                         annotation_text=f"{loc['mc_p5_label']}: €{ni_p5:,.0f}", annotation_position="top")
+        fig_ni.add_vline(x=ni_p95, line_dash="dash", line_color="#38c172", line_width=2,
+                         annotation_text=f"{loc['mc_p95_label']}: €{ni_p95:,.0f}", annotation_position="top")
+        fig_ni.add_vline(x=ni_p50, line_dash="dot", line_color="#F2A900", line_width=2,
+                         annotation_text=f"{loc['mc_p50_label']}: €{ni_p50:,.0f}", annotation_position="bottom")
+        fig_ni.update_layout(
+            title=loc["mc_chart_ni_title"],
+            xaxis_title="5-Year Cumulative Net Income (€)",
+            yaxis_title="Frequency",
+            template="plotly_dark",
+            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            font=dict(color="#FAFAFA", family="Inter, sans-serif"),
+            showlegend=False, height=420
+        )
+        st.plotly_chart(fig_ni, use_container_width=True)
+
+        # --- Chart 2: Min Cash distribution with buffer threshold ---
+        fig_cash = go.Figure()
+        fig_cash.add_trace(go.Histogram(
+            x=cash_valid, nbinsx=60, marker=dict(color="#87CEEB", line=dict(color="#1a1a1a", width=0.5)),
+            opacity=0.85, name="Min Cash Balance"
+        ))
+        fig_cash.add_vline(x=buffer_threshold, line_dash="dash", line_color="#F2A900", line_width=2.5,
+                           annotation_text=f"{loc['mc_buffer_line_label']}: €{buffer_threshold:,.0f}",
+                           annotation_position="top")
+        fig_cash.add_vline(x=0, line_dash="solid", line_color="#E74C3C", line_width=2.5,
+                           annotation_text="Zero Cash", annotation_position="bottom")
+        fig_cash.update_layout(
+            title=loc["mc_chart_cash_title"],
+            xaxis_title="Minimum Cash Balance Over 60 Months (€)",
+            yaxis_title="Frequency",
+            template="plotly_dark",
+            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            font=dict(color="#FAFAFA", family="Inter, sans-serif"),
+            showlegend=False, height=420
+        )
+        st.plotly_chart(fig_cash, use_container_width=True)
+
+        # --- Chart 3: Sensitivity Tornado (Pearson r vs cumulative 5Y NI) ---
+        # Compute correlation only over valid (non-NaN) iterations
+        valid_mask = ~np.isnan(ni_arr)
+        corrs = {}
+        param_label_map = {
+            "wear_and_tear_rate": "Wear & Tear (€/km)",
+            "energy_eur_per_kwh": "Energy Price (€/kWh)",
+            "target_util": "Target Utilization",
+            "insurance_pm": "Insurance (€/mo)",
+            "tesla_take_rate": "Tesla Take-Rate",
+            "energy_kwh_per_km": "Cybercab Consumption (kWh/km)",
+            "deadhead_rate": "Deadhead Rate",
+            "avg_trip_distance_km": "Avg Trip Distance (km)",
+            "delivery_ramp_y3": "Delivery Ramp Y3",
+            "price_per_km_eur": "Price per km (€)",
+            "salvage_value_per_car_y4": "Salvage Value (€)",
+            "seasonality_winter": "Winter Seasonality (×)",
+        }
+        for param_key, samples_arr in param_samples_stored.items():
+            samples_valid = samples_arr[valid_mask]
+            ni_valid_for_corr = ni_arr[valid_mask]
+            if len(samples_valid) > 2 and np.std(samples_valid) > 1e-12:
+                r = float(np.corrcoef(samples_valid, ni_valid_for_corr)[0, 1])
+                if np.isnan(r):
+                    r = 0.0
+            else:
+                r = 0.0
+            corrs[param_label_map[param_key]] = r
+        # Sort by absolute magnitude for tornado display
+        sorted_corrs = sorted(corrs.items(), key=lambda kv: abs(kv[1]), reverse=False)
+        tornado_labels = [k for k, _ in sorted_corrs]
+        tornado_values = [v for _, v in sorted_corrs]
+        tornado_colors = ["#38c172" if v >= 0 else "#E74C3C" for v in tornado_values]
+
+        fig_tornado = go.Figure()
+        fig_tornado.add_trace(go.Bar(
+            x=tornado_values, y=tornado_labels, orientation="h",
+            marker=dict(color=tornado_colors, line=dict(color="#1a1a1a", width=0.5)),
+            text=[f"{v:+.3f}" for v in tornado_values], textposition="outside",
+            cliponaxis=False
+        ))
+        fig_tornado.add_vline(x=0, line_color="#666666", line_width=1)
+        fig_tornado.update_layout(
+            title=loc["mc_chart_tornado_title"],
+            xaxis_title=loc["mc_tornado_xaxis"],
+            yaxis_title="",
+            template="plotly_dark",
+            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            font=dict(color="#FAFAFA", family="Inter, sans-serif"),
+            showlegend=False, height=500,
+            xaxis=dict(range=[-1.0, 1.0])
+        )
+        st.plotly_chart(fig_tornado, use_container_width=True)
+
+        st.caption(
+            "**Interpretation guide:** Pearson r magnitude shows how strongly each "
+            "stochastic parameter drives variance in 5-year cumulative Net Income. "
+            "Positive r (green) means higher parameter → higher NI (e.g., target_util, "
+            "trip distance, price). Negative r (red) means higher parameter → lower NI "
+            "(e.g., wear, energy cost, insurance). Magnitudes < 0.1 are essentially "
+            "noise; > 0.3 indicates a dominant variance driver worth scenario-planning. "
+            "Tornado is sorted by |r| with strongest drivers at top."
+        )
+    else:
+        st.info(loc["mc_no_results"])
+
+with tabs[7]:
     if lang_choice == "English":
         st.markdown("""
         ### 🚕 MRRG Cybercab Fleet: Master Financial Engine
