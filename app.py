@@ -7,7 +7,7 @@ import time
 
 # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE ---
 VAT_RATE = 0.19
-# H-03 FIX: AfA period aligned to BMF AfA-Tabellen for Mietwagen/Taxi (intensive use).
+# AfA period aligned to BMF AfA-Tabellen for Mietwagen/Taxi (intensive use).
 # 60 months = 5 Jahre Nutzungsdauer per § 7 EStG. Loan term also extends to 60 months
 # (KfW Universell + commercial Kfz-Finanzierung both support 5-7y terms).
 VEHICLE_AMORTIZATION_PERIOD = 60
@@ -53,7 +53,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model - Layer 25: Monte Carlo Expanded (22+ params, 3 Tiers, FCF Tracking, Interactive Metric Dropdown))*",
+        "subtitle": "*(HGB 3-Statement Model — Monte Carlo with Day-Archetype Topology (Phase A) + Stochastic Shock Events (Phase B))*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -76,9 +76,9 @@ if lang_choice == "English":
         "init_util": "Month 1 Launch Util. (%)",
         "help_init": "Month-1 launch utilization. 55% reflects three demand catalysts unique to MRRG's go-to-market: (a) price elasticity from 30-45% undercut vs. Uber/Free Now drives ~25-35% volume lift vs. mature-market launches (Cohen Uber/MIT 2016 elasticity studies), (b) novelty effect from first European Cybercab deployment generates PR-driven trial demand (Cruise SF early-week data showed >70% utilization spikes), (c) supply-constrained Month-1 fleet (3 cars) concentrated in 1-2 high-density zones (Maxvorstadt/Schwabing) operates at structurally higher utilization than market-scale operations. On 24h calendar basis this equals ~31% asset utilization (55% × 13.5h ÷ 24h).",
         "rec_rate": "Monthly Recovery (+%)",
-        "help_rec": "Monthly utilization recovery rate. 5%/month is required for utilization to outpace the cadence of fleet additions in Y3-Y5 (the model adds 12+ cars/year in lumps of 3-6 every quarter). Lower rates (3%/month, Layer 20 default) caused utilization collapse in Y5 as cannibalization hits compounded faster than recovery. 5% is benchmarked against Waymo SF scaling-phase recovery rate (4-6%/month observed during active fleet expansion); also consistent with Uber Munich 2014-2016 driver-supply recovery curves.",
+        "help_rec": "Monthly utilization recovery rate. 5%/month is required for utilization to outpace the cadence of fleet additions in Y3-Y5 (the model adds 12+ cars/year in lumps of 3-6 every quarter). Lower rates (3%/month, default) caused utilization collapse in Y5 as cannibalization hits compounded faster than recovery. 5% is benchmarked against Waymo SF scaling-phase recovery rate (4-6%/month observed during active fleet expansion); also consistent with Uber Munich 2014-2016 driver-supply recovery curves.",
         "can_fac": "Cannibalization Factor",
-        "help_can": "Cannibalization factor. 0.35 means each new cohort temporarily strips 35% of incremental capacity from existing-fleet utilization. The Layer 20 default of 0.5 was empirically too aggressive — a mature dispatch algorithm with 12+ months of Munich demand data should geographically redistribute new cars to under-served zones rather than overlapping existing routes. 0.35 is benchmarked against MOIA Hamburg fleet expansion data 2019-2023 where cannibalization measured at 30-40% during similar ramp phases.",
+        "help_can": "Cannibalization factor. 0.35 means each new cohort temporarily strips 35% of incremental capacity from existing-fleet utilization. The default of 0.5 was empirically too aggressive — a mature dispatch algorithm with 12+ months of Munich demand data should geographically redistribute new cars to under-served zones rather than overlapping existing routes. 0.35 is benchmarked against MOIA Hamburg fleet expansion data 2019-2023 where cannibalization measured at 30-40% during similar ramp phases.",
         "util_label": "Avg Util",
         "sec2": "2. TRIP DYNAMICS",
         "trip_dist": "Average Trip Distance (km)",
@@ -88,7 +88,7 @@ if lang_choice == "English":
         "base_fare": "Base Fare (€)",
         "price_km": "Price per km (€)",
         "tesla_take": "Tesla Take-Rate (%)",
-        # === LAYER 21: B2B Delivery Stream (default OFF) ===
+        # === B2B Delivery Stream (default OFF) ===
         "sec3b": "3b. B2B DELIVERY STREAM (Tesla Network)",
         "delivery_toggle": "Enable B2B Delivery Stream",
         "help_delivery_toggle": "Tesla Network also dispatches Cybercabs for goods delivery (food/parcel/medical) during low-passenger-demand windows. Same dispatch architecture, separate revenue stream. Default OFF for conservative passenger-only base case. Toggle ON to model the asset's full productivity envelope. Tesla controls priority (passenger trips preempt delivery when both available).",
@@ -108,10 +108,10 @@ if lang_choice == "English":
         "help_delivery_ramp": "Tesla Network delivery service activation by year. Default 0/0/30/70/100 reflects Tesla launching delivery as Y2H2 product, mature by Y4. Stress-test by setting all to 0% (pure passenger) or 100% (immediate launch).",
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
         "cleaning": "Cleaning Cost per Vehicle/Day (€, Net of Tesla Fees)",
-        "help_cleaning": "Layer 22 update. Cleaning cost €2/day NET reflects Tesla cleaning-fee revenue pass-through. Tesla published Robotaxi terms (Dec 2025): $50 moderate / $150 severe per incident, deducted automatically from rider via in-cabin cameras. Gross cleaning cost ~€5/day (depot deep-clean + sensor washer fluid + ozone treatment) less ~€3/day fee pass-through revenue at 12 severe + 30 moderate incidents/car/year mature state = €2/day net. Operationally, dirty cars route to depot during charging window — zero productive-shift impact.",
+        "help_cleaning": "update. Cleaning cost €2/day NET reflects Tesla cleaning-fee revenue pass-through. Tesla published Robotaxi terms (Dec 2025): $50 moderate / $150 severe per incident, deducted automatically from rider via in-cabin cameras. Gross cleaning cost ~€5/day (depot deep-clean + sensor washer fluid + ozone treatment) less ~€3/day fee pass-through revenue at 12 severe + 30 moderate incidents/car/year mature state = €2/day net. Operationally, dirty cars route to depot during charging window — zero productive-shift impact.",
         "wear_rate": "Maintenance/Wear per km (€)",
         "wear_help": "Management-view levelized rate reflecting 4-5y vehicle scrap strategy (post-AfA exhaustion). Breakdown: tires €0.027, sensor maintenance €0.034 (Cybercab onboard cleaning reduces vs Waymo benchmark), body wear €0.012, fluids/suspension €0.005, HVAC/inspections €0.005, accident reserve €0.008, contingency €0.005. Benchmarked vs Sixt+, Free Now, MOIA published data. Below Waymo (€0.12-0.16) due to simpler Cybercab sensor stack and German labor rates.",
-        # === LAYER 22: Energy 3-slider build (was single energy_rate slider in L21) ===
+        # === Energy 3-slider build (was single energy_rate slider in L21) ===
         "energy_kwh": "Cybercab Consumption (kWh/km)",
         "help_energy_kwh": "Real-world Cybercab energy consumption. Anchored on Tesla VP Lars Moravy's May 21, 2026 announcement at Model S/X SE event: Cybercab certified at 165 Wh/mile = 0.103 kWh/km (most efficient EV ever certified, 40% better than Model 3). Real-world urban operation typically adds 8-15% over EPA-style certified rating (HVAC, accessories, stop-and-go). Default 0.115 kWh/km applies 12% real-world derate. Cybercab achieves this via: teardrop aerodynamics (Cd estimated <0.20), 2-seat layout (no rear seats/structure), no steering wheel/pedals/mirrors, narrower purpose-built tires, sub-50 kWh battery, no driver-aggressive driving profile.",
         "energy_eur": "Energy Price Blended (€/kWh)",
@@ -119,19 +119,19 @@ if lang_choice == "English":
         "charging_eff": "Charging Efficiency (0.50-1.00)",
         "help_charging_eff": "Energy delivered to battery as fraction of energy drawn from grid. Anchored on Tesla's October 2024 statement that Cybercab inductive charging is 'well over 90%' efficient (responding to Marques Brownlee's 75% estimate). Wired V4 Supercharger achieves 96-97%. Default 0.94 reflects 70% inductive (92%) + 30% wired (96%) blend. Wiferion tech Tesla acquired supports 22 kW wireless. Tesla received FCC waiver Feb 2026 for UWB positioning enabling precise pad alignment.",
         "energy_derived_caption": "→ Derived Energy Cost: €{rate:.4f}/km (before seasonality)",
-        # === LAYER 22: Section 5 fixed costs — insurance/parking recalibrated, cargo insurance added ===
+        # === Section 5 fixed costs — insurance/parking recalibrated, cargo insurance added ===
         "sec5": "5. VEHICLE FIXED COSTS (€ / Month, Net)",
         "insurance": "Insurance",
-        "help_insurance": "Layer 22 recalibration: €300 → €180/month. Bottom-up build: theft component ~€0 (Cybercab cannot be driven outside Tesla Network — Waymo Phoenix 7yr data shows ~0 successful thefts), but vandalism (€20), battery/fire (€20), weather (€12), passenger damage (€15), cyber liability (€40), legal reserve (€30), residual bodily injury/property damage liability after 70% FSD safety credit (€55), passenger transport mandatory coverage per PBefG (€18) sum to ~€210, less ~15% Tesla Insurance bundling discount and 5-year averaging = €180. Y1-Y2 actuals may run €250-300 before declining as Munich-specific claims data accumulates. Risk: if Tesla Insurance Europe GmbH licensing delays force pure third-party German insurance, premium could rise to €280-350.",
+        "help_insurance": "recalibration: €300 → €180/month. Bottom-up build: theft component ~€0 (Cybercab cannot be driven outside Tesla Network — Waymo Phoenix 7yr data shows ~0 successful thefts), but vandalism (€20), battery/fire (€20), weather (€12), passenger damage (€15), cyber liability (€40), legal reserve (€30), residual bodily injury/property damage liability after 70% FSD safety credit (€55), passenger transport mandatory coverage per PBefG (€18) sum to ~€210, less ~15% Tesla Insurance bundling discount and 5-year averaging = €180. Y1-Y2 actuals may run €250-300 before declining as Munich-specific claims data accumulates. Risk: if Tesla Insurance Europe GmbH licensing delays force pure third-party German insurance, premium could rise to €280-350.",
         "parking": "APCOA Charging Capable Space (Munich)",
-        "help_parking": "Layer 22 recalibration: €250 → €170/month. APCOA published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 = central case €160-220. At Y5 fleet of 57 cars, bulk discount 15-25% reduces to €140-180 range. €170 sits at midpoint of negotiable bulk-fleet rate. Includes inductive charging pad access where deployed Y3+, wired V4 fallback in Y1-Y2.",
+        "help_parking": "recalibration: €250 → €170/month. APCOA published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 = central case €160-220. At Y5 fleet of 57 cars, bulk discount 15-25% reduces to €140-180 range. €170 sits at midpoint of negotiable bulk-fleet rate. Includes inductive charging pad access where deployed Y3+, wired V4 fallback in Y1-Y2.",
         "telemetry": "Telemetry & API",
         "tuev": "TÜV / BO-Kraft Accrual",
         "help_tuev": "Monthly accrual for mandatory passenger transport inspections.",
         "charging_sub": "Tesla Charging Sub",
         "cargo_ins": "Cargo Insurance (Verkehrshaftungsversicherung)",
-        "help_cargo_ins": "Layer 22 NEW LINE. Mandatory transport liability insurance when B2B delivery toggle is ON. Covers cargo value, theft in transit, weather damage, in-transit handling claims. Doesn't benefit from FSD safety credit (these risks don't depend on driver behavior). €20/car/month reflects 2024 German Verkehrshaftungsversicherung rates for low-value parcel/food courier operations. Only billed when delivery stream is active.",
-        # === LAYER 22 NEW: Monthly seasonality multipliers (12 months adjustable) ===
+        "help_cargo_ins": "NEW LINE. Mandatory transport liability insurance when B2B delivery toggle is ON. Covers cargo value, theft in transit, weather damage, in-transit handling claims. Doesn't benefit from FSD safety credit (these risks don't depend on driver behavior). €20/car/month reflects 2024 German Verkehrshaftungsversicherung rates for low-value parcel/food courier operations. Only billed when delivery stream is active.",
+        # === Monthly seasonality multipliers (12 months adjustable) ===
         "sec_season": "1d. SEASONALITY (Winter Penalty)",
         "season_expander": "📅 Monthly Energy Multipliers",
         "season_caption": "Adjust per-month energy cost multipliers. Affects energy line in P&L. Empirical anchors: ADAC Wintertest 2023 (-35-55% EV range Dec-Feb), Geotab fleet study (+8-15% summer A/C). Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells.",
@@ -193,7 +193,7 @@ if lang_choice == "English":
         "pnl_net_rev": "Net Revenue (Umsatzerlöse excl. VAT)",
         "pnl_tesla_fee": "Less: Tesla Platform Fee (Take-Rate on Net Rev)",
         "pnl_mrrg_net": "MRRG Net Revenue (After Platform Fee) — Passenger",
-        # === LAYER 21: B2B Delivery revenue stream (Tesla Network) ===
+        # === B2B Delivery revenue stream (Tesla Network) ===
         "pnl_delivery_gbv": "Gross Delivery Bookings (Tesla Network B2B, incl. 19% VAT)",
         "pnl_delivery_vat": "Less: 19% VAT on Deliveries (Finanzamt)",
         "pnl_delivery_net_rev": "Net Delivery Revenue (Umsatzerlöse excl. VAT)",
@@ -289,10 +289,10 @@ if lang_choice == "English":
         "tab_kpi": "KPIs & Ratios",
         "tab_charts": "Visualizations & Dashboards",
         "tab_readme": "README & User Manual",
-        # === LAYER 24: Monte Carlo Risk & Variance Analysis ===
+        # === Monte Carlo Risk & Variance Analysis ===
         "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
         "mc_header": "Risk & Variance Analysis — Stochastic Monte Carlo",
-        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
+        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The 12 most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
         "mc_run_button": "🎲 Run Monte Carlo Simulation",
         "mc_n_iterations": "Number of Iterations (N)",
         "mc_n_help": "5,000 produces stable percentiles in ~30-60 seconds. 10,000 produces near-final convergence in ~60-120 seconds. Below 1,000 is statistically unreliable.",
@@ -331,7 +331,7 @@ if lang_choice == "English":
         "mc_p_price": "Price per km σ (€)",
         "mc_p_salvage": "Salvage Value σ (€)",
         "mc_p_winter": "Winter Seasonality σ (×)",
-        # === LAYER 25: Expanded parameter set (22+) per Tier 1/2/3 spec ===
+        # === Expanded parameter set (22+) per Tier 1/2/3 spec ===
         "mc_p_active_hours": "Active Hours σ (h/day)",
         "mc_p_speed": "Average Speed σ (km/h)",
         "mc_p_dwell": "Dwell Time σ (min)",
@@ -348,7 +348,6 @@ if lang_choice == "English":
         "mc_p_cleaning": "Cleaning €/day σ",
         "mc_p_parking": "Parking €/mo σ",
         "mc_p_customs": "Customs Duty Rate σ",
-        # Metric dropdown
         "mc_metric_selector": "Select Target Analysis Metric",
         "mc_metric_fcf": "Free Cash Flow",
         "mc_metric_ebitda": "EBITDA",
@@ -361,6 +360,24 @@ if lang_choice == "English":
         "mc_tier2_header": "⚡ Tier 2 — Material Variance (Capex, Debt, Costs)",
         "mc_tier3_header": "💧 Tier 3 — Smaller Variance (Operational Costs)",
         "mc_running_msg": "🔄 Monte Carlo simulation in progress. Please wait...",
+        # Day-archetype + shock event labels
+        "mc_dayarch_header": "📅 Day Archetype Mix (Phase A) — daily demand variance topology",
+        "mc_shock_header": "⚡ Stochastic Shock Events (Phase B) — annual frequency × impact",
+        "mc_dayarch_help": "The annual operating year is composed of distinct day types, each with their own demand intensity multiplier. Adjust the relative frequency (days per year) and demand intensity (×) for each type. Defaults reflect Munich-specific patterns.",
+        "mc_shock_help": "Stochastic events that perturb a single day's operations. Each event has an annual frequency (days per year) and a demand/cost impact multiplier. Events are sampled independently across the 60-month horizon.",
+        "mc_dayarch_weekday": "Regular Weekday",
+        "mc_dayarch_weekend": "Regular Weekend",
+        "mc_dayarch_friday": "Friday/Saturday Evening",
+        "mc_dayarch_holiday": "Public/School Holiday",
+        "mc_dayarch_oktoberfest": "Oktoberfest (Sep 20-Oct 5)",
+        "mc_dayarch_xmas": "Christmas Markets (Nov 25-Dec 23)",
+        "mc_shock_severe_weather": "Severe Weather Day",
+        "mc_shock_transit_strike": "Transit Strike",
+        "mc_shock_major_event": "Major Event (concert/derby)",
+        "mc_shock_tech_outage": "Tech/Network Outage",
+        "mc_shock_heatwave": "Heat Wave (>32°C)",
+        "mc_shock_black_ice": "Black Ice Morning (winter)",
+        "mc_shock_road_closure": "Road/Bridge Closure",
         "mc_complete_msg": "✅ Monte Carlo simulation complete: {n} iterations processed in {t:.1f} seconds.",
 
         "hgb_title": "Statutory Income Statement (Gesamtkostenverfahren)",
@@ -418,7 +435,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model - Layer 25: Monte Carlo Erweitert (22+ Params, 3 Tiers, FCF Tracking, Interaktives Metrik-Dropdown))*",
+        "subtitle": "*(HGB 3-Statement Model — Monte Carlo mit Tagestyp-Topologie (Phase A) + Stochastische Shock-Ereignisse (Phase B))*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -441,9 +458,9 @@ else:
         "init_util": "Start-Auslastung Monat 1 (%)",
         "help_init": "Auslastung Monat 1. 55% reflektiert drei nachfragetreibende Faktoren der MRRG Go-to-Market: (a) Preiselastizität durch 30-45% Unterbietung von Uber/Free Now bewirkt ~25-35% Mehrvolumen ggü. preisgleichen Launches (Cohen Uber/MIT 2016 Elastizitätsstudien), (b) Novelty-Effekt durch ersten europäischen Cybercab-Launch erzeugt PR-getriebene Probefahrtnachfrage (Cruise SF Frühwochen-Daten >70% Auslastungsspitzen), (c) versorgungsbeschränkte Startflotte (3 Fahrzeuge) konzentriert in 1-2 Hochdichtezonen (Maxvorstadt/Schwabing) operiert strukturell höher als marktbreite Operationen. Auf 24h-Kalenderbasis entspricht dies ~31% Asset-Auslastung (55% × 13,5h ÷ 24h).",
         "rec_rate": "Monatliche Erholung (+%)",
-        "help_rec": "Monatliche Auslastungs-Erholungsrate. 5%/Monat ist erforderlich, damit die Auslastung mit der Kadenz der Flottenzugänge in J3-J5 mithalten kann (12+ Fahrzeuge/Jahr in Tranchen von 3-6 pro Quartal). Niedrigere Raten (3%/Monat, Layer 20) führten zum Auslastungseinbruch in J5, da Kannibalisierungseffekte schneller als die Erholung kumulierten. 5% benchmarked gegen Waymo SF Scaling-Phase-Erholungsrate (4-6%/Monat während aktiver Flottenexpansion); konsistent mit Uber Münchner 2014-2016 Fahrerangebots-Erholungskurven.",
+        "help_rec": "Monatliche Auslastungs-Erholungsrate. 5%/Monat ist erforderlich, damit die Auslastung mit der Kadenz der Flottenzugänge in J3-J5 mithalten kann (12+ Fahrzeuge/Jahr in Tranchen von 3-6 pro Quartal). Niedrigere Raten (3%/Monat, ) führten zum Auslastungseinbruch in J5, da Kannibalisierungseffekte schneller als die Erholung kumulierten. 5% benchmarked gegen Waymo SF Scaling-Phase-Erholungsrate (4-6%/Monat während aktiver Flottenexpansion); konsistent mit Uber Münchner 2014-2016 Fahrerangebots-Erholungskurven.",
         "can_fac": "Kannibalisierungsfaktor",
-        "help_can": "Kannibalisierungsfaktor. 0,35 bedeutet, dass jede neue Kohorte vorübergehend 35% der inkrementellen Kapazität der Bestandsflotten-Auslastung abzieht. Der Layer 20 Standardwert 0,5 war empirisch zu aggressiv — ein ausgereiftes Dispatching mit 12+ Monaten Münchner Nachfragedaten sollte neue Fahrzeuge geografisch in unterversorgte Zonen umverteilen statt bestehende Routen zu überlappen. 0,35 benchmarked gegen MOIA Hamburg Flottenexpansionsdaten 2019-2023, wo Kannibalisierung in vergleichbaren Ramp-Phasen bei 30-40% gemessen wurde.",
+        "help_can": "Kannibalisierungsfaktor. 0,35 bedeutet, dass jede neue Kohorte vorübergehend 35% der inkrementellen Kapazität der Bestandsflotten-Auslastung abzieht. Der Standardwert 0,5 war empirisch zu aggressiv — ein ausgereiftes Dispatching mit 12+ Monaten Münchner Nachfragedaten sollte neue Fahrzeuge geografisch in unterversorgte Zonen umverteilen statt bestehende Routen zu überlappen. 0,35 benchmarked gegen MOIA Hamburg Flottenexpansionsdaten 2019-2023, wo Kannibalisierung in vergleichbaren Ramp-Phasen bei 30-40% gemessen wurde.",
         "util_label": "Ø Auslastung",
         "sec2": "2. FAHRTDYNAMIK",
         "trip_dist": "Durchschnittliche Fahrstrecke (km)",
@@ -453,7 +470,7 @@ else:
         "base_fare": "Grundgebühr (€)",
         "price_km": "Preis pro km (€)",
         "tesla_take": "Tesla Plattformgebühr (%)",
-        # === LAYER 21: B2B-Lieferdienst-Strom (Standard AUS) ===
+        # === B2B-Lieferdienst-Strom (Standard AUS) ===
         "sec3b": "3b. B2B-LIEFERDIENST (Tesla Network)",
         "delivery_toggle": "B2B-Lieferdienst aktivieren",
         "help_delivery_toggle": "Tesla Network dispatched Cybercabs auch für Warenlieferungen (Food/Paket/Medizinprodukte) in Schwachlast-Phasen des Personenverkehrs. Selbe Dispatching-Architektur, separater Erlösstrom. Standard AUS für konservativen Basisfall. Bei Aktivierung wird die vollständige Asset-Produktivität abgebildet. Tesla steuert die Priorisierung (Personenfahrten haben Vorrang).",
@@ -473,10 +490,10 @@ else:
         "help_delivery_ramp": "Tesla Network Lieferdienst-Aktivierung nach Jahr. Standard 0/0/30/70/100 reflektiert Tesla Lieferdienst-Launch J2H2, reif J4. Stresstest: alle 0% (reiner Personenverkehr) oder 100% (sofortiger Start).",
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€, netto Tesla-Gebühren)",
-        "help_cleaning": "Layer 22 Update. Reinigungskosten €2/Tag NETTO unter Berücksichtigung der Tesla-Reinigungsgebühr-Erlöse. Tesla Robotaxi AGB (Dez 2025): $50 mittlere / $150 schwere Verschmutzungen pro Vorfall, automatisch über Innenraumkameras dem Fahrgast belastet. Bruttoreinigungskosten ~€5/Tag (Depot-Tiefenreinigung + Sensor-Waschflüssigkeit + Ozonbehandlung) abzüglich ~€3/Tag Gebührenerlöse bei 12 schweren + 30 mittleren Vorfällen pro Fahrzeug/Jahr im Reifezustand = €2/Tag netto. Verschmutzte Fahrzeuge fahren während des Ladefensters zum Depot — null Auswirkung auf die produktive Schicht.",
+        "help_cleaning": "Update. Reinigungskosten €2/Tag NETTO unter Berücksichtigung der Tesla-Reinigungsgebühr-Erlöse. Tesla Robotaxi AGB (Dez 2025): $50 mittlere / $150 schwere Verschmutzungen pro Vorfall, automatisch über Innenraumkameras dem Fahrgast belastet. Bruttoreinigungskosten ~€5/Tag (Depot-Tiefenreinigung + Sensor-Waschflüssigkeit + Ozonbehandlung) abzüglich ~€3/Tag Gebührenerlöse bei 12 schweren + 30 mittleren Vorfällen pro Fahrzeug/Jahr im Reifezustand = €2/Tag netto. Verschmutzte Fahrzeuge fahren während des Ladefensters zum Depot — null Auswirkung auf die produktive Schicht.",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
         "wear_help": "Management-Sicht: nivellierter Verschleißsatz für 4-5j Scrap-Strategie (nach AfA-Schild). Aufschlüsselung: Reifen €0,027, Sensorwartung €0,034 (Cybercab Onboard-Reinigung reduziert ggü. Waymo-Benchmark), Innenraumverschleiß €0,012, Flüssigkeiten/Fahrwerk €0,005, HVAC/Inspektionen €0,005, Unfallrückstellung €0,008, Reserve €0,005. Benchmarks: Sixt+, Free Now, MOIA. Unter Waymo (€0,12-0,16) wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten.",
-        # === LAYER 22: Energie 3-Slider-Aufbau ===
+        # === Energie 3-Slider-Aufbau ===
         "energy_kwh": "Cybercab Verbrauch (kWh/km)",
         "help_energy_kwh": "Realer Cybercab-Energieverbrauch. Verankert in der Ankündigung von Tesla-VP Lars Moravy am 21. Mai 2026 beim Model S/X SE Event: Cybercab zertifiziert mit 165 Wh/Meile = 0,103 kWh/km (effizientestes EV aller Zeiten, 40% besser als Model 3). Real-Verbrauch im Stadtverkehr typisch 8-15% über EPA-Zertifizierung (HVAC, Verbraucher, Stop-and-Go). Standard 0,115 kWh/km wendet 12% Real-Aufschlag an. Cybercab erreicht dies durch: Tropfenform-Aerodynamik (Cd geschätzt <0,20), 2-Sitzer (keine Rücksitze/Struktur), kein Lenkrad/Pedale/Spiegel, schmalere Spezial-Reifen, Sub-50 kWh-Batterie, kein aggressives Fahrprofil.",
         "energy_eur": "Energie-Mischpreis (€/kWh)",
@@ -484,19 +501,19 @@ else:
         "charging_eff": "Ladewirkungsgrad (0,50-1,00)",
         "help_charging_eff": "Energie ins Akkupack als Bruchteil der aus dem Netz bezogenen Energie. Verankert in Teslas Aussage Oktober 2024: Cybercab-Induktivladung 'deutlich über 90%' effizient (auf Marques Brownlees 75%-Schätzung antwortend). Kabel-V4-Supercharger erreicht 96-97%. Standard 0,94 reflektiert 70% Induktion (92%) + 30% Kabel (96%) Mischung. Wiferion-Technologie (Tesla erworben) unterstützt 22 kW kabellos. Tesla erhielt FCC-Waiver Feb 2026 für UWB-Positionierung zur präzisen Pad-Ausrichtung.",
         "energy_derived_caption": "→ Abgeleitete Energiekosten: €{rate:.4f}/km (vor Saisonalität)",
-        # === LAYER 22: Abschnitt 5 Fixkosten — Versicherung/Stellplatz rekalibriert ===
+        # === Abschnitt 5 Fixkosten — Versicherung/Stellplatz rekalibriert ===
         "sec5": "5. FAHRZEUG-FIXKOSTEN (€ / Monat, Netto)",
         "insurance": "Kfz-Versicherung",
-        "help_insurance": "Layer 22 Rekalibrierung: €300 → €180/Monat. Bottom-up-Aufbau: Diebstahl-Komponente ~€0 (Cybercab außerhalb Tesla Network nicht fahrbar — Waymo Phoenix 7J-Daten zeigen ~0 erfolgreiche Diebstähle), aber Vandalismus (€20), Batterie/Brand (€20), Wetter (€12), Passagierschäden (€15), Cyber-Haftung (€40), Rechtsrücklage (€30), Rest-Personen-/Sachschadenshaftung nach 70% FSD-Sicherheitsbonus (€55), gesetzliche Passagiertransport-Deckung gem. PBefG (€18) = ~€210, abzüglich ~15% Tesla Insurance-Bundle-Rabatt und 5-Jahres-Mittelung = €180. J1-J2 Ist-Werte können €250-300 betragen, bevor sie mit aufgebauter Münchener Schadensdatenhistorie sinken. Risiko: bei Verzögerungen der Tesla Insurance Europe-Lizenzierung könnte die Prämie auf €280-350 steigen.",
+        "help_insurance": "Rekalibrierung: €300 → €180/Monat. Bottom-up-Aufbau: Diebstahl-Komponente ~€0 (Cybercab außerhalb Tesla Network nicht fahrbar — Waymo Phoenix 7J-Daten zeigen ~0 erfolgreiche Diebstähle), aber Vandalismus (€20), Batterie/Brand (€20), Wetter (€12), Passagierschäden (€15), Cyber-Haftung (€40), Rechtsrücklage (€30), Rest-Personen-/Sachschadenshaftung nach 70% FSD-Sicherheitsbonus (€55), gesetzliche Passagiertransport-Deckung gem. PBefG (€18) = ~€210, abzüglich ~15% Tesla Insurance-Bundle-Rabatt und 5-Jahres-Mittelung = €180. J1-J2 Ist-Werte können €250-300 betragen, bevor sie mit aufgebauter Münchener Schadensdatenhistorie sinken. Risiko: bei Verzögerungen der Tesla Insurance Europe-Lizenzierung könnte die Prämie auf €280-350 steigen.",
         "parking": "Münchner Stellplatz (APCOA Lade-Infrastruktur)",
-        "help_parking": "Layer 22 Rekalibrierung: €250 → €170/Monat. APCOA veröffentlichte 2024 Münchner Monatsparkplätze €120-180 + Ladefähigkeits-Aufschlag €40-80 = Basisfall €160-220. Bei J5 Flotte von 57 Fahrzeugen reduziert Mengenrabatt 15-25% auf €140-180. €170 entspricht Mittelpunkt verhandelbarer Flotten-Mengenrabatt-Rate. Beinhaltet induktiven Ladepad-Zugang ab J3+, kabelgebundene V4-Backup in J1-J2.",
+        "help_parking": "Rekalibrierung: €250 → €170/Monat. APCOA veröffentlichte 2024 Münchner Monatsparkplätze €120-180 + Ladefähigkeits-Aufschlag €40-80 = Basisfall €160-220. Bei J5 Flotte von 57 Fahrzeugen reduziert Mengenrabatt 15-25% auf €140-180. €170 entspricht Mittelpunkt verhandelbarer Flotten-Mengenrabatt-Rate. Beinhaltet induktiven Ladepad-Zugang ab J3+, kabelgebundene V4-Backup in J1-J2.",
         "telemetry": "Telemetrie & API",
         "tuev": "TÜV / BO-Kraft Rückstellung",
         "help_tuev": "Monatliche Rückstellung für die BO-Kraft Untersuchung.",
         "charging_sub": "Tesla Lade-Abo",
         "cargo_ins": "Verkehrshaftungsversicherung (Frachtgut)",
-        "help_cargo_ins": "Layer 22 NEUE POSITION. Gesetzliche Transporthaftpflicht bei aktivem B2B-Lieferdienst-Toggle. Deckt Frachtwert, Diebstahl in Transit, Wetterschäden, Handhabungsansprüche. Profitiert NICHT vom FSD-Sicherheitsbonus (Risiken hängen nicht vom Fahrverhalten ab). €20/Fahrzeug/Monat entspricht 2024 deutschen Verkehrshaftungsversicherungs-Tarifen für niedrigwertige Paket-/Food-Kurier-Operationen. Nur fakturiert wenn Lieferstrom aktiv.",
-        # === LAYER 22 NEU: Monatliche Saisonalitäts-Multiplikatoren ===
+        "help_cargo_ins": "NEUE POSITION. Gesetzliche Transporthaftpflicht bei aktivem B2B-Lieferdienst-Toggle. Deckt Frachtwert, Diebstahl in Transit, Wetterschäden, Handhabungsansprüche. Profitiert NICHT vom FSD-Sicherheitsbonus (Risiken hängen nicht vom Fahrverhalten ab). €20/Fahrzeug/Monat entspricht 2024 deutschen Verkehrshaftungsversicherungs-Tarifen für niedrigwertige Paket-/Food-Kurier-Operationen. Nur fakturiert wenn Lieferstrom aktiv.",
+        # === Monatliche Saisonalitäts-Multiplikatoren ===
         "sec_season": "1d. SAISONALITÄT (Winter-Aufschlag)",
         "season_expander": "📅 Monatliche Energie-Multiplikatoren",
         "season_caption": "Pro-Monat Energiekosten-Multiplikatoren anpassen. Wirkt auf Energieposten in GuV. Empirische Anker: ADAC Wintertest 2023 (-35-55% EV-Reichweite Dez-Feb), Geotab Flottenstudie (+8-15% Sommer-Klimaanlage). Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen.",
@@ -558,7 +575,7 @@ else:
         "pnl_net_rev": "Umsatzerlöse (netto)",
         "pnl_tesla_fee": "Abzüglich: Tesla-Plattformgebühr (auf Netto)",
         "pnl_mrrg_net": "MRRG Nettoerlöse (nach Plattformgebühr) — Personenverkehr",
-        # === LAYER 21: B2B-Lieferdienst-Erlöse (Tesla Network) ===
+        # === B2B-Lieferdienst-Erlöse (Tesla Network) ===
         "pnl_delivery_gbv": "Bruttobuchungen Lieferdienst (Tesla Network B2B, inkl. 19% USt)",
         "pnl_delivery_vat": "Abzüglich: 19% USt auf Lieferungen (Finanzamt)",
         "pnl_delivery_net_rev": "Netto-Lieferumsatzerlöse",
@@ -654,7 +671,7 @@ else:
         "tab_kpi": "KPIs & Kennzahlen",
         "tab_charts": "Visualisierungen & Dashboards",
         "tab_readme": "Handbuch & Dokumentation",
-        # === LAYER 24: Monte Carlo Risiko- & Varianzanalyse ===
+        # === Monte Carlo Risiko- & Varianzanalyse ===
         "tab_mc": "🎲 Risiko- & Varianzanalyse (Monte Carlo)",
         "mc_header": "Risiko- & Varianzanalyse — Stochastische Monte-Carlo-Simulation",
         "mc_intro": "Dieses Modul kapselt die deterministische 60-Monats-Engine in einer stochastischen Monte-Carlo-Simulation. Die 12 varianztreibenden Parameter werden aus empirisch verankerten Wahrscheinlichkeitsverteilungen über N Iterationen gezogen. Der deterministische Basisfall in den anderen Tabs bleibt unverändert — diese Analyse ist eine ergänzende Risikozerlegung für Bank-Kreditkomitees und Project-Finance-Bewertung.",
@@ -695,7 +712,7 @@ else:
         "mc_p_price": "Preis pro km σ (€)",
         "mc_p_salvage": "Restwert σ (€)",
         "mc_p_winter": "Winter-Saisonalität σ (×)",
-        # === LAYER 25: Erweiterte Parameter (22+) gem. Tier 1/2/3-Spezifikation ===
+        # === Erweiterte Parameter (22+) gem. Tier 1/2/3-Spezifikation ===
         "mc_p_active_hours": "Aktive Stunden σ (h/Tag)",
         "mc_p_speed": "Durchschnittsgeschwindigkeit σ (km/h)",
         "mc_p_dwell": "Standzeit σ (Min)",
@@ -725,6 +742,24 @@ else:
         "mc_tier2_header": "⚡ Tier 2 — Materielle Varianz (Capex, Schulden, Kosten)",
         "mc_tier3_header": "💧 Tier 3 — Geringere Varianz (Betriebskosten)",
         "mc_running_msg": "🔄 Monte-Carlo-Simulation läuft. Bitte warten...",
+        # Tagestyp + Shock-Ereignis-Labels
+        "mc_dayarch_header": "📅 Tagestyp-Mix (Phase A) — tägliche Nachfrage-Varianztopologie",
+        "mc_shock_header": "⚡ Stochastische Shock-Ereignisse (Phase B) — Jahresfrequenz × Wirkung",
+        "mc_dayarch_help": "Das jährliche Betriebsjahr besteht aus unterschiedlichen Tagestypen mit jeweils eigenem Nachfrageintensitäts-Multiplikator. Häufigkeit (Tage/Jahr) und Nachfrageintensität (×) je Typ anpassbar.",
+        "mc_shock_help": "Stochastische Ereignisse, die einzelne Betriebstage stören. Jedes Ereignis hat eine Jahresfrequenz (Tage/Jahr) und einen Nachfrage-/Kostenfaktor. Ereignisse werden unabhängig über den 60-Monats-Horizont gezogen.",
+        "mc_dayarch_weekday": "Regulärer Werktag",
+        "mc_dayarch_weekend": "Reguläres Wochenende",
+        "mc_dayarch_friday": "Freitag/Samstag Abend",
+        "mc_dayarch_holiday": "Feiertag/Schulferien",
+        "mc_dayarch_oktoberfest": "Oktoberfest (20. Sep - 5. Okt)",
+        "mc_dayarch_xmas": "Weihnachtsmärkte (25. Nov - 23. Dez)",
+        "mc_shock_severe_weather": "Wetter-Extremtag",
+        "mc_shock_transit_strike": "ÖPNV-Streik",
+        "mc_shock_major_event": "Großevent (Konzert/Derby)",
+        "mc_shock_tech_outage": "Tech-/Netzwerk-Ausfall",
+        "mc_shock_heatwave": "Hitzewelle (>32°C)",
+        "mc_shock_black_ice": "Glatteis-Morgen (Winter)",
+        "mc_shock_road_closure": "Straßen-/Brückensperrung",
         "mc_complete_msg": "✅ Monte-Carlo-Simulation abgeschlossen: {n} Iterationen in {t:.1f} Sek. verarbeitet.",
 
         "hgb_title": "Gesetzliche Gewinn- und Verlustrechnung (Gesamtkostenverfahren)",
@@ -789,7 +824,7 @@ y3_adds_str = st.sidebar.text_input(loc["y3_adds"], "3, 0, 0, 3, 0, 0, 3, 0, 0, 
 y4_adds_str = st.sidebar.text_input(loc["y4_adds"], "4, 0, 0, 4, 0, 0, 4, 0, 0, 3, 0, 0")
 y5_adds_str = st.sidebar.text_input(loc["y5_adds"], "6, 0, 0, 5, 0, 0, 5, 0, 0, 5, 0, 0")
 
-# L-04 FIX: Surface bad fleet input to the user (rather than silently zeroing out).
+# Surface bad fleet input to the user (rather than silently zeroing out).
 def _validate_fleet_str(label, s):
     try:
         arr = [int(x.strip()) for x in s.split(',')]
@@ -823,7 +858,7 @@ else:
     flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
     target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
-# === FIX 5 (Logic Bug 1): Compute is_dynamic boolean from localized radio selection ===
+# === Compute is_dynamic boolean from localized radio selection ===
 # This replaces the hardcoded English string comparison inside the function,
 # which would silently fail in German mode.
 is_dynamic = (util_mode == loc["util_dyn"])
@@ -837,7 +872,7 @@ base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50)
 price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49)
 tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
 
-# === LAYER 21: B2B Delivery Stream sidebar section ===
+# === B2B Delivery Stream sidebar section ===
 st.sidebar.header(loc["sec3b"])
 delivery_enabled = st.sidebar.checkbox(loc["delivery_toggle"], value=False, help=loc["help_delivery_toggle"])
 if delivery_enabled:
@@ -858,11 +893,11 @@ else:
     delivery_take_rate = 0.0
     delivery_ramp_y1 = delivery_ramp_y2 = delivery_ramp_y3 = delivery_ramp_y4 = delivery_ramp_y5 = 0.0
 
-# === LAYER 22 CHANGE 5: Monthly Seasonality Multipliers — fully adjustable ===
+# === Monthly Seasonality Multipliers — fully adjustable ===
 # Prior Layers 20/21 hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10).
-# Layer 22 exposes all 12 months as individual sliders so user can stress-test
+# exposes all 12 months as individual sliders so user can stress-test
 # winter penalty assumptions (e.g., dry-cathode 4680 battery reduces winter penalty).
-# Annual blend computed at runtime; default values preserve Layer 21 1.2125× blend.
+# Annual blend computed at runtime; default values preserve 1.2125× blend.
 st.sidebar.header(loc["sec_season"])
 with st.sidebar.expander(loc["season_expander"], expanded=False):
     st.caption(loc["season_caption"])
@@ -890,11 +925,11 @@ st.sidebar.caption(loc["season_blend_caption"].format(blend=_season_blend))
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, help=loc["help_cleaning"])
 wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, format="%.2f", step=0.01, help=loc["wear_help"])
-# === LAYER 22 CHANGE 1: Energy decomposed into 3 sliders ===
-# Prior Layer 21 had a single energy_rate = €0.085/km combining all three.
-# Layer 22 makes each driver visible and adjustable for stress-testing.
+# === Energy decomposed into 3 sliders ===
+# Prior had a single energy_rate = €0.085/km combining all three.
+# makes each driver visible and adjustable for stress-testing.
 # Combined: 0.115 * 0.22 / 0.94 = €0.0269/km (vs prior €0.085 — 68% reduction).
-# Empirical anchors documented in tooltips and README Layer 22 section.
+# Empirical anchors documented in tooltips and README section.
 energy_kwh_per_km = st.sidebar.number_input(loc["energy_kwh"], value=0.115, format="%.3f", step=0.005, help=loc["help_energy_kwh"])
 energy_eur_per_kwh = st.sidebar.number_input(loc["energy_eur"], value=0.220, format="%.3f", step=0.01, help=loc["help_energy_eur"])
 charging_efficiency = st.sidebar.number_input(loc["charging_eff"], value=0.94, format="%.2f", step=0.01, min_value=0.50, max_value=1.00, help=loc["help_charging_eff"]) 
@@ -904,14 +939,14 @@ energy_rate = (energy_kwh_per_km * energy_eur_per_kwh) / charging_efficiency
 st.sidebar.caption(loc["energy_derived_caption"].format(rate=energy_rate))
 
 st.sidebar.header(loc["sec5"])
-# Layer 22: Insurance recalibrated €300 → €180 (Tesla bundling thesis, FSD safety credit, theft-zero)
+# Insurance recalibrated €300 → €180 (Tesla bundling thesis, FSD safety credit, theft-zero)
 insurance_pm = st.sidebar.number_input(loc["insurance"], value=180.0, help=loc["help_insurance"])
-# Layer 22: APCOA parking recalibrated €250 → €170 (published APCOA rates + bulk discount)
+# APCOA parking recalibrated €250 → €170 (published APCOA rates + bulk discount)
 parking_pm = st.sidebar.number_input(loc["parking"], value=170.0, help=loc["help_parking"])
 telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0)
 tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, help=loc["help_tuev"])
 charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
-# === LAYER 22 CHANGE 4: Cargo insurance — only applies when delivery toggle ON ===
+# === Cargo insurance — only applies when delivery toggle ON ===
 # Verkehrshaftungsversicherung for B2B goods transport. Doesn't benefit from FSD
 # safety credit (covers cargo theft, weather damage, in-transit handling claims).
 if delivery_enabled:
@@ -982,13 +1017,13 @@ def execute_financial_simulation(
     is_dynamic, lang_choice
 ):
     # ============================================================
-    # FIX 5 (Logic Bug 1): is_dynamic parameter added before lang_choice
+    # is_dynamic parameter added before lang_choice
     # Replaces the buggy hardcoded English string comparison that
     # silently failed in German mode and forced flat utilization.
     # ============================================================
     
     # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
-    # === LAYER 21: P&L static keys — additional rows for delivery stream ===
+    # === P&L static keys — additional rows for delivery stream ===
     # P_DGBV  = Delivery Gross Booking Value (gross of VAT)
     # P_DVAT  = Delivery VAT remitted to Finanzamt
     # P_DNET  = Delivery Net Revenue (excl VAT)
@@ -1023,7 +1058,7 @@ def execute_financial_simulation(
             return [0]*12
 
     all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
-    # === FIX 1 (Crash 1): base_fleet_size restored inside cached function scope ===
+    # === base_fleet_size restored inside cached function scope ===
     base_fleet_size = sum(parse_adds(y1_adds_str))
     
     cybercab_base_eur = cybercab_base_usd / usd_eur_rate
@@ -1074,20 +1109,20 @@ def execute_financial_simulation(
     gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
     # =========================================================================
-    # === LAYER 21: B2B Delivery Stream Physics ==============================
+    # === B2B Delivery Stream Physics ==============================
     # Tesla Network dispatches Cybercabs for goods delivery during low-passenger
     # demand windows. Same dispatch architecture, separate revenue stream.
     # Engine reads delivery_enabled flag — if False, all delivery params are 0
     # and this entire stream produces no revenue/cost.
     #
     # Daily delivery throughput at FULL ACTIVATION:
-    #   deliveries/day = delivery_hours × trips/hour × utilization (passenger util applied)
+    # deliveries/day = delivery_hours × trips/hour × utilization (passenger util applied)
     # Per-year ramp factor scales this down for Y1-Y3 (Tesla product not yet mature).
     # Variable cost: delivery_km/day adds to total_km for energy + wear (asset-driven costs).
     # Cleaning: NO incremental cost (calendar-driven, fleet-driven, not per-trip).
     # Delivery deadhead: assumed same 22% ratio as passenger.
     # Trip distance assumption: average delivery cycle = 4 km billable
-    #   (shorter than passenger 5km — food/parcel deliveries are typically intra-district).
+    # (shorter than passenger 5km — food/parcel deliveries are typically intra-district).
     # =========================================================================
     avg_delivery_distance_km = 4.0  # blended food/parcel/medical
     delivery_trips_per_day_full = delivery_hours_per_day * delivery_trips_per_hour
@@ -1109,12 +1144,12 @@ def execute_financial_simulation(
     operational_vat_payable = 0.0
     vat_receivable = 0.0
     thg_receivable = 0.0
-    # === LAYER 23 FIX — THG Quote legal mechanics state variable ===
+    # === THG Quote legal mechanics state variable ===
     # Per § 7 Abs. 1 38. BImSchV: THG-Quote is a flat annual payment per
     # registered vehicle per calendar year, paid in full regardless of how
     # late in the year vehicle was registered, PROVIDED registration is
     # before the November 15 deadline. Sources: ADAC, EnBW, Finanztip,
-    # Klima-Quote, elektrovorteil (all confirm). Prior Layer 17 logic
+    # Klima-Quote, elektrovorteil (all confirm). Prior logic
     # ((thg_quote/12) * active_fleet) was incorrect — it pro-rated the flat
     # annual payment, which the law explicitly says doesn't happen.
     # `thg_deferred_next_year` tracks deferred €-amount from Nov/Dec adds.
@@ -1140,11 +1175,11 @@ def execute_financial_simulation(
     utilization_by_month = []
     month_col_names = []
     cash_breach_months = []
-    # H-01 / H-02: Distinct liquidity-stress signals
+    # Distinct liquidity-stress signals
     net_liq_breach_months = []   # Cash − Overdraft < min_buffer (going concern stress)
     insolvency_months = []       # Required draw exceeds bank-approved ceiling
 
-    # === FIX 5 STEP A (Logic Bug 1): use is_dynamic flag instead of hardcoded English string ===
+    # === use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
     prev_fleet = 0
 
@@ -1158,7 +1193,7 @@ def execute_financial_simulation(
         current_month_index = (m % 12) + 1
         current_year = (m // 12) + 1
         
-        # === FIX 4 (Logic Bug 2): Save beginning cash BEFORE any mutations.
+        # === Save beginning cash BEFORE any mutations.
         # Without this, when the overdraft draws and resets current_cash to 0.0,
         # the CF statement records beg_cash = 0 instead of the actual prior period balance. ===
         beg_cash = current_cash
@@ -1167,18 +1202,17 @@ def execute_financial_simulation(
         days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
         
         # ============================================================
-        # === LAYER 22 CHANGE 5: Seasonality is now a 12-month lookup ===
-        # Prior Layer 21 hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05,
+        # === Seasonality is now a 12-month lookup ===
+        # Prior hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05,
         # May-Sep 1.10) — annual blend 1.2125×.
-        # Layer 22 reads from `seasonality_by_month` dict (1-12 → multiplier)
-        # populated from 12 individual sidebar sliders. Defaults preserve Layer 21
-        # blend exactly. User can stress-test (e.g., dry-cathode 4680 reduces
+        # Reads from `seasonality_by_month` dict (1-12 → multiplier)
+        # populated from 12 individual sidebar sliders. Defaults preserve # blend exactly. User can stress-test (e.g., dry-cathode 4680 reduces
         # winter penalty 10-15%) by adjusting individual month sliders.
         # Empirical defaults:
-        #   - Winter (Dec-Feb) 1.45×: ADAC Wintertest 2023, Munich Dec-Feb avg low -3 to -5°C
-        #   - Shoulder (Nov, Mar) 1.30×: partial battery thermal load
-        #   - Cool summer (Apr, Oct) 1.05×: minimal HVAC load
-        #   - Hot summer (May-Sep) 1.10×: A/C draw 8-15% per Geotab fleet data
+        # - Winter (Dec-Feb) 1.45×: ADAC Wintertest 2023, Munich Dec-Feb avg low -3 to -5°C
+        # - Shoulder (Nov, Mar) 1.30×: partial battery thermal load
+        # - Cool summer (Apr, Oct) 1.05×: minimal HVAC load
+        # - Hot summer (May-Sep) 1.10×: A/C draw 8-15% per Geotab fleet data
         # ============================================================
         season_mult = seasonality_by_month.get(current_month_index, 1.0)
             
@@ -1191,7 +1225,7 @@ def execute_financial_simulation(
         capex_this_mo = 0
         capex_sold_this_mo = 0
         accum_afa_sold_this_mo = 0
-        # === LAYER 23 FIX — Track cars added THIS month for THG accrual ===
+        # === Track cars added THIS month for THG accrual ===
         # Distinct from active_fleet (cumulative roster); counts only cohorts
         # whose c_start == current_month. Used for new-vehicle THG recognition.
         cars_added_this_month = 0
@@ -1201,7 +1235,7 @@ def execute_financial_simulation(
             if current_month == c_start:
                 kfw_draw += c["original_loan"]
                 capex_this_mo += c["capex"]
-                # === LAYER 23 FIX — Capture cars added in this month for THG accrual ===
+                # === Capture cars added in this month for THG accrual ===
                 cars_added_this_month += c["size"]
                 
             if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
@@ -1209,7 +1243,7 @@ def execute_financial_simulation(
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
                 
-                # F-26 Extraordinary HGB Impairment Logic Implementation
+                # Extraordinary HGB Impairment Logic Implementation
                 if current_month == imp_month and not c["impaired"]:
                     extra_afa = c["loan_bal"] * imp_pct_val if c["loan_bal"] > 0 else c["capex"] * imp_pct_val
                     current_veh_afa += extra_afa
@@ -1233,7 +1267,7 @@ def execute_financial_simulation(
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
 
-        # === FIX 5 STEP B (Logic Bug 1): use is_dynamic flag for cannibalization branch ===
+        # === use is_dynamic flag for cannibalization branch ===
         if is_dynamic:
             if active_fleet > prev_fleet and prev_fleet > 0:
                 supply_shock = (active_fleet - prev_fleet) / active_fleet
@@ -1256,12 +1290,12 @@ def execute_financial_simulation(
         gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
         net_rev_mo = gbv_mo / (1.0 + VAT_RATE)
         vat_owed_mo = gbv_mo - net_rev_mo
-        # F-07 Net Revenue Correction: Platform take fee maps off Net instead of Gross
+        # Net Revenue Correction: Platform take fee maps off Net instead of Gross
         tesla_fee_mo = net_rev_mo * tesla_take_rate
         mrrg_net_mo = net_rev_mo - tesla_fee_mo
         
         # =====================================================================
-        # === LAYER 21: B2B Delivery Revenue Computation (monthly) ============
+        # === B2B Delivery Revenue Computation (monthly) ============
         # Same utilization (current_u) applies — delivery utilization tracks
         # passenger utilization since both are Tesla Network dispatched and
         # share the same demand-density curve.
@@ -1287,7 +1321,7 @@ def execute_financial_simulation(
         total_mrrg_net_mo = mrrg_net_mo + delivery_mrrg_net_mo
         db1_mo = total_mrrg_net_mo - wear_mo - energy_mo - clean_mo
         
-        # === LAYER 22: Cargo insurance (Verkehrshaftungsversicherung) ===
+        # === Cargo insurance (Verkehrshaftungsversicherung) ===
         # Only billed when delivery toggle is ON AND delivery is ramped > 0 in current year.
         # Doesn't benefit from FSD safety credit (covers cargo theft, weather, handling).
         # Scales with active fleet × ramp factor — partial-year ramp = partial-month billing.
@@ -1307,21 +1341,21 @@ def execute_financial_simulation(
         fees_mo = ihk_pm + (gez_pm_per_car * active_fleet)
         
         # ============================================================
-        # === LAYER 17 FEATURE A: OpEx Input VAT (Vorsteuerabzug) ====
+        # === FEATURE A: OpEx Input VAT (Vorsteuerabzug) ====
         # Under German UStG, input VAT on eligible operating expenses
         # is deductible against output VAT. Vendors are paid GROSS;
         # the 19% VAT portion offsets the monthly Umsatzsteuerzahllast.
         #
         # VAT-Eligible OpEx (services charging 19% USt):
-        #   energy, wear, clean, park, telemetry, TÜV, charging sub,
-        #   HQ lease, IT/cloud, legal/bookkeeping
+        # energy, wear, clean, park, telemetry, TÜV, charging sub,
+        # HQ lease, IT/cloud, legal/bookkeeping
         #
         # VAT-Exempt OpEx (per UStG):
-        #   - Insurance: § 4 Nr. 10 UStG
-        #   - HQ Insurance: § 4 Nr. 10 UStG
-        #   - Bank fees: § 4 Nr. 8 UStG
-        #   - IHK contributions: Mitgliedsbeitrag (no VAT)
-        #   - GEZ broadcast fee: öffentliche Abgabe (no VAT)
+        # - Insurance: § 4 Nr. 10 UStG
+        # - HQ Insurance: § 4 Nr. 10 UStG
+        # - Bank fees: § 4 Nr. 8 UStG
+        # - IHK contributions: Mitgliedsbeitrag (no VAT)
+        # - GEZ broadcast fee: öffentliche Abgabe (no VAT)
         # ============================================================
         vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
@@ -1331,7 +1365,7 @@ def execute_financial_simulation(
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
         # BS impact: operational_vat_payable netted by -opex_input_vat_mo below
         
-        # === LAYER 23 FIX — THG Quote per German legal mechanics ===
+        # === THG Quote per German legal mechanics ===
         # § 7 Abs. 1 38. BImSchV + 38. BImSchV § 6: per-vehicle annual flat
         # payment, paid in full regardless of registration timing within the
         # calendar year. Deadline for current-year claim: November 15.
@@ -1347,16 +1381,16 @@ def execute_financial_simulation(
         # ~€9K cumulative 5Y under-booking).
         #
         # Correct model:
-        #   (a) NEW cars added Jan-Oct → full €280 booked in addition month
-        #   (b) NEW cars added Nov-Dec → past Nov 15 deadline, defer to next Jan
-        #   (c) EXISTING fleet (carried from prior calendar year) → full €280
-        #       each booked once per year, in January of new calendar year
+        # (a) NEW cars added Jan-Oct → full €280 booked in addition month
+        # (b) NEW cars added Nov-Dec → past Nov 15 deadline, defer to next Jan
+        # (c) EXISTING fleet (carried from prior calendar year) → full €280
+        #     each booked once per year, in January of new calendar year
         # IMPORTANT: deferred Nov/Dec cars released in Jan must be EXCLUDED
         # from the existing-fleet count for that month, or they'd be claimed
         # twice (once as deferred release, once as existing fleet).
         # `pending_carryover_cars` tracks the count of cars whose deferral
         # has been "queued" for next January, so we can exclude them.
-        # Cash collection: quarterly settlement preserved from F-18 (THG
+        # Cash collection: quarterly settlement preserved (THG
         # providers typically pay within 4-12 weeks of application).
         current_calendar_month = ((current_month - 1) % 12) + 1  # 1=Jan ... 12=Dec
         thg_rev_mo = 0.0
@@ -1368,8 +1402,8 @@ def execute_financial_simulation(
             thg_deferred_next_year += thg_quote_per_car_py * cars_added_this_month
             pending_carryover_cars += cars_added_this_month
         # (c) January carry-over: existing fleet re-claims annual THG
-        #     EXCLUDING (i) cars added this same month and (ii) cars already
-        #     "pre-claimed" via the deferred-release pathway from prior Nov/Dec.
+        #   EXCLUDING (i) cars added this same month and (ii) cars already
+        #   "pre-claimed" via the deferred-release pathway from prior Nov/Dec.
         if current_calendar_month == 1:
             existing_fleet_carryover = active_fleet - cars_added_this_month - pending_carryover_cars
             thg_rev_mo += thg_quote_per_car_py * existing_fleet_carryover
@@ -1377,7 +1411,7 @@ def execute_financial_simulation(
             thg_rev_mo += thg_deferred_next_year
             thg_deferred_next_year = 0.0
             pending_carryover_cars = 0  # released, reset
-        # Receivable + quarterly cash collection (unchanged pattern from F-18)
+        # Receivable + quarterly cash collection (unchanged pattern)
         thg_receivable += thg_rev_mo
         thg_cash_mo = 0.0
         if current_month % 3 == 0:
@@ -1385,17 +1419,16 @@ def execute_financial_simulation(
             thg_receivable = 0.0
         thg_wc_delta = thg_cash_mo - thg_rev_mo
         
-        # F-36 Risk Provisions allocation (§ 249 HGB)
+        # Risk Provisions allocation (§ 249 HGB)
         legal_provision_mo = legal_provision_rate if active_fleet > 0 else 0.0
         legal_provision_bal += legal_provision_mo
         
-        # F-01 Fix Applied: Capital gains stripped cleanly from operational cash line
+        # Capital gains stripped cleanly from operational cash line
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
-        # === M-03 FIX (supersedes F-25) ===
-        # Interest income accrues on Beginning-of-Period cash balance.
-        # Rationale: F-25's projected_mid hack used only capex/financing flows,
+                # Interest income accrues on Beginning-of-Period cash balance.
+        # Rationale: previous projected_mid hack used only capex/financing flows,
         # excluding operating CF, which materially under-estimated interest
         # in profitable years (Y4-5 with €3M+ cash). BoP basis is conservative,
         # standard treasury practice, free of circularity, and rigorously
@@ -1409,7 +1442,7 @@ def execute_financial_simulation(
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
         vat_refund_inflow = vat_repay_schedule[current_month]
-        # M-05 FIX: Defensive cap — vat_repay cannot exceed outstanding bridge loan.
+        # Defensive cap — vat_repay cannot exceed outstanding bridge loan.
         # Excess refund still flows through inv_cf_mo as a real cash inflow.
         vat_repay_mo = min(vat_refund_inflow, vat_loan_bal)
         vat_loan_bal -= vat_repay_mo
@@ -1421,7 +1454,7 @@ def execute_financial_simulation(
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
-        # Monthly HGB tax provision accruals (F-04 / F-16 fixed matrix)
+        # Monthly HGB tax provision accruals (fixed matrix)
         tax_exp_mo = max(0.0, ebt_mo) * tax_schedule[current_year]
         current_year_tax_accrued += tax_exp_mo
         
@@ -1430,7 +1463,7 @@ def execute_financial_simulation(
             tax_paid_mo += true_up_due_this_m5
             true_up_due_this_m5 = 0.0
             
-        # F-08 Compliance Calendar Loop
+        # Compliance Calendar Loop
         if current_year > 1:
             if current_month_index in [3, 6, 9, 12]:
                 payment = prior_year_tax_actual * 0.50 * 0.25
@@ -1449,10 +1482,10 @@ def execute_financial_simulation(
 
         net_inc_mo = ebt_mo - tax_exp_mo
         
-        # F-23 Short-Term Overdraft Linkage Mechanics
-        # Layer 21: Output VAT now includes BOTH passenger and delivery
+        # Short-Term Overdraft Linkage Mechanics
+        # Output VAT now includes BOTH passenger and delivery
         op_vat_collected = vat_owed_mo + delivery_vat_mo
-        # === LAYER 17 FEATURE A: VAT cash flow ===
+        # === FEATURE A: VAT cash flow ===
         # op_vat_paid = prior month's NETTED payable being remitted to Finanzamt
         # opex_input_vat_mo = vendors paid gross THIS month (separate cash drain)
         # Combine both into op_vat_paid_total for the CF statement.
@@ -1467,7 +1500,7 @@ def execute_financial_simulation(
         tentative_ending_cash = current_cash + net_before_overdraft
         
         # =====================================================================
-        # === H-01 + H-02 FIX: Capped Overdraft + Insolvency Detection ========
+        # === Capped Overdraft + Insolvency Detection ========
         # Overdraft draws are now capped at max_overdraft_limit (bank Linie).
         # If shortfall exceeds available headroom → INSOLVENCY flagged but
         # overdraft is still drawn to the cap (engine continues for visibility).
@@ -1492,17 +1525,17 @@ def execute_financial_simulation(
             else:
                 current_cash = tentative_ending_cash
                 
-        # H-01 FIX: Dual-track liquidity-stress signals
+        # Dual-track liquidity-stress signals
         # (a) Raw cash floor: traditional "do we have €X on hand?"
         if current_cash < min_cash_buffer and active_fleet > 0:
             cash_breach_months.append(month_col_names[-1])
         # (b) Net liquidity (cash − overdraft): "are we net positive after debt?"
-        #     This is what bank credit committee computes — Effektive Liquidität.
+        #   This is what bank credit committee computes — Effektive Liquidität.
         effective_cash = current_cash - overdraft_facility_bal
         if effective_cash < min_cash_buffer and active_fleet > 0:
             net_liq_breach_months.append(month_col_names[-1])
 
-        # === FIX 2 (Crash 2): Define eq_in and sh_in BEFORE the CF appends section ===
+        # === Define eq_in and sh_in BEFORE the CF appends section ===
         eq_in = stammkapital if current_month == 1 else 0.0
         sh_in = shareholder_loan if current_month == 1 else 0.0
 
@@ -1511,12 +1544,12 @@ def execute_financial_simulation(
         cum_depr += total_afa_this_mo - accum_afa_sold_this_mo 
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
-        # === LAYER 17 FEATURE A: NET VAT Payable ===
+        # === FEATURE A: NET VAT Payable ===
         # operational_vat_payable = Output VAT − OpEx Input VAT (Vorsteuer offset)
         # The cash drain to vendors (-opex_input_vat_mo above) exactly offsets
         # this -opex_input_vat_mo reduction in the payable. BS stays balanced.
         # Note: this is the INTERNAL signed state — may be negative when input VAT
-        # exceeds output VAT. Gross BS presentation handled below (M-01).
+        # exceeds output VAT. Gross BS presentation handled below.
         operational_vat_payable = op_vat_collected - opex_input_vat_mo
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
@@ -1524,12 +1557,12 @@ def execute_financial_simulation(
         kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
         
         # =====================================================================
-        # === M-01 FIX: Gross BS presentation for operational VAT position ===
+        # === Gross BS presentation for operational VAT position ===
         # Internal state `operational_vat_payable` carries the signed net
         # (can be negative when Vorsteuerüberhang exists). For BS reporting,
         # § 246 III HGB Bruttoprinzip requires gross presentation: split into
         # a payable (liability, ≥ 0) and a receivable (asset, ≥ 0).
-        # === M-02 FIX: Same pattern for tax_provision_bal — when prepayments
+        # === Same pattern for tax_provision_bal — when prepayments
         # exceed accrual (e.g., declining-profit year), a Steuerforderung exists.
         # =====================================================================
         op_vat_payable_bs = max(0.0, operational_vat_payable)       # liability
@@ -1550,7 +1583,7 @@ def execute_financial_simulation(
         pnl_m[P_NET].append(net_rev_mo)
         pnl_m[P_TFEE].append(-tesla_fee_mo)
         pnl_m[P_MNET].append(mrrg_net_mo)
-        # === LAYER 21: B2B Delivery revenue stream P&L appends ===
+        # === B2B Delivery revenue stream P&L appends ===
         pnl_m[P_DGBV].append(delivery_gbv_mo)
         pnl_m[P_DVAT].append(-delivery_vat_mo)
         pnl_m[P_DNET].append(delivery_net_rev_mo)
@@ -1576,7 +1609,7 @@ def execute_financial_simulation(
         pnl_m[P_LPR].append(-legal_provision_mo)
         pnl_m[P_THG].append(thg_rev_mo)
         pnl_m[P_EB].append(ebitda_mo)
-        # H-07 FIX: HGB-view EBITDA = Mgmt EBITDA + Anlagenabgang (per § 275 II Nr.4 HGB)
+        # HGB-view EBITDA = Mgmt EBITDA + Anlagenabgang (per § 275 II Nr.4 HGB)
         pnl_m[P_EB_HGB].append(ebitda_mo + fleet_sale_rev)
         pnl_m[P_AF_V].append(-current_veh_afa)
         pnl_m[P_AF_I].append(-current_it_afa)
@@ -1611,7 +1644,7 @@ def execute_financial_simulation(
         cf_m[C_OD].append(overdraft_net_flow)
         cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
         cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow)
-        # === FIX 4 (Logic Bug 2): Use beg_cash saved at top of loop ===
+        # === Use beg_cash saved at top of loop ===
         cf_m[C_BEG].append(beg_cash)
         cf_m[C_END].append(current_cash)
 
@@ -1619,22 +1652,22 @@ def execute_financial_simulation(
         bs_m[B_AD].append(-cum_depr)
         bs_m[B_NF].append(nfa)
         bs_m[B_VR].append(vat_receivable)
-        bs_m[B_OPVRX].append(op_vat_receivable_bs)          # M-01: gross asset side
+        bs_m[B_OPVRX].append(op_vat_receivable_bs)          # gross asset side
         bs_m[B_TR].append(thg_receivable)
-        bs_m[B_TRX].append(tax_receivable_bs)               # M-02: gross asset side
+        bs_m[B_TRX].append(tax_receivable_bs)               # gross asset side
         bs_m[B_CS].append(current_cash)
         bs_m[B_TC].append(vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + current_cash)
         bs_m[B_TA].append(total_assets)
         bs_m[B_ES].append(stammkapital)
         bs_m[B_ER].append(cum_net_income)
         bs_m[B_TEQ].append(total_equity)
-        bs_m[B_PT].append(tax_provision_bs)                 # M-02: gross liability side (≥ 0)
+        bs_m[B_PT].append(tax_provision_bs)                 # gross liability side (≥ 0)
         bs_m[B_PL].append(legal_provision_bal)
         bs_m[B_TPV].append(total_prov)
         bs_m[B_DK].append(kfw_loan_bal)
         bs_m[B_DV].append(vat_loan_bal)
         bs_m[B_DO].append(overdraft_facility_bal)
-        bs_m[B_PV].append(op_vat_payable_bs)                # M-01: gross liability side (≥ 0)
+        bs_m[B_PV].append(op_vat_payable_bs)                # gross liability side (≥ 0)
         bs_m[B_SL].append(shareholder_loan)
         bs_m[B_TL].append(total_liab_bal)
         bs_m[B_TLEQ].append(total_liab_eq)
@@ -1643,7 +1676,7 @@ def execute_financial_simulation(
     return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
-# === FIX 5 STEP D (Logic Bug 1): is_dynamic passed as positional arg before lang_choice ===
+# === is_dynamic passed as positional arg before lang_choice ===
 pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
@@ -1666,7 +1699,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
 )
 
 # ============================================================
-# === L-02 + M-04 FIX: Day-1 Sources/Uses Display
+# === Day-1 Sources/Uses Display
 # Use the engine-returned total_capex_per_car (instead of duplicating
 # the calculation in the dashboard).
 # Day-1 Liquidity metric now shows ACTUAL end-of-Month-1 cash from the
@@ -1682,8 +1715,8 @@ def _quick_parse(s):
         return [0]*12
 
 _y1_count = sum(_quick_parse(y1_adds_str))
-day_1_loan = _y1_count * total_capex_per_car * vehicle_ltv  # uses returned scalar (L-02)
-# M-04 FIX: actual end-of-Month-1 cash from engine, not sources-uses snapshot
+day_1_loan = _y1_count * total_capex_per_car * vehicle_ltv  # uses returned scalar
+# actual end-of-Month-1 cash from engine, not sources-uses snapshot
 day_1_cash_ui = bs_monthly["bs_cash"][0]
 
 # --- POST-LOOP SYSTEM AGGREGATIONS ---
@@ -1693,7 +1726,7 @@ def agg_to_yearly(monthly_dict):
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
-            # F-19 Fix Applied: Structural set definitions completely clean aggregation pathways
+            # Structural set definitions completely clean aggregation pathways
             if key == "cf_end" or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
             elif key == "cf_beg":
@@ -1729,14 +1762,14 @@ df_pnl_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
-# --- F-22 STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
-# === Layer 17 (post TM removal): Geschäftsführer also holds Verkehrsleiter
+# --- STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
+# === (post TM removal): Geschäftsführer also holds Verkehrsleiter
 # mandate (no separate fee). Personalaufwand = 0. No TM strip-out needed
 # in pos6, since pnl_fees no longer contains a TM component.
-# === C-01 FIX: pnl_tesla_fee (bezogene Leistung — Tesla dispatch platform)
+# === pnl_tesla_fee (bezogene Leistung — Tesla dispatch platform)
 # now flows into pos3 Materialaufwand; pnl_legal_prov (Zuführung Rückstellung
 # § 249 HGB) now flows into pos6. Both were previously missing from HGB sum.
-# === LAYER 21: B2B delivery revenue is operating revenue from the same Tesla
+# === B2B delivery revenue is operating revenue from the same Tesla
 # Network platform — both streams book together into pos1 Umsatzerlöse per § 275 HGB
 # (same operating activity, two consumer/B2B service types). Delivery Tesla
 # platform fee flows into pos3 (bezogene Leistungen) alongside passenger fee.
@@ -1761,7 +1794,7 @@ df_hgb_pnl = pd.DataFrame(hgb_structure, index=df_pnl_combined.columns).T
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-# Layer 21: rev_top = TOTAL Net Revenue (passenger + delivery) for KPI denominators
+# rev_top = TOTAL Net Revenue (passenger + delivery) for KPI denominators
 rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]
 ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
@@ -1770,7 +1803,7 @@ teq = df_bs_combined.loc[loc["bs_teq"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
-# F-15 Fix Applied: Operational pass-through accounts purged from debt metrics evaluation
+# Operational pass-through accounts purged from debt metrics evaluation
 fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
@@ -1851,7 +1884,7 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_c
 
 
 # --- 8. DASHBOARD RECONCILIATION LAYOUT ---
-# H-01 + H-02: Stacked liquidity-stress warnings
+# Stacked liquidity-stress warnings
 if len(insolvency_months) > 0:
     st.error(f"{loc['insolv_warn']}{', '.join(insolvency_months)}")
 if len(net_liq_breach_months) > 0:
@@ -1989,22 +2022,22 @@ with tabs[5]:
         st.plotly_chart(create_mrrg_chart(year_cols, y_ta_v, loc["chart_ta"]), use_container_width=True)
 
 # ==========================================================================
-# === LAYER 25: EXPANDED MONTE CARLO — 22+ PARAMETERS ACROSS 3 TIERS =======
+# === EXPANDED MONTE CARLO — 22+ PARAMETERS ACROSS 3 TIERS =======
 # ==========================================================================
-# Major upgrade from Layer 24 (12 parameters):
-#   • Tier 1 (High Variance): adds active_hours, speed, dwell, init_util,
-#     rec_rate, can_fac, delivery_ramp_y2, delivery_ramp_y4 (now full
-#     delivery roll-out uncertainty Y2+Y3+Y4)
-#   • Tier 2 (Material Variance): adds cybercab_base_usd, usd_eur_rate,
-#     vehicle_ltv, y1_loan_rate, y2_loan_rate (capex/debt structure variance)
-#   • Tier 3 (Smaller Variance): adds cleaning_cost_per_day, parking_pm,
-#     customs_duty_rate (operating cost variance)
-#   • NEW: 5-Year Cumulative Free Cash Flow tracked alongside NI/EBITDA
-#   • NEW: simulation_settings metadata snapshot captured before loop
-#   • NEW: Interactive metric dropdown (FCF/EBITDA/Net Income) dynamically
-#     reshapes Chart 1 + tornado target
-#   • Outputs persisted as nested {simulation_settings, simulation_outputs}
-#     for data provenance and reproducibility audit trails
+# Major upgrade from (12 parameters):
+# • Tier 1 (High Variance): adds active_hours, speed, dwell, init_util,
+#   rec_rate, can_fac, delivery_ramp_y2, delivery_ramp_y4 (now full
+#   delivery roll-out uncertainty Y2+Y3+Y4)
+# • Tier 2 (Material Variance): adds cybercab_base_usd, usd_eur_rate,
+#   vehicle_ltv, y1_loan_rate, y2_loan_rate (capex/debt structure variance)
+# • Tier 3 (Smaller Variance): adds cleaning_cost_per_day, parking_pm,
+#   customs_duty_rate (operating cost variance)
+# • NEW: 5-Year Cumulative Free Cash Flow tracked alongside NI/EBITDA
+# • NEW: simulation_settings metadata snapshot captured before loop
+# • NEW: Interactive metric dropdown (FCF/EBITDA/Net Income) dynamically
+#   reshapes Chart 1 + tornado target
+# • Outputs persisted as nested {simulation_settings, simulation_outputs}
+#   for data provenance and reproducibility audit trails
 # The deterministic engine logic itself remains fully unchanged.
 # ==========================================================================
 with tabs[6]:
@@ -2098,6 +2131,126 @@ with tabs[6]:
         with t3c3:
             mc_sigma_salvage = st.number_input(loc["mc_p_salvage"], value=2500.0, min_value=500.0, max_value=10000.0, step=500.0)
 
+    # =========================================================================
+    # === PHASE A: DAY ARCHETYPE MIX UI (intraday demand topology) ===========
+    # =========================================================================
+    # Each day in the operating year is assigned to an archetype with its own
+    # demand intensity multiplier. The annual mix determines the realized
+    # seasonality multiplier for each calendar month, with stochastic variance
+    # in both the COUNT (days per year) and the INTENSITY (multiplier) of each
+    # archetype. This captures the "good day vs bad day" lottery that drives
+    # cash flow variance beyond simple monthly averages.
+    # =========================================================================
+    with st.expander(loc["mc_dayarch_header"], expanded=False):
+        st.caption(loc["mc_dayarch_help"])
+        da_c1, da_c2, da_c3 = st.columns(3)
+        with da_c1:
+            st.markdown("**Days/Year (Frequency)**")
+            arch_weekday_days = st.number_input(loc["mc_dayarch_weekday"] + " days/yr",
+                value=155, min_value=100, max_value=260, step=5)
+            arch_weekend_days = st.number_input(loc["mc_dayarch_weekend"] + " days/yr",
+                value=80, min_value=40, max_value=110, step=5)
+            arch_friday_days = st.number_input(loc["mc_dayarch_friday"] + " days/yr",
+                value=40, min_value=20, max_value=80, step=5)
+            arch_holiday_days = st.number_input(loc["mc_dayarch_holiday"] + " days/yr",
+                value=30, min_value=10, max_value=80, step=5)
+            arch_oktober_days = st.number_input(loc["mc_dayarch_oktoberfest"] + " days/yr",
+                value=16, min_value=0, max_value=20, step=1)
+            arch_xmas_days = st.number_input(loc["mc_dayarch_xmas"] + " days/yr",
+                value=28, min_value=0, max_value=40, step=2)
+        with da_c2:
+            st.markdown("**Demand Multiplier (mean)**")
+            arch_weekday_mult = st.number_input(loc["mc_dayarch_weekday"] + " ×",
+                value=1.00, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            arch_weekend_mult = st.number_input(loc["mc_dayarch_weekend"] + " ×",
+                value=0.90, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            arch_friday_mult = st.number_input(loc["mc_dayarch_friday"] + " ×",
+                value=1.25, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            arch_holiday_mult = st.number_input(loc["mc_dayarch_holiday"] + " ×",
+                value=0.70, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
+            arch_oktober_mult = st.number_input(loc["mc_dayarch_oktoberfest"] + " ×",
+                value=1.60, min_value=1.00, max_value=2.50, step=0.05, format="%.2f")
+            arch_xmas_mult = st.number_input(loc["mc_dayarch_xmas"] + " ×",
+                value=1.35, min_value=0.80, max_value=2.00, step=0.05, format="%.2f")
+        with da_c3:
+            st.markdown("**Demand Multiplier σ (variance)**")
+            arch_weekday_sigma = st.number_input(loc["mc_dayarch_weekday"] + " σ",
+                value=0.05, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_weekend_sigma = st.number_input(loc["mc_dayarch_weekend"] + " σ",
+                value=0.08, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_friday_sigma = st.number_input(loc["mc_dayarch_friday"] + " σ",
+                value=0.10, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_holiday_sigma = st.number_input(loc["mc_dayarch_holiday"] + " σ",
+                value=0.12, min_value=0.01, max_value=0.40, step=0.01, format="%.2f")
+            arch_oktober_sigma = st.number_input(loc["mc_dayarch_oktoberfest"] + " σ",
+                value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            arch_xmas_sigma = st.number_input(loc["mc_dayarch_xmas"] + " σ",
+                value=0.15, min_value=0.05, max_value=0.40, step=0.05, format="%.2f")
+        # Calendar-month assignment policy (which months get which archetypes)
+        # is hard-coded in the sampler. Defaults: Oktoberfest concentrates in Sep-Oct,
+        # Christmas in Nov-Dec, holidays spread across school break periods.
+
+    # =========================================================================
+    # === PHASE B: STOCHASTIC SHOCK EVENTS UI =================================
+    # =========================================================================
+    # Independent stochastic events that perturb individual operating days.
+    # Each event has annual frequency (Poisson-ish) and a demand impact
+    # multiplier. Shocks layer ON TOP of the day-archetype base demand,
+    # capturing asymmetric upside (transit strike → demand surge) and downside
+    # (tech outage → lost revenue) risks that banks specifically care about.
+    # =========================================================================
+    with st.expander(loc["mc_shock_header"], expanded=False):
+        st.caption(loc["mc_shock_help"])
+        sh_c1, sh_c2, sh_c3 = st.columns(3)
+        with sh_c1:
+            st.markdown("**Annual Frequency (days)**")
+            shock_weather_freq = st.number_input(loc["mc_shock_severe_weather"] + " days/yr",
+                value=12, min_value=0, max_value=40, step=1)
+            shock_strike_freq = st.number_input(loc["mc_shock_transit_strike"] + " days/yr",
+                value=2, min_value=0, max_value=15, step=1)
+            shock_event_freq = st.number_input(loc["mc_shock_major_event"] + " days/yr",
+                value=15, min_value=0, max_value=50, step=1)
+            shock_tech_freq = st.number_input(loc["mc_shock_tech_outage"] + " days/yr",
+                value=3, min_value=0, max_value=20, step=1)
+            shock_heat_freq = st.number_input(loc["mc_shock_heatwave"] + " days/yr",
+                value=10, min_value=0, max_value=30, step=1)
+            shock_ice_freq = st.number_input(loc["mc_shock_black_ice"] + " days/yr",
+                value=5, min_value=0, max_value=20, step=1)
+            shock_road_freq = st.number_input(loc["mc_shock_road_closure"] + " days/yr",
+                value=7, min_value=0, max_value=30, step=1)
+        with sh_c2:
+            st.markdown("**Demand Multiplier (mean)**")
+            shock_weather_mult = st.number_input(loc["mc_shock_severe_weather"] + " ×",
+                value=1.20, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_strike_mult = st.number_input(loc["mc_shock_transit_strike"] + " ×",
+                value=1.50, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_event_mult = st.number_input(loc["mc_shock_major_event"] + " ×",
+                value=1.30, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_tech_mult = st.number_input(loc["mc_shock_tech_outage"] + " ×",
+                value=0.50, min_value=0.00, max_value=1.00, step=0.05, format="%.2f")
+            shock_heat_mult = st.number_input(loc["mc_shock_heatwave"] + " ×",
+                value=1.05, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            shock_ice_mult = st.number_input(loc["mc_shock_black_ice"] + " ×",
+                value=1.10, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            shock_road_mult = st.number_input(loc["mc_shock_road_closure"] + " ×",
+                value=0.85, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
+        with sh_c3:
+            st.markdown("**Multiplier σ (variance)**")
+            shock_weather_sigma = st.number_input(loc["mc_shock_severe_weather"] + " σ",
+                value=0.15, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
+            shock_strike_sigma = st.number_input(loc["mc_shock_transit_strike"] + " σ",
+                value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            shock_event_sigma = st.number_input(loc["mc_shock_major_event"] + " σ",
+                value=0.15, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            shock_tech_sigma = st.number_input(loc["mc_shock_tech_outage"] + " σ",
+                value=0.20, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
+            shock_heat_sigma = st.number_input(loc["mc_shock_heatwave"] + " σ",
+                value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_ice_sigma = st.number_input(loc["mc_shock_black_ice"] + " σ",
+                value=0.12, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_road_sigma = st.number_input(loc["mc_shock_road_closure"] + " σ",
+                value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+
     # --- Execute Monte Carlo if button pressed ---
     if run_mc:
         # ---- Statistical sampling helpers ----
@@ -2113,6 +2266,118 @@ with tabs[6]:
             if low > high: low, high = high, low
             mode = max(low, min(high, mode))
             return rng.triangular(low, mode, high)
+
+        # ====================================================================
+        # PHASE A+B HELPER: monthly demand modifier from day-archetype mix +
+        # shock event sampling. Returns 12-month vector (Jan-Dec) of composite
+        # demand multipliers that mutate the base seasonality_by_month dict.
+        # ====================================================================
+        # Calendar policy: which months get which archetype "share" of days.
+        # Months × archetypes — fraction of days in that month that fall into
+        # each archetype before shock events. Rows sum to 1.0 per month.
+        # Defaults reflect Munich calendar (Oktoberfest Sep/Oct, Xmas Nov/Dec).
+        month_arch_policy = {
+            #       weekday  weekend  friday   holiday  oktober  xmas
+            1:  [0.55,    0.27,    0.14,    0.04,    0.00,    0.00],  # Jan (post-NYE)
+            2:  [0.55,    0.27,    0.14,    0.04,    0.00,    0.00],  # Feb (Karneval week)
+            3:  [0.60,    0.27,    0.13,    0.00,    0.00,    0.00],  # Mar
+            4:  [0.55,    0.27,    0.13,    0.05,    0.00,    0.00],  # Apr (Easter)
+            5:  [0.58,    0.27,    0.13,    0.02,    0.00,    0.00],  # May
+            6:  [0.60,    0.27,    0.13,    0.00,    0.00,    0.00],  # Jun
+            7:  [0.55,    0.27,    0.13,    0.05,    0.00,    0.00],  # Jul (summer holidays)
+            8:  [0.45,    0.27,    0.13,    0.15,    0.00,    0.00],  # Aug (peak summer holidays)
+            9:  [0.45,    0.20,    0.10,    0.05,    0.20,    0.00],  # Sep (Oktoberfest starts)
+            10: [0.50,    0.22,    0.10,    0.03,    0.15,    0.00],  # Oct (Oktoberfest ends)
+            11: [0.50,    0.25,    0.13,    0.02,    0.00,    0.10],  # Nov (Christmas markets start)
+            12: [0.30,    0.20,    0.13,    0.07,    0.00,    0.30],  # Dec (Christmas markets + holidays)
+        }
+        # Approx days per month
+        days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+        def _sample_monthly_demand_modifiers(rng):
+            """
+            Returns dict {1..12 -> demand_modifier}. Each value is a composite
+            multiplier reflecting: (1) day-archetype mix for that month,
+            weighted by each archetype's sampled intensity, plus (2) shock
+            events that landed in that month, weighted by their impact.
+
+            Result is mean-1.0-centered so that a "normal" simulation produces
+            modifiers near 1.0 across all months. Mutates the base
+            seasonality_by_month multiplicatively.
+            """
+            # Sample one intensity per archetype (constant across the year for this iteration)
+            arch_w = max(0.40, rng.normal(arch_weekday_mult, arch_weekday_sigma))
+            arch_we = max(0.40, rng.normal(arch_weekend_mult, arch_weekend_sigma))
+            arch_f = max(0.40, rng.normal(arch_friday_mult, arch_friday_sigma))
+            arch_h = max(0.20, rng.normal(arch_holiday_mult, arch_holiday_sigma))
+            arch_o = max(0.50, rng.normal(arch_oktober_mult, arch_oktober_sigma))
+            arch_x = max(0.50, rng.normal(arch_xmas_mult, arch_xmas_sigma))
+            arch_intensities = np.array([arch_w, arch_we, arch_f, arch_h, arch_o, arch_x])
+
+            # Compute base demand modifier per month from policy mix × intensities
+            mods = {}
+            for m in range(1, 13):
+                policy_row = np.array(month_arch_policy[m])
+                # Weighted average demand intensity for this month
+                base_mod = float(np.sum(policy_row * arch_intensities))
+                mods[m] = base_mod
+
+            # Sample shock events for the year
+            # Use Poisson to sample actual count per shock type per year
+            shock_specs = [
+                (shock_weather_freq, shock_weather_mult, shock_weather_sigma),
+                (shock_strike_freq,  shock_strike_mult,  shock_strike_sigma),
+                (shock_event_freq,   shock_event_mult,   shock_event_sigma),
+                (shock_tech_freq,    shock_tech_mult,    shock_tech_sigma),
+                (shock_heat_freq,    shock_heat_mult,    shock_heat_sigma),
+                (shock_ice_freq,     shock_ice_mult,     shock_ice_sigma),
+                (shock_road_freq,    shock_road_mult,    shock_road_sigma),
+            ]
+            # Heat wave: concentrate in Jun-Aug; Black ice: concentrate in Dec-Feb
+            # All others: uniform across 12 months
+            shock_month_weights = [
+                np.ones(12) / 12.0,                                                          # weather: uniform
+                np.ones(12) / 12.0,                                                          # strike: uniform
+                np.ones(12) / 12.0,                                                          # event: uniform
+                np.ones(12) / 12.0,                                                          # tech outage: uniform
+                np.array([0, 0, 0, 0, 0, 0.20, 0.40, 0.30, 0.10, 0, 0, 0]),                  # heat: Jun-Sep concentrated
+                np.array([0.30, 0.25, 0.10, 0, 0, 0, 0, 0, 0, 0, 0.05, 0.30]),               # ice: Dec-Feb concentrated
+                np.ones(12) / 12.0,                                                          # road: uniform
+            ]
+
+            # For each shock type, sample count and distribute across months
+            shock_counts_by_month = np.zeros(12)
+            shock_impact_sum_by_month = np.zeros(12)
+            shock_total_counts = {}
+            shock_type_names = ["weather", "strike", "event", "tech", "heat", "ice", "road"]
+            for idx, (freq, mult, sigma) in enumerate(shock_specs):
+                # Poisson sampling for count realization
+                count = int(rng.poisson(freq))
+                shock_total_counts[shock_type_names[idx]] = count
+                if count == 0:
+                    continue
+                # Sample multiplier intensity (each day's shock has its own draw)
+                # We use the average shock impact across the count for tractability
+                avg_mult = max(0.0, rng.normal(mult, sigma))
+                # Distribute count across months by weight
+                weights = shock_month_weights[idx]
+                # Probabilistic distribution: multinomial draw
+                month_distribution = rng.multinomial(count, weights)
+                for m_idx in range(12):
+                    shock_counts_by_month[m_idx] += month_distribution[m_idx]
+                    # Impact = (avg_mult - 1.0) × count, scaled per-day later
+                    shock_impact_sum_by_month[m_idx] += (avg_mult - 1.0) * month_distribution[m_idx]
+
+            # Apply shock impacts: per-day deviation from 1.0, averaged over month
+            for m in range(1, 13):
+                dim = days_per_month[m-1]
+                # Shock contributes (deviation × shock_days) / total_days to the month average
+                shock_contribution = shock_impact_sum_by_month[m-1] / dim
+                mods[m] = mods[m] + shock_contribution
+                # Floor at 0.20 to prevent degenerate negative cases
+                mods[m] = max(0.20, mods[m])
+
+            return mods, arch_intensities, shock_total_counts
 
         # ============================================================
         # === SIMULATION SETTINGS METADATA SNAPSHOT (provenance) ====
@@ -2224,6 +2489,21 @@ with tabs[6]:
             "parking_pm":              np.zeros(n_iterations),
             "customs_duty_rate":       np.zeros(n_iterations),
             "salvage_value_per_car_y4": np.zeros(n_iterations),
+            # === PHASE A: Day-archetype intensity tracking ===
+            "arch_weekday_intensity":   np.zeros(n_iterations),
+            "arch_weekend_intensity":   np.zeros(n_iterations),
+            "arch_friday_intensity":    np.zeros(n_iterations),
+            "arch_holiday_intensity":   np.zeros(n_iterations),
+            "arch_oktober_intensity":   np.zeros(n_iterations),
+            "arch_xmas_intensity":      np.zeros(n_iterations),
+            # === PHASE B: Shock event count tracking (per 5Y horizon) ===
+            "shock_weather_5y":         np.zeros(n_iterations),
+            "shock_strike_5y":          np.zeros(n_iterations),
+            "shock_event_5y":           np.zeros(n_iterations),
+            "shock_tech_5y":            np.zeros(n_iterations),
+            "shock_heat_5y":            np.zeros(n_iterations),
+            "shock_ice_5y":             np.zeros(n_iterations),
+            "shock_road_5y":            np.zeros(n_iterations),
         }
 
         progress_bar = st.progress(0.0, text=loc["mc_running_msg"])
@@ -2295,7 +2575,33 @@ with tabs[6]:
             param_samples["customs_duty_rate"][i] = customs_sampled
             param_samples["salvage_value_per_car_y4"][i] = salvage_sampled
 
-            # Derived energy rate per Layer 22 decomposition
+            # ====================================================================
+            # PHASE A + B: Sample monthly demand modifiers from day-archetype mix
+            # and shock events. Mutate base seasonality_by_month multiplicatively.
+            # ====================================================================
+            monthly_mods, arch_intensities_iter, shock_counts_iter = _sample_monthly_demand_modifiers(rng)
+            seasonality_iter = {m: seasonality_by_month[m] * monthly_mods[m] for m in range(1, 13)}
+
+            # Record archetype intensities + shock counts (×5 for 5-year horizon)
+            param_samples["arch_weekday_intensity"][i]  = arch_intensities_iter[0]
+            param_samples["arch_weekend_intensity"][i]  = arch_intensities_iter[1]
+            param_samples["arch_friday_intensity"][i]   = arch_intensities_iter[2]
+            param_samples["arch_holiday_intensity"][i]  = arch_intensities_iter[3]
+            param_samples["arch_oktober_intensity"][i]  = arch_intensities_iter[4]
+            param_samples["arch_xmas_intensity"][i]     = arch_intensities_iter[5]
+            # Shock counts shown per-year basis (multiply by 5 for the full horizon)
+            # The Poisson sample was one-year; over 5 years, expected count is 5×freq.
+            # We sample once per iteration and apply that yearly intensity for 5 years
+            # (acceptable approximation that under-states tail variance slightly).
+            param_samples["shock_weather_5y"][i] = shock_counts_iter.get("weather", 0) * 5
+            param_samples["shock_strike_5y"][i]  = shock_counts_iter.get("strike", 0) * 5
+            param_samples["shock_event_5y"][i]   = shock_counts_iter.get("event", 0) * 5
+            param_samples["shock_tech_5y"][i]    = shock_counts_iter.get("tech", 0) * 5
+            param_samples["shock_heat_5y"][i]    = shock_counts_iter.get("heat", 0) * 5
+            param_samples["shock_ice_5y"][i]     = shock_counts_iter.get("ice", 0) * 5
+            param_samples["shock_road_5y"][i]    = shock_counts_iter.get("road", 0) * 5
+
+            # Derived energy rate from sampled components
             energy_rate_sampled = (kwh_per_km_sampled * energy_eur_sampled) / charging_efficiency
 
             # ---- Invoke the deterministic engine with sampled params ----
@@ -2317,7 +2623,7 @@ with tabs[6]:
                     delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
                     delivery_trips_per_hour, delivery_take_rate,
                     delivery_ramp_y1, dy2_sampled, dy3_sampled, dy4_sampled, delivery_ramp_y5,
-                    delivery_cargo_insurance_pm, seasonality_by_month,
+                    delivery_cargo_insurance_pm, seasonality_iter,
                     is_dynamic, lang_choice
                 )
                 ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
@@ -2516,6 +2822,21 @@ with tabs[6]:
             "parking_pm":               "Parking (€/mo) [T3]",
             "customs_duty_rate":        "Customs Duty Rate [T3]",
             "salvage_value_per_car_y4": "Salvage Value (€) [T3]",
+            # === PHASE A: Day-archetype intensity drivers ===
+            "arch_weekday_intensity":   "Weekday Demand Intensity [DA]",
+            "arch_weekend_intensity":   "Weekend Demand Intensity [DA]",
+            "arch_friday_intensity":    "Fri/Sat Evening Intensity [DA]",
+            "arch_holiday_intensity":   "Holiday Demand Intensity [DA]",
+            "arch_oktober_intensity":   "Oktoberfest Demand Intensity [DA]",
+            "arch_xmas_intensity":      "Christmas Markets Intensity [DA]",
+            # === PHASE B: Shock event count drivers ===
+            "shock_weather_5y":         "Severe Weather Days (5Y) [SH]",
+            "shock_strike_5y":          "Transit Strike Days (5Y) [SH]",
+            "shock_event_5y":           "Major Event Days (5Y) [SH]",
+            "shock_tech_5y":            "Tech Outage Days (5Y) [SH]",
+            "shock_heat_5y":            "Heat Wave Days (5Y) [SH]",
+            "shock_ice_5y":             "Black Ice Days (5Y) [SH]",
+            "shock_road_5y":            "Road Closure Days (5Y) [SH]",
         }
         for param_key, samples_arr in param_samples_stored.items():
             samples_valid_sub = samples_arr[valid_mask]
@@ -2547,22 +2868,24 @@ with tabs[6]:
             template="plotly_dark",
             paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
             font=dict(color="#FAFAFA", family="Inter, sans-serif"),
-            showlegend=False, height=820,  # tall to fit 27 bars cleanly
+            showlegend=False, height=1100,  # tall to fit 40+ bars (params + archetypes + shocks)
             xaxis=dict(range=[-1.0, 1.0])
         )
         st.plotly_chart(fig_tornado, use_container_width=True)
 
         st.caption(
             "**Interpretation guide:** Pearson r magnitude shows how strongly each "
-            "stochastic parameter drives variance in the selected target metric "
-            f"({metric_view}). Positive r (green) means higher parameter → higher target. "
-            "Negative r (red) means higher parameter → lower target. Magnitudes < 0.1 "
+            "stochastic input drives variance in the selected target metric "
+            f"({metric_view}). Positive r (green) means higher input → higher target. "
+            "Negative r (red) means higher input → lower target. Magnitudes < 0.1 "
             "are essentially noise; > 0.3 indicates a dominant variance driver worth "
             "scenario-planning. Tornado is sorted by |r| with strongest drivers at top. "
-            "Suffix [T1]/[T2]/[T3] = Tier classification (Operating Physics / Capex+Debt / "
-            "Operating Costs). Switch the dropdown above to see how the same parameter "
-            "set drives FCF vs EBITDA vs Net Income differently — useful for understanding "
-            "which uncertainties matter for cash position vs operational profitability."
+            "**Tier suffix legend:** [T1]=Operating Physics, [T2]=Capex/Debt, "
+            "[T3]=Operating Costs, [DA]=Day Archetype intensity (Phase A demand topology), "
+            "[SH]=Shock Event frequency (Phase B asymmetric event risk). "
+            "Switch the dropdown above to see how the same parameter set drives FCF vs "
+            "EBITDA vs Net Income differently — useful for understanding which "
+            "uncertainties matter for cash position vs operational profitability."
         )
     else:
         st.info(loc["mc_no_results"])
@@ -2595,17 +2918,17 @@ with tabs[7]:
         * **Utilization Mode:** If set to *Dynamic*, the model simulates reality: when you drop new cars into a city, they temporarily "cannibalize" rides from your existing cars. Your overall utilization drops, and then slowly recovers.
         * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
         * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws a short-term bridge loan (rate configured in sidebar) to cover this VAT and pays it off automatically based on the configured refund lag.
-        * **OpEx Input VAT (Vorsteuerabzug, Layer 17):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, legal services, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
-        * **Layer 18 fixes:** (a) **Vehicle AfA is now 60 months** (5 Jahre, aligned with BMF AfA-Tabelle for Mietwagen/Taxi per § 7 EStG). (b) **Overdraft is now capped** at a user-defined Kontokorrentlinie; if the model needs more, **INSOLVENCY** is flagged. (c) **Three distinct liquidity warnings:** Insolvency (line exceeded), Net Liquidity Negative (Cash − Overdraft below buffer = bank-grade Effektive Liquidität check), Raw Cash Floor Breached (traditional check). (d) **Cleaning cost** now depends on calendar days × fleet only, not on utilization. (e) **EBITDA HGB View** memo row added below Mgmt EBITDA showing the salvage bridge per § 275 II Nr. 4 HGB.
+        * **OpEx Input VAT (Vorsteuerabzug, ):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, legal services, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
+        * **fixes:** (a) **Vehicle AfA is now 60 months** (5 Jahre, aligned with BMF AfA-Tabelle for Mietwagen/Taxi per § 7 EStG). (b) **Overdraft is now capped** at a user-defined Kontokorrentlinie; if the model needs more, **INSOLVENCY** is flagged. (c) **Three distinct liquidity warnings:** Insolvency (line exceeded), Net Liquidity Negative (Cash − Overdraft below buffer = bank-grade Effektive Liquidität check), Raw Cash Floor Breached (traditional check). (d) **Cleaning cost** now depends on calendar days × fleet only, not on utilization. (e) **EBITDA HGB View** memo row added below Mgmt EBITDA showing the salvage bridge per § 275 II Nr. 4 HGB.
 
         ---
 
-        #### 🎯 Operational Calibration & Benchmarking (Layer 20)
+        #### 🎯 Operational Calibration & Benchmarking ()
         Operational and variable cost assumptions in this model reflect mature-state central-case values benchmarked against published European mobility operator data (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Throughput calibration assumes **30-34 trips/day per vehicle at steady-state (Y3+)**, built up from 13.5h blended weekday/weekend productive shift, 19 km/h Munich average speed, 3.5 min per-trip dwell, and 22% empty repositioning. Energy and wear cost recalibrations land at **€0.085/km and €0.10/km** respectively — below Waymo benchmarks due to simpler Cybercab sensor stack and German labor rates, above earlier optimistic estimates that did not survive bank-grade Due Diligence. Y1-Y2 ramp-state will run below mature numbers; the engine's **Dynamic Utilization** mode (set as default) models this naturally through the cannibalization + recovery mechanics. For aggressive bull-case modeling, adjust sidebar inputs upward and document the rationale separately.
 
-        **Layer 21 Utilization Recalibration + Two-Stream Revenue:** The initial Layer 20 utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. Layer 21 recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~31% asset utilization and Y5 mature state sits at ~41% — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 18h Tesla Network productivity (75% 24h asset utilization). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
+        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~31% asset utilization and Y5 mature state sits at ~41% — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 18h Tesla Network productivity (75% 24h asset utilization). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
 
-        **Layer 22 — Energy Decomposition + Calibration Refinements + Adjustable Seasonality:** Six coordinated updates after detailed CFO/CPA audit conversations. (1) **Energy cost decomposed into 3 sliders:** consumption €0.115 kWh/km (anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world derate), blended price €0.22/kWh (German wholesale off-peak €0.04-0.09 + Tesla Supercharger off-peak €0.31-0.46, weighted 70/30 depot inductive / V4 wired with fleet subscription), charging efficiency 0.94 (Tesla's stated "well over 90%" inductive at 22 kW × 0.70 + V4 wired 96% × 0.30). Combined effective rate: €0.027/km vs prior €0.085 — 68% reduction reflecting actual Cybercab efficiency. (2) **Insurance €300 → €180/month** via bottom-up rebuild: theft component ~€0 (Cybercab undriveable outside Tesla Network, Waymo Phoenix 7yr data confirms), Tesla Insurance bundling thesis (-15% discount), FSD safety credit (70% reduction on bodily injury/property damage liability), residual categories (vandalism €20, battery/fire €20, weather €12, passenger damage €15, cyber €40, legal reserve €30, BI/PD post-FSD €55, PBefG €18) sum to ~€210, less Tesla bundle discount and 5-year averaging = €180. (3) **APCOA parking €250 → €170/month** per published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 less 15-25% Y5 bulk discount. (4) **Cleaning €3 → €2/day net** reflecting Tesla's published Robotaxi cleaning fee policy ($50 moderate / $150 severe, live Dec 2025) — gross cost ~€5/day depot deep-clean less ~€3/day Tesla fee pass-through revenue. (5) **Active hours 13.5h → 16.0h** unlocked by corrected Cybercab efficiency math (lower kWh/km consumption + 90%+ inductive efficiency = no battery-capacity constraint on extended shifts even in winter peak weeks). (6) **NEW cargo insurance €20/car/month** Verkehrshaftungsversicherung, only billed when delivery toggle is active (covers cargo value, theft in transit, weather damage — doesn't benefit from FSD safety credit). (7) **NEW adjustable monthly seasonality:** 12 individual month sliders in collapsible expander replace the prior hardcoded 4-tier. Defaults preserve Layer 21 blend (1.2125×) — Dec/Jan/Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10. User can stress-test winter penalty assumptions (e.g., Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells). THG quote €200 → €280/car/year per 2024 German actuals also bundled in this layer.
+        **— Energy Decomposition + Calibration Refinements + Adjustable Seasonality:** Six coordinated updates after detailed CFO/CPA audit conversations. (1) **Energy cost decomposed into 3 sliders:** consumption €0.115 kWh/km (anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world derate), blended price €0.22/kWh (German wholesale off-peak €0.04-0.09 + Tesla Supercharger off-peak €0.31-0.46, weighted 70/30 depot inductive / V4 wired with fleet subscription), charging efficiency 0.94 (Tesla's stated "well over 90%" inductive at 22 kW × 0.70 + V4 wired 96% × 0.30). Combined effective rate: €0.027/km vs prior €0.085 — 68% reduction reflecting actual Cybercab efficiency. (2) **Insurance €300 → €180/month** via bottom-up rebuild: theft component ~€0 (Cybercab undriveable outside Tesla Network, Waymo Phoenix 7yr data confirms), Tesla Insurance bundling thesis (-15% discount), FSD safety credit (70% reduction on bodily injury/property damage liability), residual categories (vandalism €20, battery/fire €20, weather €12, passenger damage €15, cyber €40, legal reserve €30, BI/PD post-FSD €55, PBefG €18) sum to ~€210, less Tesla bundle discount and 5-year averaging = €180. (3) **APCOA parking €250 → €170/month** per published 2024 Munich monthly parking €120-180 + charging-capable premium €40-80 less 15-25% Y5 bulk discount. (4) **Cleaning €3 → €2/day net** reflecting Tesla's published Robotaxi cleaning fee policy ($50 moderate / $150 severe, live Dec 2025) — gross cost ~€5/day depot deep-clean less ~€3/day Tesla fee pass-through revenue. (5) **Active hours 13.5h → 16.0h** unlocked by corrected Cybercab efficiency math (lower kWh/km consumption + 90%+ inductive efficiency = no battery-capacity constraint on extended shifts even in winter peak weeks). (6) **NEW cargo insurance €20/car/month** Verkehrshaftungsversicherung, only billed when delivery toggle is active (covers cargo value, theft in transit, weather damage — doesn't benefit from FSD safety credit). (7) **NEW adjustable monthly seasonality:** 12 individual month sliders in collapsible expander replace the prior hardcoded 4-tier. Defaults preserve blend (1.2125×) — Dec/Jan/Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10. User can stress-test winter penalty assumptions (e.g., Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells). THG quote €200 → €280/car/year per 2024 German actuals also bundled in this layer.
 
         **Empirical sources:** TomTom Traffic Index 2024 (Munich congestion); ADAC Wintertest 2023 + Geotab fleet study (EV winter consumption); Waymo NHTSA filings (sensor reliability, dwell time, ramp curves); Sixt+ / Free Now / MOIA published operator data (€/km maintenance benchmarks); Uber/Lyft Marketplace blog data (mature European deadhead rates); Tesla May 2026 Model S/X SE event (Cybercab 165 Wh/mi certification); EPEX Spot 2025 German wholesale electricity data (off-peak hours €0.04-0.09/kWh); Tesla Supercharger pricing Germany 2026 (€0.31-0.46/kWh Tesla off-peak); Tesla Robotaxi cleaning fee policy December 2025 ($50/$150 tiers).
 
@@ -2645,17 +2968,17 @@ with tabs[7]:
         * **Auslastungsmodell:** Wenn auf *Dynamisch* gesetzt, simuliert das Modell die Realität: Wenn neue Autos in die Flotte kommen, "kannibalisieren" sie vorübergehend die Fahrten der bestehenden Flotte. Die Gesamtauslastung sinkt und erholt sich dann allmählich.
         * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
         * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit auf (Zinssatz in Seitenleiste konfigurierbar), um diese Vorsteuer zu decken, und zahlt ihn nach der konfigurierten Erstattungsdauer zurück, wenn die Erstattung vom Finanzamt eintrifft.
-        * **OpEx-Vorsteuerabzug (Layer 17):** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, Rechts- und Beratungsleistungen usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
-        * **Layer 18 Verbesserungen:** (a) **Fahrzeug-AfA jetzt 60 Monate** (5 Jahre, BMF AfA-Tabelle Mietwagen/Taxi gem. § 7 EStG). (b) **Kontokorrent gedeckelt** auf eine benutzerdefinierte Linie; bei Überschreitung wird **INSOLVENZ** angezeigt. (c) **Drei separate Liquiditätssignale:** Insolvenz (Linie überschritten), Netto-Liquidität negativ (Kasse − Kontokorrent unter Puffer = bankübliche Effektive Liquidität), Mindestliquidität unterschritten (klassische Prüfung). (d) **Reinigungskosten** abhängig nur von Kalendertagen × Flotte, nicht von Auslastung. (e) **EBITDA HGB-Sicht** als Memo-Zeile unter Management-EBITDA mit Anlagenabgang-Brücke gem. § 275 II Nr. 4 HGB.
+        * **OpEx-Vorsteuerabzug ():** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, Rechts- und Beratungsleistungen usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
+        * **Verbesserungen:** (a) **Fahrzeug-AfA jetzt 60 Monate** (5 Jahre, BMF AfA-Tabelle Mietwagen/Taxi gem. § 7 EStG). (b) **Kontokorrent gedeckelt** auf eine benutzerdefinierte Linie; bei Überschreitung wird **INSOLVENZ** angezeigt. (c) **Drei separate Liquiditätssignale:** Insolvenz (Linie überschritten), Netto-Liquidität negativ (Kasse − Kontokorrent unter Puffer = bankübliche Effektive Liquidität), Mindestliquidität unterschritten (klassische Prüfung). (d) **Reinigungskosten** abhängig nur von Kalendertagen × Flotte, nicht von Auslastung. (e) **EBITDA HGB-Sicht** als Memo-Zeile unter Management-EBITDA mit Anlagenabgang-Brücke gem. § 275 II Nr. 4 HGB.
 
         ---
 
-        #### 🎯 Operative Kalibrierung & Benchmarking (Layer 20)
+        #### 🎯 Operative Kalibrierung & Benchmarking ()
         Operative und variable Kostenannahmen reflektieren Mature-State-Basisfall-Werte mit Benchmarks gegen veröffentlichte Daten europäischer Mobilitätsbetreiber (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Durchsatzkalibrierung: **30-34 Fahrten/Tag pro Fahrzeug im Steady-State (J3+)**, aufgebaut aus 13,5h gemischter Werktag/Wochenend-produktiver Schicht, 19 km/h Münchner Durchschnittsgeschwindigkeit, 3,5 Min Standzeit pro Fahrt, 22% Leerfahrtenquote. Energie- und Verschleißkosten neu kalibriert auf **€0,085/km bzw. €0,10/km** — unter Waymo-Benchmarks wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten, über früheren optimistischen Schätzungen, die einer bankgerechten Due Diligence nicht standhielten. J1-J2 Ramp-State läuft unter den Mature-Zahlen; der **Dynamic Utilization Modus** des Engines (Standard) modelliert dies natürlich über Kannibalisierungs- und Erholungsmechanik. Für aggressive Bull-Case-Modellierung Sidebar-Inputs nach oben anpassen und Begründung separat dokumentieren.
 
-        **Layer 21 Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Layer 20 Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. Layer 21 rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~31% Asset-Auslastung und der reife Zustand in J5 liegt bei ~41% — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 18h Tesla Network-Produktivität (75% 24h-Asset-Auslastung). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
+        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~31% Asset-Auslastung und der reife Zustand in J5 liegt bei ~41% — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 18h Tesla Network-Produktivität (75% 24h-Asset-Auslastung). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
 
-        **Layer 22 — Energie-Dekomposition + Kalibrierungs-Verfeinerungen + Anpassbare Saisonalität:** Sechs koordinierte Updates nach detaillierten CFO/CPA-Audit-Gesprächen. (1) **Energiekosten in 3 Slider zerlegt:** Verbrauch €0,115 kWh/km (verankert in Tesla-VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% Real-Aufschlag), Mischpreis €0,22/kWh (deutscher Großhandel Off-Peak €0,04-0,09 + Tesla Supercharger Off-Peak €0,31-0,46, gewichtet 70/30 Depot-Induktion / V4 kabelgebunden mit Flotten-Abo), Ladewirkungsgrad 0,94 (Teslas "deutlich über 90%" Induktion bei 22 kW × 0,70 + V4 kabelgebunden 96% × 0,30). Effektivrate kombiniert: €0,027/km ggü. zuvor €0,085 — 68% Reduktion reflektiert tatsächliche Cybercab-Effizienz. (2) **Versicherung €300 → €180/Monat** via Bottom-up: Diebstahl-Komponente ~€0 (Cybercab nicht fahrbar außerhalb Tesla Network, Waymo Phoenix 7J-Daten bestätigen), Tesla Insurance-Bundling-These (-15%), FSD-Sicherheitsbonus (70% Reduktion auf Personen-/Sachschadenshaftung), Restkategorien (Vandalismus €20, Batterie/Brand €20, Wetter €12, Passagierschäden €15, Cyber €40, Rechtsrücklage €30, P/S-Haftung post-FSD €55, PBefG €18) ≈ €210, abzüglich Tesla-Bundle-Rabatt und 5-Jahres-Mittelung = €180. (3) **APCOA Stellplatz €250 → €170/Monat** gem. veröffentlichten 2024 Münchner Monatsparkplätzen €120-180 + Ladefähigkeits-Aufschlag €40-80 abzüglich 15-25% J5 Mengenrabatt. (4) **Reinigung €3 → €2/Tag netto** unter Berücksichtigung von Teslas veröffentlichter Robotaxi-Reinigungsgebühr-Politik ($50 mittel / $150 schwer, live Dez 2025) — Bruttokosten ~€5/Tag Depot-Tiefenreinigung abzüglich ~€3/Tag Tesla-Gebühren-Erlöse. (5) **Aktive Stunden 13,5h → 16,0h** durch korrigierte Cybercab-Effizienz-Mathematik ermöglicht (geringerer kWh/km Verbrauch + 90%+ Induktions-Wirkungsgrad = keine Batteriekapazitäts-Beschränkung für verlängerte Schichten auch in Winter-Spitzenwochen). (6) **NEUE Frachtversicherung €20/Fahrzeug/Monat** Verkehrshaftungsversicherung, nur bei aktivem Lieferdienst-Toggle (deckt Frachtwert, Diebstahl im Transit, Wetterschäden — kein FSD-Sicherheitsbonus). (7) **NEUE anpassbare Monatssaisonalität:** 12 einzelne Monats-Slider im aufklappbaren Bereich ersetzen die zuvor hartcodierten 4 Stufen. Standardwerte erhalten Layer 21 Jahresmittel (1,2125×) — Dez/Jan/Feb 1,45, Nov/Mär 1,30, Apr/Okt 1,05, Mai-Sep 1,10. Nutzer können Winter-Aufschlags-Annahmen stresstesten (z.B. Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen). THG-Quote €200 → €280/Fahrzeug/Jahr gemäß 2024 deutschen Ist-Werten ebenfalls in diesem Layer enthalten.
+        **— Energie-Dekomposition + Kalibrierungs-Verfeinerungen + Anpassbare Saisonalität:** Sechs koordinierte Updates nach detaillierten CFO/CPA-Audit-Gesprächen. (1) **Energiekosten in 3 Slider zerlegt:** Verbrauch €0,115 kWh/km (verankert in Tesla-VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% Real-Aufschlag), Mischpreis €0,22/kWh (deutscher Großhandel Off-Peak €0,04-0,09 + Tesla Supercharger Off-Peak €0,31-0,46, gewichtet 70/30 Depot-Induktion / V4 kabelgebunden mit Flotten-Abo), Ladewirkungsgrad 0,94 (Teslas "deutlich über 90%" Induktion bei 22 kW × 0,70 + V4 kabelgebunden 96% × 0,30). Effektivrate kombiniert: €0,027/km ggü. zuvor €0,085 — 68% Reduktion reflektiert tatsächliche Cybercab-Effizienz. (2) **Versicherung €300 → €180/Monat** via Bottom-up: Diebstahl-Komponente ~€0 (Cybercab nicht fahrbar außerhalb Tesla Network, Waymo Phoenix 7J-Daten bestätigen), Tesla Insurance-Bundling-These (-15%), FSD-Sicherheitsbonus (70% Reduktion auf Personen-/Sachschadenshaftung), Restkategorien (Vandalismus €20, Batterie/Brand €20, Wetter €12, Passagierschäden €15, Cyber €40, Rechtsrücklage €30, P/S-Haftung post-FSD €55, PBefG €18) ≈ €210, abzüglich Tesla-Bundle-Rabatt und 5-Jahres-Mittelung = €180. (3) **APCOA Stellplatz €250 → €170/Monat** gem. veröffentlichten 2024 Münchner Monatsparkplätzen €120-180 + Ladefähigkeits-Aufschlag €40-80 abzüglich 15-25% J5 Mengenrabatt. (4) **Reinigung €3 → €2/Tag netto** unter Berücksichtigung von Teslas veröffentlichter Robotaxi-Reinigungsgebühr-Politik ($50 mittel / $150 schwer, live Dez 2025) — Bruttokosten ~€5/Tag Depot-Tiefenreinigung abzüglich ~€3/Tag Tesla-Gebühren-Erlöse. (5) **Aktive Stunden 13,5h → 16,0h** durch korrigierte Cybercab-Effizienz-Mathematik ermöglicht (geringerer kWh/km Verbrauch + 90%+ Induktions-Wirkungsgrad = keine Batteriekapazitäts-Beschränkung für verlängerte Schichten auch in Winter-Spitzenwochen). (6) **NEUE Frachtversicherung €20/Fahrzeug/Monat** Verkehrshaftungsversicherung, nur bei aktivem Lieferdienst-Toggle (deckt Frachtwert, Diebstahl im Transit, Wetterschäden — kein FSD-Sicherheitsbonus). (7) **NEUE anpassbare Monatssaisonalität:** 12 einzelne Monats-Slider im aufklappbaren Bereich ersetzen die zuvor hartcodierten 4 Stufen. Standardwerte erhalten Jahresmittel (1,2125×) — Dez/Jan/Feb 1,45, Nov/Mär 1,30, Apr/Okt 1,05, Mai-Sep 1,10. Nutzer können Winter-Aufschlags-Annahmen stresstesten (z.B. Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen). THG-Quote €200 → €280/Fahrzeug/Jahr gemäß 2024 deutschen Ist-Werten ebenfalls in diesem Layer enthalten.
 
         **Empirische Quellen:** TomTom Traffic Index 2024 (Münchner Verkehrsdichte); ADAC Wintertest 2023 + Geotab Flottenstudie (EV-Winterverbrauch); Waymo NHTSA-Meldungen (Sensorzuverlässigkeit, Standzeit, Ramp-Kurven); Sixt+ / Free Now / MOIA veröffentlichte Betreiberdaten (€/km Wartungs-Benchmarks); Uber/Lyft Marketplace-Blog (mature europäische Leerfahrtenquoten); Tesla Mai 2026 Model S/X SE Event (Cybercab 165 Wh/mi Zertifizierung); EPEX Spot 2025 deutsche Großhandels-Stromdaten (Off-Peak-Stunden €0,04-0,09/kWh); Tesla Supercharger-Preise Deutschland 2026 (€0,31-0,46/kWh Tesla Off-Peak); Tesla Robotaxi Reinigungsgebühren-Politik Dezember 2025 ($50/$150 Stufen).
 
