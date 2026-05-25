@@ -53,7 +53,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Monte Carlo with Day-Archetype Topology (Phase A) + Stochastic Shock Events (Phase B))*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 27A: Capital Structure (Loan/Lease/Equity Tranches) + Monte Carlo with Day-Archetype Topology + Stochastic Shock Events)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -360,6 +360,28 @@ if lang_choice == "English":
         "mc_tier2_header": "⚡ Tier 2 — Material Variance (Capex, Debt, Costs)",
         "mc_tier3_header": "💧 Tier 3 — Smaller Variance (Operational Costs)",
         "mc_running_msg": "🔄 Monte Carlo simulation in progress. Please wait...",
+        # === Capital Structure & Fleet Financing Matrix (Layer 27A) ===
+        "fin_matrix_header": "💳 Capital Allocation & Vehicle Financing Strategy",
+        "fin_matrix_help": "Configure financing mix per year. Each year's vehicle additions are split into three tranches: Bank Loan (debt-financed, asset capitalized), Operating Lease (off-balance-sheet, ARAP for downpayment), and 100% Cash/Equity (full capex from cash with optional capital call). Sliders auto-normalize to 100% per year.",
+        "fin_year_label": "Year {y} Financing Mix",
+        "fin_pct_loan": "% Loan",
+        "fin_pct_lease": "% Lease",
+        "fin_pct_equity": "% Equity",
+        "fin_loan_section": "🏦 Bank Loan Parameters (Tranche A)",
+        "fin_lease_section": "📋 Operating Lease Parameters (Tranche B) — Global",
+        "fin_equity_section": "💰 Equity/Cash Allocation (Tranche C)",
+        "fin_lease_money_factor": "Monthly Lease Factor (×capex)",
+        "fin_lease_money_factor_help": "Monthly lease payment as a fraction of vehicle gross acquisition cost. Default 0.015 = 1.5%/mo, typical for 60-month German auto leases. Includes financing cost + lessor margin + residual risk premium.",
+        "fin_lease_downpayment_pct": "Leasingsonderzahlung (% of capex)",
+        "fin_lease_downpayment_help": "Upfront special payment (Sonderzahlung) at lease inception. Under HGB § 250, capitalized as ARAP (Aktiver Rechnungsabgrenzungsposten) and amortized linearly over the lease term. Default 15% reflects standard German commercial vehicle lease terms.",
+        "fin_lease_term_months": "Lease Term (months)",
+        "fin_equity_capital_call": "Auto Capital Call on Cash Shortfall",
+        "fin_equity_capital_call_help": "When equity-financed vehicle additions would push corporate cash below zero (after max overdraft utilization), trigger automated founder equity injection to keep balance sheet funded. Disabled = treat shortfall as overdraft breach (insolvency flag).",
+        "fin_norm_warning": "⚠️ Year {y} percentages sum to {s}% — will be auto-normalized to 100%.",
+        "bs_arap": "ARAP (Prepaid Lease)",
+        "pnl_lease": "Lease Expense (Mietleasing)",
+        "cf_lease": "Lease Payments + ARAP Setup",
+        "cf_capital_call": "Founder Capital Call (Equity Injection)",
         # Day-archetype + shock event labels
         "mc_dayarch_header": "📅 Day Archetype Mix (Phase A) — daily demand variance topology",
         "mc_shock_header": "⚡ Stochastic Shock Events (Phase B) — annual frequency × impact",
@@ -435,7 +457,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Monte Carlo mit Tagestyp-Topologie (Phase A) + Stochastische Shock-Ereignisse (Phase B))*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 27A: Kapitalstruktur (Darlehen/Leasing/Eigenkapital-Tranchen) + Monte Carlo mit Tagestyp-Topologie + Stochastische Shock-Ereignisse)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -742,6 +764,28 @@ else:
         "mc_tier2_header": "⚡ Tier 2 — Materielle Varianz (Capex, Schulden, Kosten)",
         "mc_tier3_header": "💧 Tier 3 — Geringere Varianz (Betriebskosten)",
         "mc_running_msg": "🔄 Monte-Carlo-Simulation läuft. Bitte warten...",
+        # === Kapitalstruktur & Flotten-Finanzierungs-Matrix ===
+        "fin_matrix_header": "💳 Kapitalallokation & Fahrzeug-Finanzierungsstrategie",
+        "fin_matrix_help": "Finanzierungsmix pro Jahr konfigurieren. Fahrzeugzugänge werden in drei Tranchen aufgeteilt: Bankdarlehen (Schulden-finanziert, Aktivierung), Operating Leasing (off-balance, ARAP für Sonderzahlung), und 100% Eigenkapital (vollständige Capex aus Cash mit optionalem Capital Call). Slider normalisieren automatisch auf 100% pro Jahr.",
+        "fin_year_label": "Jahr {y} Finanzierungs-Mix",
+        "fin_pct_loan": "% Darlehen",
+        "fin_pct_lease": "% Leasing",
+        "fin_pct_equity": "% Eigenkapital",
+        "fin_loan_section": "🏦 Bankdarlehen-Parameter (Tranche A)",
+        "fin_lease_section": "📋 Operating-Leasing-Parameter (Tranche B) — Global",
+        "fin_equity_section": "💰 Eigenkapital/Cash-Allokation (Tranche C)",
+        "fin_lease_money_factor": "Monatlicher Leasing-Faktor (×Capex)",
+        "fin_lease_money_factor_help": "Monatliche Leasingrate als Bruchteil der Bruttoanschaffungskosten. Standard 0,015 = 1,5%/Monat, typisch für 60-Monats-Gewerbeleasing in DE. Enthält Finanzierungskosten + Leasinggebermarge + Restwertrisikoprämie.",
+        "fin_lease_downpayment_pct": "Leasingsonderzahlung (% der Capex)",
+        "fin_lease_downpayment_help": "Einmalige Sonderzahlung bei Leasingbeginn. Gem. HGB § 250 als ARAP (Aktiver Rechnungsabgrenzungsposten) aktiviert und linear über die Leasinglaufzeit abgeschrieben. Standard 15% entspricht üblichen deutschen Gewerbe-Fahrzeugleasingverträgen.",
+        "fin_lease_term_months": "Leasing-Laufzeit (Monate)",
+        "fin_equity_capital_call": "Auto-Capital-Call bei Liquiditätsengpass",
+        "fin_equity_capital_call_help": "Wenn eigenkapital-finanzierte Fahrzeugzugänge den Kassenbestand unter null drücken würden (nach maximaler Kontokorrent-Nutzung), automatische Gründer-Eigenkapital-Injektion zur Bilanzfinanzierung. Deaktiviert = Engpass als Kontokorrent-Verletzung (Insolvenz-Flag) behandeln.",
+        "fin_norm_warning": "⚠️ Jahr {y} Prozentwerte summieren auf {s}% — werden auf 100% normalisiert.",
+        "bs_arap": "ARAP (Vorausgezahltes Leasing)",
+        "pnl_lease": "Leasing-Aufwand (Mietleasing)",
+        "cf_lease": "Leasing-Zahlungen + ARAP-Setup",
+        "cf_capital_call": "Gründer Capital-Call (Eigenkapital-Injektion)",
         # Tagestyp + Shock-Ereignis-Labels
         "mc_dayarch_header": "📅 Tagestyp-Mix (Phase A) — tägliche Nachfrage-Varianztopologie",
         "mc_shock_header": "⚡ Stochastische Shock-Ereignisse (Phase B) — Jahresfrequenz × Wirkung",
@@ -982,6 +1026,85 @@ sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, step=0.1,
 vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, help=loc["help_ltv"]) / 100
 y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, step=0.1) / 100
 y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1) / 100
+
+# ===================================================================
+# === CAPITAL ALLOCATION & VEHICLE FINANCING STRATEGY MATRIX ========
+# ===================================================================
+# Per-year (Y1-Y5) financing mix configuration. Each year's vehicle
+# cohort additions are split into three tranches with independent HGB
+# accounting treatment:
+#   • Tranche A (Loan) → Capitalize asset; AfA; debt drawn @ LTV;
+#                        interest+principal flows; full salvage
+#   • Tranche B (Lease) → Operating lease per HGB; NO capitalization
+#                         (lessor owns); ARAP for Sonderzahlung;
+#                         monthly lease expense in pos3; NO salvage
+#   • Tranche C (Equity) → Capitalize asset; AfA; FULL cash drain;
+#                          optional founder capital-call on shortfall;
+#                          NO debt; full salvage
+# Defaults: 100% Loan / 0% Lease / 0% Equity per year — preserves
+# backward compatibility (zero regression vs prior layers when
+# defaults unchanged).
+# ===================================================================
+with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
+    st.caption(loc["fin_matrix_help"])
+    # Per-year financing mix matrix
+    fin_mix_by_year = {}  # year -> (loan_pct, lease_pct, equity_pct)
+    for _y_idx in range(1, 6):
+        st.markdown(f"**{loc['fin_year_label'].format(y=_y_idx)}**")
+        _cl1, _cl2, _cl3 = st.columns(3)
+        with _cl1:
+            _pct_loan = st.number_input(
+                f"{loc['fin_pct_loan']} (Y{_y_idx})",
+                min_value=0, max_value=100, value=100, step=5, key=f"fin_loan_y{_y_idx}"
+            )
+        with _cl2:
+            _pct_lease = st.number_input(
+                f"{loc['fin_pct_lease']} (Y{_y_idx})",
+                min_value=0, max_value=100, value=0, step=5, key=f"fin_lease_y{_y_idx}"
+            )
+        with _cl3:
+            _pct_equity = st.number_input(
+                f"{loc['fin_pct_equity']} (Y{_y_idx})",
+                min_value=0, max_value=100, value=0, step=5, key=f"fin_equity_y{_y_idx}"
+            )
+        # Auto-normalize: if sum != 100, scale proportionally; if all zero, default 100% loan
+        _sum = _pct_loan + _pct_lease + _pct_equity
+        if _sum == 0:
+            _pct_loan, _pct_lease, _pct_equity = 100, 0, 0
+            _sum = 100
+        if _sum != 100:
+            st.caption(loc["fin_norm_warning"].format(y=_y_idx, s=_sum))
+        fin_mix_by_year[_y_idx] = (
+            _pct_loan / _sum,
+            _pct_lease / _sum,
+            _pct_equity / _sum,
+        )
+
+    # Global lease parameters (apply to all years' lease tranches)
+    st.markdown(f"**{loc['fin_lease_section']}**")
+    lease_money_factor = st.number_input(
+        loc["fin_lease_money_factor"],
+        value=0.015, min_value=0.005, max_value=0.050, step=0.001, format="%.3f",
+        help=loc["fin_lease_money_factor_help"]
+    )
+    lease_downpayment_pct = st.number_input(
+        loc["fin_lease_downpayment_pct"],
+        value=15.0, min_value=0.0, max_value=50.0, step=1.0,
+        help=loc["fin_lease_downpayment_help"]
+    ) / 100
+    lease_term_months = st.number_input(
+        loc["fin_lease_term_months"],
+        value=60, min_value=24, max_value=72, step=12
+    )
+
+    # Global equity policy
+    st.markdown(f"**{loc['fin_equity_section']}**")
+    equity_capital_call_enabled = st.checkbox(
+        loc["fin_equity_capital_call"],
+        value=True,
+        help=loc["fin_equity_capital_call_help"]
+    )
+
 vat_bridge_rate = st.sidebar.number_input(loc["vat_rate_input"], value=6.5, step=0.1) / 100
 vat_lag_months = st.sidebar.number_input(loc["vat_lag_input"], value=3, min_value=1, max_value=12)
 min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.0, step=5000.0)
@@ -1014,7 +1137,10 @@ def execute_financial_simulation(
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
     delivery_cargo_insurance_pm, seasonality_by_month,
-    is_dynamic, lang_choice
+    is_dynamic, lang_choice,
+    fin_mix_by_year=None,
+    lease_money_factor=0.015, lease_downpayment_pct=0.15, lease_term_months=60,
+    equity_capital_call_enabled=True
 ):
     # ============================================================
     # is_dynamic parameter added before lang_choice
@@ -1030,25 +1156,25 @@ def execute_financial_simulation(
     # P_DTFEE = Tesla Network fee on delivery net
     # P_DMNET = MRRG Net Revenue from Delivery (after Tesla fee)
     # P_TMNET = Total MRRG Net Revenue (Passenger + Delivery)
-    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net",
         "pnl_delivery_gbv", "pnl_delivery_vat", "pnl_delivery_net_rev", "pnl_delivery_tesla_fee", "pnl_delivery_mrrg_net", "pnl_total_mrrg_net",
-        "pnl_energy", "pnl_wear", "pnl_clean", "pnl_db1", "pnl_ins", "pnl_park",
+        "pnl_energy", "pnl_wear", "pnl_clean", "pnl_lease", "pnl_db1", "pnl_ins", "pnl_park",
         "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg",
         "pnl_ebitda", "pnl_ebitda_hgb", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
-    C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END = [
-        "cf_ni", "cf_depr", "cf_gain_sale", "cf_tax_prov", "cf_tax_paid", "cf_legal_prov", "cf_wc_thg", "cf_vat_coll", "cf_vat_paid", "cf_op",
-        "cf_capex", "cf_vat_ref", "cf_sale", "cf_inv", "cf_eq", "cf_sh", "cf_kfw_draw", "cf_prin", "cf_vat_draw", "cf_vat_repay", "cf_overdraft_delta",
+    C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END = [
+        "cf_ni", "cf_depr", "cf_gain_sale", "cf_tax_prov", "cf_tax_paid", "cf_legal_prov", "cf_wc_thg", "cf_vat_coll", "cf_vat_paid", "cf_lease", "cf_op",
+        "cf_capex", "cf_vat_ref", "cf_sale", "cf_inv", "cf_eq", "cf_capital_call", "cf_sh", "cf_kfw_draw", "cf_prin", "cf_vat_draw", "cf_vat_repay", "cf_overdraft_delta",
         "cf_fin", "cf_net", "cf_beg", "cf_end"
     ]
 
-    B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
-        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_vat_rec_op", "bs_thg_rec", "bs_tax_rec", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
+    B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
+        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_vat_rec_op", "bs_thg_rec", "bs_tax_rec", "bs_arap", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
         "bs_prov_tax", "bs_prov_legal", "bs_tprov", "bs_debt_kfw", "bs_debt_vat", "bs_debt_overdraft", "bs_pay_vat", "bs_sh_loan", "bs_tliab", "bs_tleq", "bs_check"
     ]
-    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
+    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
 
     def parse_adds(add_str):
         try:
@@ -1066,31 +1192,77 @@ def execute_financial_simulation(
     zollkosten_eur = zollwert_cif_eur * customs_duty_rate
     total_capex_per_car = zollwert_cif_eur + zollkosten_eur
 
+    # === Default financing mix fallback (preserves backward compat) ===
+    if fin_mix_by_year is None:
+        fin_mix_by_year = {y: (1.0, 0.0, 0.0) for y in range(1, 6)}
+
     cohorts = []
     for m in range(60):
         mo_val = all_adds[m]
         if mo_val > 0:
-            capex = mo_val * total_capex_per_car
-            loan = capex * vehicle_ltv
+            # Determine which year this cohort falls into (Y1..Y5)
+            year_of_cohort = (m // 12) + 1  # m in [0..59] -> year 1..5
+            mix = fin_mix_by_year.get(year_of_cohort, (1.0, 0.0, 0.0))
+            loan_frac, lease_frac, equity_frac = mix
+            capex_full = mo_val * total_capex_per_car
+
+            # Tranche A: Loan-financed (capitalize + AfA + debt)
+            capex_loan = capex_full * loan_frac
+            loan = capex_loan * vehicle_ltv  # debt = capex × LTV (only on loan tranche)
             rate = y1_loan_rate if m < 12 else y2_loan_rate
-            
             monthly_rate = rate / 12
             if monthly_rate > 0:
                 pmt = loan * (monthly_rate * (1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD) / ((1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD - 1)
             else:
-                pmt = loan / VEHICLE_AMORTIZATION_PERIOD
-                
+                pmt = loan / VEHICLE_AMORTIZATION_PERIOD if VEHICLE_AMORTIZATION_PERIOD > 0 else 0.0
+
+            # Tranche B: Operating Lease (HGB: NO capitalization, lessor owns)
+            # Sonderzahlung capitalized as ARAP per HGB § 250; linear amortization
+            # over lease term. Monthly lease pmt = capex × money_factor.
+            capex_lease = capex_full * lease_frac
+            lease_downpayment = capex_lease * lease_downpayment_pct  # paid at month c_start
+            lease_monthly_pmt_net = capex_lease * lease_money_factor  # monthly base lease (net of VAT)
+            arap_initial = lease_downpayment  # full Sonderzahlung becomes ARAP at inception
+            arap_amort_per_mo = arap_initial / lease_term_months if lease_term_months > 0 else 0.0
+
+            # Tranche C: Equity/Cash (capitalize + AfA + FULL cash drain, NO debt)
+            capex_equity = capex_full * equity_frac
+
+            # Capitalize loan + equity portions only (lease excluded per HGB)
+            capitalized_capex = capex_loan + capex_equity
+            afa_per_mo_total = capitalized_capex / VEHICLE_AMORTIZATION_PERIOD if VEHICLE_AMORTIZATION_PERIOD > 0 else 0.0
+
             cohorts.append({
                 "start_month": m + 1,
                 "size": mo_val,
-                "capex": capex,
+                # Tranche-aware capex breakdown
+                "capex_total": capex_full,
+                "capex_loan": capex_loan,
+                "capex_lease": capex_lease,
+                "capex_equity": capex_equity,
+                # Tranche A (Loan)
                 "original_loan": loan,
                 "loan_bal": loan,
                 "rate": rate,
                 "pmt": pmt,
-                "afa_per_mo": capex / VEHICLE_AMORTIZATION_PERIOD,
+                # Tranche B (Lease) — HGB off-balance, ARAP for Sonderzahlung
+                "lease_downpayment": lease_downpayment,
+                "lease_monthly_pmt_net": lease_monthly_pmt_net,
+                "arap_balance": 0.0,  # initialized to 0; set to arap_initial at c_start
+                "arap_initial": arap_initial,
+                "arap_amort_per_mo": arap_amort_per_mo,
+                "lease_term_months": int(lease_term_months),
+                "lease_size": mo_val * lease_frac,  # for fleet count
+                # Tranche A+C combined capitalization (drives AfA + BS GFA + salvage)
+                "capex_capitalized": capitalized_capex,
+                "afa_per_mo": afa_per_mo_total,
                 "accum_afa": 0,
-                "impaired": False
+                "impaired": False,
+                # Mix metadata
+                "loan_frac": loan_frac,
+                "lease_frac": lease_frac,
+                "equity_frac": equity_frac,
+                "year": year_of_cohort,
             })
 
     # Trip Physics Mathematics Canvas
@@ -1131,9 +1303,9 @@ def execute_financial_simulation(
     delivery_gbv_per_day_per_car_full = delivery_trips_per_day_full * delivery_rev_per_trip
     delivery_ramp_by_year = {1: delivery_ramp_y1, 2: delivery_ramp_y2, 3: delivery_ramp_y3, 4: delivery_ramp_y4, 5: delivery_ramp_y5}
 
-    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
-    cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
-    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
+    cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
+    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
     tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
@@ -1169,6 +1341,12 @@ def execute_financial_simulation(
     cum_gfa = 0.0
     cum_depr = 0.0
     cum_net_income = 0.0
+    # === Tranche C (Equity): cumulative founder capital call tracker ===
+    # Increments BS equity share (stammkapital extended) over the simulation.
+    cum_capital_call = 0.0
+    # === Tranche B (Lease): aggregate ARAP balance across all cohorts ===
+    # Computed each month as sum over cohorts; tracked here for BS reporting.
+    cum_arap_balance = 0.0
 
     vat_repay_schedule = [0.0]*120 
     active_fleet_by_month = []
@@ -1222,50 +1400,101 @@ def execute_financial_simulation(
         int_exp = 0
         prin_pay = 0
         kfw_draw = 0
-        capex_this_mo = 0
-        capex_sold_this_mo = 0
+        capex_this_mo = 0          # capitalized capex (loan + equity) — flows to BS GFA
+        capex_sold_this_mo = 0     # capitalized capex retired at month 60 (loan + equity)
         accum_afa_sold_this_mo = 0
-        # === Track cars added THIS month for THG accrual ===
-        # Distinct from active_fleet (cumulative roster); counts only cohorts
-        # whose c_start == current_month. Used for new-vehicle THG recognition.
+        # === Tranche B (Lease) per-month flows ===
+        lease_pmt_mo_net = 0.0          # P&L: monthly lease payment net of VAT (cash)
+        lease_downpayment_cash_mo = 0.0 # cash paid at lease inception (Sonderzahlung)
+        arap_amort_mo = 0.0             # ARAP amortization to P&L (lease expense, non-cash)
+        arap_setup_mo = 0.0             # ARAP asset created at lease inception
+        # Note: VAT on lease pmts + Sonderzahlung is handled centrally below by
+        # adding `lease_pmt_mo_net + lease_downpayment_cash_mo` to vat_eligible_opex_mo.
+        # === Tranche C (Equity) per-month flows ===
+        equity_capex_cash_mo = 0.0      # full cash drain for equity-financed acquisitions
+        # Track cars added THIS month for THG accrual
         cars_added_this_month = 0
-        
+
         for c in cohorts:
             c_start = c["start_month"]
+            c_lease_term = c["lease_term_months"]
+
             if current_month == c_start:
+                # === Tranche A (Loan): draw debt + capitalize loan-portion capex ===
                 kfw_draw += c["original_loan"]
-                capex_this_mo += c["capex"]
-                # === Capture cars added in this month for THG accrual ===
+                capex_this_mo += c["capex_loan"]
+                # === Tranche B (Lease): pay Sonderzahlung in cash, set up ARAP asset ===
+                if c["capex_lease"] > 0:
+                    lease_downpayment_cash_mo += c["lease_downpayment"]
+                    c["arap_balance"] = c["arap_initial"]
+                    arap_setup_mo += c["arap_initial"]
+                # === Tranche C (Equity): capitalize equity-portion capex (drives BS GFA + AfA) ===
+                # Cash drain handled separately below (does NOT enter capex_this_mo for
+                # the existing cash-flow logic, which already counts capex via cf_capex)
+                capex_this_mo += c["capex_equity"]
+                equity_capex_cash_mo += c["capex_equity"]
+                # Cars added (any tranche) — drives THG accrual
                 cars_added_this_month += c["size"]
-                
+
+            # Active fleet: ALL tranches count toward operational fleet
+            # (lease tranche operates same as loan/equity, just different financing).
             if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
                 active_fleet += c["size"]
+                # === Tranche A (Loan): interest expense on outstanding loan balance ===
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
-                
-                # Extraordinary HGB Impairment Logic Implementation
+
+                # === HGB Impairment (loan + equity tranches — capitalized assets only) ===
                 if current_month == imp_month and not c["impaired"]:
-                    extra_afa = c["loan_bal"] * imp_pct_val if c["loan_bal"] > 0 else c["capex"] * imp_pct_val
+                    # Base for impairment: outstanding loan if any, otherwise capitalized capex
+                    if c["loan_bal"] > 0:
+                        extra_afa = c["loan_bal"] * imp_pct_val
+                    else:
+                        extra_afa = c["capex_capitalized"] * imp_pct_val
                     current_veh_afa += extra_afa
                     c["accum_afa"] += extra_afa
                     c["impaired"] = True
-                
+
+                # === AfA on capitalized capex (loan + equity only — lease NOT capitalized) ===
                 current_veh_afa += c["afa_per_mo"]
                 c["accum_afa"] += c["afa_per_mo"]
-                
+
+                # === Tranche A (Loan): principal amortization starting month c_start+12 ===
                 if current_month >= c_start + 12:
                     prin = c["pmt"] - int_for_this_loan
-                    if c["loan_bal"] - prin < 0: prin = c["loan_bal"]
+                    if c["loan_bal"] - prin < 0:
+                        prin = c["loan_bal"]
                     prin_pay += prin
                     c["loan_bal"] -= prin
-                    
+
+            # === Tranche B (Lease): monthly lease payment + ARAP amortization ===
+            # Active during the lease term (typically 60 months from c_start).
+            if c["capex_lease"] > 0 and current_month >= c_start and current_month < c_start + c_lease_term:
+                lease_pmt_mo_net += c["lease_monthly_pmt_net"]
+                # ARAP amortization (Sonderzahlung released proportionally to P&L lease expense)
+                if c["arap_balance"] > 0:
+                    arap_release = min(c["arap_amort_per_mo"], c["arap_balance"])
+                    arap_amort_mo += arap_release
+                    c["arap_balance"] -= arap_release
+
+            # === End-of-life month 60: salvage realization (loan + equity tranches only) ===
+            # Lease tranche returns to lessor — zero salvage for MRRG.
             if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD:
-                fleet_sale_rev += c["size"] * salvage_value_per_car_y4
-                capex_sold_this_mo += c["capex"]
+                # Salvage applies pro-rata to loan + equity vehicles
+                non_lease_frac = c["loan_frac"] + c["equity_frac"]
+                fleet_sale_rev += c["size"] * non_lease_frac * salvage_value_per_car_y4
+                # Retire capitalized capex (loan + equity portions)
+                capex_sold_this_mo += c["capex_capitalized"]
                 accum_afa_sold_this_mo += c["accum_afa"]
+                # Pay off any residual loan balance (loan tranche)
                 prin_pay += c["loan_bal"]
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
+
+            # === Tranche B (Lease) end-of-term: lessor reclaims vehicles ===
+            # Note: lease_term_months may differ from VEHICLE_AMORTIZATION_PERIOD.
+            # At end of lease term, ARAP balance should be fully amortized (sanity).
+            # No salvage; lessor takes back asset.
 
         # === use is_dynamic flag for cannibalization branch ===
         if is_dynamic:
@@ -1319,7 +1548,13 @@ def execute_financial_simulation(
         clean_mo = cleaning_cost_per_day * days_in_mo * active_fleet  # calendar-driven, unchanged
         # DB1 includes BOTH passenger and delivery MRRG net revenue
         total_mrrg_net_mo = mrrg_net_mo + delivery_mrrg_net_mo
-        db1_mo = total_mrrg_net_mo - wear_mo - energy_mo - clean_mo
+        # === Tranche B (Lease): Total lease P&L expense for this month ===
+        # Per HGB § 275 Abs. 2 Nr. 5 — Sonstige bezogene Leistungen
+        # Composition: monthly cash payment (net of VAT) + ARAP amortization
+        # (matching of Sonderzahlung over lease term). Flows into pos3 (Cost
+        # of Materials), thus reducing DB1.
+        lease_expense_mo = lease_pmt_mo_net + arap_amort_mo
+        db1_mo = total_mrrg_net_mo - wear_mo - energy_mo - clean_mo - lease_expense_mo
         
         # === Cargo insurance (Verkehrshaftungsversicherung) ===
         # Only billed when delivery toggle is ON AND delivery is ramped > 0 in current year.
@@ -1359,7 +1594,13 @@ def execute_financial_simulation(
         # ============================================================
         vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
-                                + it_cloud_mo + legal_mo)
+                                + it_cloud_mo + legal_mo
+                                # === Tranche B (Lease): monthly lease pmts + Sonderzahlung
+                                # All VAT-bearing per § 1 Abs. 1 UStG. Note: only the cash
+                                # outflows enter the VAT base — ARAP amortization is a
+                                # non-cash matching release (the VAT was already paid at
+                                # Sonderzahlung inception and is reclaimed in that month).
+                                + lease_pmt_mo_net + lease_downpayment_cash_mo)
         opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
         # P&L impact: ZERO (P&L always books net of VAT — Feature A invariant)
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
@@ -1492,10 +1733,20 @@ def execute_financial_simulation(
         op_vat_paid = -operational_vat_payable
         op_vat_paid_total = op_vat_paid - opex_input_vat_mo
         
-        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid_total + legal_provision_mo
+        # === Tranche B (Lease) cash flow integration ===
+        # - lease_pmt_mo_net is in net_inc_mo (P&L expense via DB1) and IS a cash drain → no adjustment
+        # - arap_amort_mo is in net_inc_mo (P&L expense) but is NON-cash → add back to op CF
+        # - lease_downpayment_cash_mo is a CASH drain in setup month but NOT yet in P&L → subtract
+        # Sonderzahlung VAT flows through opex_input_vat_mo (already counted in op_vat_paid_total).
+        lease_cf_adjustment = arap_amort_mo - lease_downpayment_cash_mo
+
+        op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid_total + legal_provision_mo + lease_cf_adjustment
         inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
+        # Initialize capital_call_mo to zero; populated downstream if shortfall
+        # exceeds overdraft headroom AND equity tranche capex hit this month.
+        capital_call_mo = 0.0
         fin_cf_mo_excl_od = (stammkapital if current_month == 1 else 0.0) + (shareholder_loan if current_month == 1 else 0.0) + kfw_draw - prin_pay + vat_draw_mo - vat_repay_mo
-        
+
         net_before_overdraft = op_cf_mo + inv_cf_mo + fin_cf_mo_excl_od
         tentative_ending_cash = current_cash + net_before_overdraft
         
@@ -1504,18 +1755,31 @@ def execute_financial_simulation(
         # Overdraft draws are now capped at max_overdraft_limit (bank Linie).
         # If shortfall exceeds available headroom → INSOLVENCY flagged but
         # overdraft is still drawn to the cap (engine continues for visibility).
+        # === Tranche C (Equity) — Hybrid capital call mechanism ===
+        # If equity-financed acquisition occurred this month AND
+        # shortfall would breach max overdraft → inject founder capital ONLY
+        # for the breach amount (most realistic founder behavior: tap overdraft
+        # first, capital call as last resort to avoid Insolvenzantragspflicht).
         # =====================================================================
         overdraft_net_flow = 0.0
         if tentative_ending_cash < 0:
             needed_from_od = -tentative_ending_cash
             available_od_headroom = max(0.0, max_overdraft_limit - overdraft_facility_bal)
             actual_od_draw = min(needed_from_od, available_od_headroom)
-            if needed_from_od > available_od_headroom:
-                # Shortfall exceeds approved line → INSOLVENZ-Antragspflicht territory
-                insolvency_months.append(month_col_names[-1])
+            unfunded_shortfall = needed_from_od - actual_od_draw
+            if unfunded_shortfall > 0:
+                # Shortfall exceeds approved line. Tranche C policy:
+                # if capital call enabled AND any equity capex this month, inject
+                # the unfunded shortfall as founder equity (Stammkapital erhöht).
+                if equity_capital_call_enabled and equity_capex_cash_mo > 0:
+                    capital_call_mo = unfunded_shortfall
+                    # Capital call absorbs the unfunded portion; no insolvency flag
+                else:
+                    # No equity tranche this month OR capital call disabled → insolvency
+                    insolvency_months.append(month_col_names[-1])
             overdraft_net_flow = actual_od_draw
             overdraft_facility_bal += actual_od_draw
-            current_cash = tentative_ending_cash + actual_od_draw  # may still be negative if insolvent
+            current_cash = tentative_ending_cash + actual_od_draw + capital_call_mo
         else:
             if overdraft_facility_bal > 0:
                 repay_amt = min(tentative_ending_cash, overdraft_facility_bal)
@@ -1524,6 +1788,12 @@ def execute_financial_simulation(
                 current_cash = tentative_ending_cash - repay_amt
             else:
                 current_cash = tentative_ending_cash
+
+        # Fold capital call into financing CF (after it's been determined above).
+        # This keeps the CF statement clean: capital call shows as a separate
+        # financing inflow on the C_CC line, and net_before_overdraft already
+        # excludes it (so cash reconciles correctly through the overdraft branch).
+        fin_cf_mo_excl_od = fin_cf_mo_excl_od + capital_call_mo
                 
         # Dual-track liquidity-stress signals
         # (a) Raw cash floor: traditional "do we have €X on hand?"
@@ -1553,9 +1823,14 @@ def execute_financial_simulation(
         operational_vat_payable = op_vat_collected - opex_input_vat_mo
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
-        
+        # === Tranche C (Equity): accumulate founder capital calls ===
+        cum_capital_call += capital_call_mo
+        # === Tranche B (Lease): aggregate ARAP balance across all active cohorts ===
+        # Each cohort tracks its own arap_balance; sum gives total prepaid lease asset.
+        cum_arap_balance = sum(c["arap_balance"] for c in cohorts)
+
         kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
-        
+
         # =====================================================================
         # === Gross BS presentation for operational VAT position ===
         # Internal state `operational_vat_payable` carries the signed net
@@ -1569,9 +1844,15 @@ def execute_financial_simulation(
         op_vat_receivable_bs = max(0.0, -operational_vat_payable)   # asset
         tax_provision_bs = max(0.0, tax_provision_bal)              # liability
         tax_receivable_bs = max(0.0, -tax_provision_bal)            # asset
-        
-        total_assets = nfa + vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + current_cash
-        total_equity = stammkapital + cum_net_income
+
+        # === Tranche B (Lease) BS: ARAP asset (Aktiver Rechnungsabgrenzungsposten) ===
+        # HGB § 250 Abs. 1: Sonderzahlung capitalized as prepaid expense.
+        # === Tranche C (Equity) BS: Stammkapital + cumulative capital calls ===
+        # Founder capital injections during the simulation horizon add to equity share.
+        total_equity_share_bs = stammkapital + cum_capital_call
+
+        total_assets = nfa + vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + cum_arap_balance + current_cash
+        total_equity = total_equity_share_bs + cum_net_income
         total_prov = tax_provision_bs + legal_provision_bal
         total_liab_bal = kfw_loan_bal + vat_loan_bal + overdraft_facility_bal + op_vat_payable_bs + shareholder_loan
         total_liab_eq = total_equity + total_prov + total_liab_bal
@@ -1593,6 +1874,10 @@ def execute_financial_simulation(
         pnl_m[P_EN].append(-energy_mo)
         pnl_m[P_WR].append(-wear_mo)
         pnl_m[P_CL].append(-clean_mo)
+        # === Tranche B (Lease): monthly P&L lease expense ===
+        # HGB § 275 Abs. 2 Nr. 5 (Sonstige bezogene Leistungen, Cost of Materials pos3)
+        # Composition: lease_pmt_mo_net (cash) + arap_amort_mo (ARAP release, non-cash)
+        pnl_m[P_LSE].append(-lease_expense_mo)
         pnl_m[P_DB1].append(db1_mo)
         pnl_m[P_INS].append(-ins_mo)
         pnl_m[P_PK].append(-park_mo)
@@ -1630,12 +1915,20 @@ def execute_financial_simulation(
         cf_m[C_WCT].append(thg_wc_delta)
         cf_m[C_VCOL].append(op_vat_collected)
         cf_m[C_VPD].append(op_vat_paid_total)
+        # === Tranche B (Lease) CF line ===
+        # Reports the lease-related cash flow adjustment: ARAP non-cash add-back
+        # MINUS lease Sonderzahlung cash drain in setup month. Together with the
+        # P&L lease_expense_mo (already in net_inc_mo above), this fully reconciles
+        # P&L vs cash for the lease tranche.
+        cf_m[C_LSE].append(lease_cf_adjustment)
         cf_m[C_OP].append(op_cf_mo)
         cf_m[C_CAP].append(-(capex_this_mo + vat_draw_mo))
         cf_m[C_VRF].append(vat_refund_inflow)
         cf_m[C_SLE].append(fleet_sale_rev)
         cf_m[C_INV].append(inv_cf_mo)
         cf_m[C_EQ].append(eq_in)
+        # === Tranche C (Equity) CF line: founder capital call this month ===
+        cf_m[C_CC].append(capital_call_mo)
         cf_m[C_SH].append(sh_in)
         cf_m[C_KFW].append(kfw_draw)
         cf_m[C_PRN].append(-prin_pay)
@@ -1655,10 +1948,14 @@ def execute_financial_simulation(
         bs_m[B_OPVRX].append(op_vat_receivable_bs)          # gross asset side
         bs_m[B_TR].append(thg_receivable)
         bs_m[B_TRX].append(tax_receivable_bs)               # gross asset side
+        # === Tranche B (Lease) BS: ARAP asset (Aktiver Rechnungsabgrenzungsposten) ===
+        bs_m[B_ARAP].append(cum_arap_balance)
         bs_m[B_CS].append(current_cash)
-        bs_m[B_TC].append(vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + current_cash)
+        # Total Current Assets now includes ARAP
+        bs_m[B_TC].append(vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + cum_arap_balance + current_cash)
         bs_m[B_TA].append(total_assets)
-        bs_m[B_ES].append(stammkapital)
+        # === Tranche C (Equity) BS: Stammkapital + cumulative capital calls ===
+        bs_m[B_ES].append(total_equity_share_bs)
         bs_m[B_ER].append(cum_net_income)
         bs_m[B_TEQ].append(total_equity)
         bs_m[B_PT].append(tax_provision_bs)                 # gross liability side (≥ 0)
@@ -1695,7 +1992,9 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
     delivery_cargo_insurance_pm, seasonality_by_month,
-    is_dynamic, lang_choice
+    is_dynamic, lang_choice,
+    fin_mix_by_year, lease_money_factor, lease_downpayment_pct, lease_term_months,
+    equity_capital_call_enabled
 )
 
 # ============================================================
@@ -1778,7 +2077,7 @@ hgb_structure = {}
 hgb_structure[loc["hgb_pos1"]] = (df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]).values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
 # Materialaufwand: Aufwendungen für Roh-/Hilfsstoffe UND für bezogene Leistungen (Tesla platform — passenger AND delivery)
-hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
+hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_lease"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
 # Personalaufwand: zero — GF holds Verkehrsleiter mandate without separate compensation
 hgb_structure[loc["hgb_pos4"]] = np.zeros(len(df_pnl_combined.columns))
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
@@ -2624,7 +2923,10 @@ with tabs[6]:
                     delivery_trips_per_hour, delivery_take_rate,
                     delivery_ramp_y1, dy2_sampled, dy3_sampled, dy4_sampled, delivery_ramp_y5,
                     delivery_cargo_insurance_pm, seasonality_iter,
-                    is_dynamic, lang_choice
+                    is_dynamic, lang_choice,
+                    # === Financing mix held constant during MC (sidebar settings) ===
+                    fin_mix_by_year, lease_money_factor, lease_downpayment_pct,
+                    lease_term_months, equity_capital_call_enabled
                 )
                 ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
                 y5_ebitda_arr[i] = float(sum(pnl_mc["pnl_ebitda"][48:60]))
