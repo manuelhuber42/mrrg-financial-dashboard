@@ -53,7 +53,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 27B: Pure-Inductive Energy Calibration (Tesla Robotaxi Network 2-6am) + Capital Structure (Loan/Lease/Equity Tranches) + Monte Carlo with Day-Archetype Topology + Stochastic Shock Events)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 28: Statutory Compliance Hardening (HGB pos3/pos6 reclass, Kapitalrücklage routing, FCCR, § 15a InsO trigger, Lease VAT bridge, MC memory fix))*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -267,6 +267,7 @@ if lang_choice == "English":
         "bs_tca": "Total Current Assets",
         "bs_ta": "TOTAL ASSETS",
         "bs_eq_share": "Share Capital (Stammkapital)",
+        "bs_kap_ruecklage": "Capital Reserves (Kapitalrücklage § 272 II Nr. 4)",
         "bs_eq_ret": "Retained Earnings (Gewinnvortrag)",
         "bs_teq": "Total Equity",
         "bs_prov_tax": "Steuerrückstellungen (Tax Provision)",
@@ -415,6 +416,8 @@ if lang_choice == "English":
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
+        "kpi_fccr": "Fixed-Charge Coverage Ratio (FCCR — lease-adjusted)",
+        "kpi_fccr_help": "Bank-grade lease-adjusted coverage metric: (EBITDA + Lease Expense) / (Principal + Interest + Lease Expense). Operating lease commitments are non-discretionary contractual obligations economically identical to senior debt service — bank credit committees compute this internally even though German GAAP does not require lease capitalization (unlike IFRS 16). FCCR is the right metric when comparing capital structures with different loan/lease mixes. Target: >1.5× for senior debt covenants; >2.0× for strong rating.",
         "kpi_eq_ratio": "Equity Ratio",
         "kpi_runway": "Liquidity Runway (Months)",
         "kpi_net_ltv": "Net LTV (Adj. for Cash Shield)",
@@ -452,12 +455,15 @@ if lang_choice == "English":
         "cash_warn": "🚨 CRITICAL: Liquidity Floor Breached! Minimum cash cushion violated in month: ",
         "net_liq_warn": "⚠️  Net Liquidity Negative (Cash − Overdraft < Min Buffer) in month: ",
         "insolv_warn": "💀 INSOLVENCY: Required cash shortfall exceeds the bank-approved overdraft ceiling in month: ",
+        "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ consecutive months of unfunded shortfall first triggered in month: ",
+        "insolv_severity_label": "Total cumulative unfunded shortfall over breach period",
+        "insolv_diagnostic_note": "Note: simulation continues past the legal insolvency trigger for diagnostic visibility into the cash recovery path. In real operations, the Geschäftsführung would be legally required to file an Insolvenzantrag within 3 weeks of Zahlungsunfähigkeit per § 15a InsO. Use this disclosure to size additional equity/debt required to maintain going-concern status.",
         "ebitda_recon_title": "EBITDA Reconciliation Bridge (Mgmt View → HGB View)"
     }
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 27B: Reine Induktiv-Energiekalibrierung (Tesla Robotaxi-Netzwerk 2-6 Uhr) + Kapitalstruktur (Darlehen/Leasing/Eigenkapital-Tranchen) + Monte Carlo mit Tagestyp-Topologie + Stochastische Shock-Ereignisse)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 28: Statutarische Konformitätsverstärkung (HGB pos3/pos6 Neuklassifikation, Kapitalrücklage-Routing, FCCR, § 15a InsO Trigger, Leasing-USt-Bridge, MC Memory-Fix))*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -671,6 +677,7 @@ else:
         "bs_tca": "Summe Umlaufvermögen",
         "bs_ta": "SUMME AKTIVA",
         "bs_eq_share": "Gezeichnetes Kapital (Stammkapital)",
+        "bs_kap_ruecklage": "Kapitalrücklage (§ 272 Abs. 2 Nr. 4 HGB)",
         "bs_eq_ret": "Gewinnvortrag / Periodenergebnis",
         "bs_teq": "Summe Eigenkapital",
         "bs_prov_tax": "Steuerrückstellungen",
@@ -819,6 +826,8 @@ else:
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
         "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
+        "kpi_fccr": "Fixed-Charge Coverage Ratio (FCCR — leasing-adjustiert)",
+        "kpi_fccr_help": "Bank-konformer leasing-adjustierter Deckungsgrad: (EBITDA + Leasingaufwand) / (Tilgung + Zinsen + Leasingaufwand). Operating-Leasing-Verpflichtungen sind nicht-diskretionäre vertragliche Zahlungsströme, wirtschaftlich identisch zum Senior-Schuldendienst — Bank-Kreditkomitees berechnen dies intern, auch wenn HGB im Gegensatz zu IFRS 16 keine Leasingbilanzierung verlangt. FCCR ist die richtige Kennzahl beim Vergleich von Kapitalstrukturen mit unterschiedlichem Darlehens-/Leasingmix. Ziel: >1,5× für Senior-Debt-Covenants; >2,0× für starkes Rating.",
         "kpi_eq_ratio": "Eigenkapitalquote",
         "kpi_runway": "Liquiditätsreichweite (Monate)",
         "kpi_net_ltv": "Netto-LTV (Cash-bereinigt)",
@@ -856,6 +865,9 @@ else:
         "cash_warn": "🚨 KRITISCH: Mindestliquidität unterschritten in Monat: ",
         "net_liq_warn": "⚠️  Netto-Liquidität negativ (Kasse − Kontokorrent < Mindestpuffer) in Monat: ",
         "insolv_warn": "💀 INSOLVENZ: Erforderlicher Liquiditätsbedarf übersteigt die genehmigte Kontokorrentlinie in Monat: ",
+        "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ aufeinanderfolgende Monate ungedeckten Liquiditätsbedarfs erstmals erreicht in Monat: ",
+        "insolv_severity_label": "Kumulierter ungedeckter Liquiditätsbedarf über den Verletzungszeitraum",
+        "insolv_diagnostic_note": "Hinweis: Die Simulation läuft über den gesetzlichen Insolvenzauslöser hinaus weiter — zur diagnostischen Sichtbarkeit des Liquiditätsverlaufs. In der Realität müsste die Geschäftsführung gemäß § 15a InsO innerhalb von 3 Wochen ab Zahlungsunfähigkeit Insolvenzantrag stellen. Diese Offenlegung dient der Quantifizierung des Kapitalbedarfs zur Sicherung der Fortführungsfähigkeit (Going Concern).",
         "ebitda_recon_title": "EBITDA-Überleitung (Management-Sicht → HGB-Sicht)"
     }
 
@@ -1119,9 +1131,15 @@ thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, help=loc
 salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
 
 
-# --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION (CACHED) ---
-@st.cache_data
-def execute_financial_simulation(
+# --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION ===
+# Per audit Finding 7: the @st.cache_data decorator was previously on this raw engine
+# function. Inside the Monte Carlo loop (10K+ iterations with unique randomized floats),
+# the cache would create 10K unique cache entries — each holding full pnl/cf/bs result
+# matrices — causing memory exhaustion. Fix: strip the decorator from the raw engine
+# and add a thin cached wrapper below (execute_financial_simulation) that ONLY caches
+# the deterministic dashboard call. The MC harness calls the raw uncached function
+# directly, so each iteration's results are garbage-collected normally.
+def _execute_financial_simulation_uncached(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
@@ -1172,11 +1190,11 @@ def execute_financial_simulation(
         "cf_fin", "cf_net", "cf_beg", "cf_end"
     ]
 
-    B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
-        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_vat_rec_op", "bs_thg_rec", "bs_tax_rec", "bs_arap", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_eq_ret", "bs_teq",
+    B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH = [
+        "bs_gfa", "bs_acc_depr", "bs_nfa", "bs_vat_rec", "bs_vat_rec_op", "bs_thg_rec", "bs_tax_rec", "bs_arap", "bs_cash", "bs_tca", "bs_ta", "bs_eq_share", "bs_kap_ruecklage", "bs_eq_ret", "bs_teq",
         "bs_prov_tax", "bs_prov_legal", "bs_tprov", "bs_debt_kfw", "bs_debt_vat", "bs_debt_overdraft", "bs_pay_vat", "bs_sh_loan", "bs_tliab", "bs_tleq", "bs_check"
     ]
-    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
+    bs_keys_internal = [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]
 
     def parse_adds(add_str):
         try:
@@ -1307,7 +1325,7 @@ def execute_financial_simulation(
 
     pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
-    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
+    bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
     tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
 
@@ -1358,6 +1376,15 @@ def execute_financial_simulation(
     # Distinct liquidity-stress signals
     net_liq_breach_months = []   # Cash − Overdraft < min_buffer (going concern stress)
     insolvency_months = []       # Required draw exceeds bank-approved ceiling
+    # === Audit Finding 4: Enhanced insolvency tracking ===
+    # Per § 15a InsO, Antragspflicht triggers on Zahlungsunfähigkeit + 3-week grace period.
+    # In a monthly simulation, we approximate this as 3+ consecutive months of unfunded
+    # breach (capturing the legal grace window with conservative monthly resolution).
+    # `insolvency_severity` tracks the cumulative € shortfall over the breach period.
+    # `legal_insolvency_month` records the first month meeting § 15a InsO criteria.
+    insolvency_severity = []     # Cumulative unfunded € shortfall per breach month
+    consecutive_breach_count = 0 # Running counter of consecutive breach months
+    legal_insolvency_month = None  # First month at which § 15a InsO Antragspflicht triggers
 
     # === use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
@@ -1680,7 +1707,15 @@ def execute_financial_simulation(
         sh_int_mo = shareholder_loan * (sh_loan_rate / 12.0)
         int_exp += sh_int_mo
         
-        vat_draw_mo = capex_this_mo * VAT_RATE
+        # === VAT Bridge Loan extended to lease Sonderzahlung per audit Finding 5 ===
+        # Per § 1 Abs. 1 Nr. 1 UStG, lease Sonderzahlung is a taxable service delivery
+        # subject to 19% German VAT. Real-world German commercial lease lines (Mercedes-
+        # Benz Bank, VW Leasing, ALD Automotive) include integrated VAT-Vorfinanzierung.
+        # Without bridge financing of lease VAT, large lease tranches in Y2-Y3 trigger
+        # false overdraft breaches simply due to timing mismatch with VAT reclaim cycle.
+        # Bridge covers BOTH capitalized capex VAT AND lease Sonderzahlung VAT; repaid
+        # via the standard vat_lag_months reclaim schedule (typically 3 months).
+        vat_draw_mo = (capex_this_mo + lease_downpayment_cash_mo) * VAT_RATE
         vat_loan_bal += vat_draw_mo
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
@@ -1764,6 +1799,7 @@ def execute_financial_simulation(
         # first, capital call as last resort to avoid Insolvenzantragspflicht).
         # =====================================================================
         overdraft_net_flow = 0.0
+        breach_this_month = False  # Did this month trigger an unfunded overdraft breach?
         if tentative_ending_cash < 0:
             needed_from_od = -tentative_ending_cash
             available_od_headroom = max(0.0, max_overdraft_limit - overdraft_facility_bal)
@@ -1772,13 +1808,15 @@ def execute_financial_simulation(
             if unfunded_shortfall > 0:
                 # Shortfall exceeds approved line. Tranche C policy:
                 # if capital call enabled AND any equity capex this month, inject
-                # the unfunded shortfall as founder equity (Stammkapital erhöht).
+                # the unfunded shortfall as founder equity (now routes to Kapitalrücklage).
                 if equity_capital_call_enabled and equity_capex_cash_mo > 0:
                     capital_call_mo = unfunded_shortfall
                     # Capital call absorbs the unfunded portion; no insolvency flag
                 else:
                     # No equity tranche this month OR capital call disabled → insolvency
                     insolvency_months.append(month_col_names[-1])
+                    insolvency_severity.append(unfunded_shortfall)
+                    breach_this_month = True
             overdraft_net_flow = actual_od_draw
             overdraft_facility_bal += actual_od_draw
             current_cash = tentative_ending_cash + actual_od_draw + capital_call_mo
@@ -1790,6 +1828,18 @@ def execute_financial_simulation(
                 current_cash = tentative_ending_cash - repay_amt
             else:
                 current_cash = tentative_ending_cash
+
+        # === § 15a InsO Antragspflicht detection (3-month grace approximation) ===
+        # In real law, the 3-WEEK grace period applies — but at monthly granularity,
+        # 3 consecutive breach months is the conservative legal-equivalent threshold.
+        # Once triggered, the simulation continues (for diagnostic visibility into the
+        # cash path), but this flag surfaces a critical legal exposure to the dashboard.
+        if breach_this_month:
+            consecutive_breach_count += 1
+            if consecutive_breach_count >= 3 and legal_insolvency_month is None:
+                legal_insolvency_month = month_col_names[-1]
+        else:
+            consecutive_breach_count = 0  # Reset on any non-breach month
 
         # Fold capital call into financing CF (after it's been determined above).
         # This keeps the CF statement clean: capital call shows as a separate
@@ -1849,12 +1899,21 @@ def execute_financial_simulation(
 
         # === Tranche B (Lease) BS: ARAP asset (Aktiver Rechnungsabgrenzungsposten) ===
         # HGB § 250 Abs. 1: Sonderzahlung capitalized as prepaid expense.
-        # === Tranche C (Equity) BS: Stammkapital + cumulative capital calls ===
-        # Founder capital injections during the simulation horizon add to equity share.
-        total_equity_share_bs = stammkapital + cum_capital_call
+        # === Tranche C (Equity) BS: Stammkapital STAYS CONSTANT per § 272 Abs. 1 HGB ===
+        # Per audit Finding 2 (High): Stammkapital is a legally fixed figure registered
+        # in the Handelsregister. It cannot float month-to-month to absorb cash shortfalls
+        # — that would require a notarized Gesellschafterbeschluss and Handelsregister
+        # filing for each adjustment, which is not a monthly operational event.
+        # Ad-hoc founder capital injections are correctly classified as additions to
+        # Kapitalrücklage per § 272 Abs. 2 Nr. 4 HGB ("anderer Zuzahlungen, die
+        # Gesellschafter in das Eigenkapital leisten"). This preserves the legal
+        # integrity of the equity structure while still recognizing the equity injection.
+        total_equity_share_bs = stammkapital  # constant, matches commercial registry
+        kapitalruecklage_bs = cum_capital_call  # § 272 Abs. 2 Nr. 4 HGB classification
 
         total_assets = nfa + vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + cum_arap_balance + current_cash
-        total_equity = total_equity_share_bs + cum_net_income
+        # Total equity = Stammkapital (constant) + Kapitalrücklage (capital calls) + Retained Earnings
+        total_equity = total_equity_share_bs + kapitalruecklage_bs + cum_net_income
         total_prov = tax_provision_bs + legal_provision_bal
         total_liab_bal = kfw_loan_bal + vat_loan_bal + overdraft_facility_bal + op_vat_payable_bs + shareholder_loan
         total_liab_eq = total_equity + total_prov + total_liab_bal
@@ -1958,6 +2017,8 @@ def execute_financial_simulation(
         bs_m[B_TA].append(total_assets)
         # === Tranche C (Equity) BS: Stammkapital + cumulative capital calls ===
         bs_m[B_ES].append(total_equity_share_bs)
+        # === HGB § 272 Abs. 2 Nr. 4: Kapitalrücklage (founder ad-hoc contributions) ===
+        bs_m[B_KR].append(kapitalruecklage_bs)
         bs_m[B_ER].append(cum_net_income)
         bs_m[B_TEQ].append(total_equity)
         bs_m[B_PT].append(tax_provision_bs)                 # gross liability side (≥ 0)
@@ -1972,11 +2033,22 @@ def execute_financial_simulation(
         bs_m[B_TLEQ].append(total_liab_eq)
         bs_m[B_CH].append(bs_check_val)
 
-    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal
+    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal, insolvency_severity, legal_insolvency_month
+
+
+# === CACHED WRAPPER for deterministic dashboard call (audit Finding 7) ===
+# This wrapper IS cached — single-shot dashboard runs benefit from cache hits
+# when user revisits the page with identical sidebar inputs. The MC harness
+# bypasses this and calls _execute_financial_simulation_uncached directly,
+# preventing cache pollution from random parameter sweeps.
+@st.cache_data
+def execute_financial_simulation(*args, **kwargs):
+    return _execute_financial_simulation_uncached(*args, **kwargs)
+
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
 # === is_dynamic passed as positional arg before lang_choice ===
-pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated = execute_financial_simulation(
+pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated, insolvency_severity, legal_insolvency_month = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
@@ -2078,13 +2150,27 @@ hgb_structure = {}
 # pos1 Umsatzerlöse: passenger Net Revenue + delivery Net Revenue (both operating activity)
 hgb_structure[loc["hgb_pos1"]] = (df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]).values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
-# Materialaufwand: Aufwendungen für Roh-/Hilfsstoffe UND für bezogene Leistungen (Tesla platform — passenger AND delivery)
-hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_lease"]] + df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
+# === HGB § 275 Abs. 2 Nr. 5 — Materialaufwand (strict scope per German GAAP) ===
+# Per § 275 HGB, Materialaufwand is limited to:
+#   (a) Aufwendungen für Roh-, Hilfs- und Betriebsstoffe — energy, wear consumables, cleaning
+#   (b) Aufwendungen für bezogene Leistungen — operating lease pmts, Tesla platform take-rate
+# Vehicle insurance, APCOA parking, telemetry, TÜV, charging subscription do NOT qualify as
+# Materialaufwand — they are operating overhead and belong under § 275 Abs. 2 Nr. 8.
+# Reclassified per audit Finding 1 (Critical) to satisfy bank-grade Jahresabschluss filing.
+hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_lease"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
 # Personalaufwand: zero — GF holds Verkehrsleiter mandate without separate compensation
 hgb_structure[loc["hgb_pos4"]] = np.zeros(len(df_pnl_combined.columns))
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
-# Sonstige betriebliche Aufwendungen: clean sum incl. Zuführung Rückstellung Rechtsrisiken
-hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + df_pnl_combined.loc[loc["pnl_fees"]] + df_pnl_combined.loc[loc["pnl_legal_prov"]]).values
+# === HGB § 275 Abs. 2 Nr. 8 — Sonstige betriebliche Aufwendungen ===
+# Absorbs all operating overhead reclassified out of Materialaufwand:
+#   - pnl_ins: Versicherungsaufwand Fahrzeuge (vehicle insurance)
+#   - pnl_park: Mietaufwand Stellplätze (APCOA parking rental)
+#   - pnl_api: Sonstige Betriebsaufwendungen (telemetry / API fees)
+#   - pnl_tuev: Behördliche Gebühren (mandatory TÜV inspections)
+#   - pnl_sub: Sonstige (charging subscription)
+# Plus original Nr. 8 items: HQ lease, IT cloud, legal/bookkeeping, HQ insurance,
+# bank fees, GEZ/IHK fees, legal provisions (Zuführung Rückstellung Rechtsrisiken).
+hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + df_pnl_combined.loc[loc["pnl_fees"]] + df_pnl_combined.loc[loc["pnl_legal_prov"]]).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
 hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc[loc["pnl_tax"]].values
 hgb_structure[loc["hgb_pos9"]] = df_pnl_combined.loc[loc["pnl_ni"]].values
@@ -2111,6 +2197,16 @@ var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
+# === FCCR per audit Finding 3 ===
+# Operating lease expense is a fixed contractual cash obligation economically
+# equivalent to senior debt service. Banks compute lease-adjusted coverage as:
+#   FCCR = (EBITDA + Lease Expense) / (Principal + Interest + Lease Expense)
+# This is the right metric when comparing capital structures with different
+# loan/lease mixes (Tranche A vs Tranche B from the Layer 27A capital structure
+# matrix). Narrow DSCR (debt-only) preserved above for senior debt covenant tests.
+lease_expense_pos = -df_pnl_combined.loc[loc["pnl_lease"]]  # P&L lease (negative) → positive expense
+fixed_charges = debt_service + lease_expense_pos             # total fixed contractual obligations
+ebitdar = ebitda + lease_expense_pos                          # EBITDA before lease (EBITDAR-equivalent)
 other_inc = df_pnl_combined.loc[loc["pnl_thg"]]
 
 kpi_dict = {}
@@ -2121,6 +2217,7 @@ kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, r
 kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
 kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
 kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+kpi_dict[loc["kpi_fccr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitdar, fixed_charges)]
 kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
 
 runway_arr = []
@@ -2185,9 +2282,27 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_c
 
 
 # --- 8. DASHBOARD RECONCILIATION LAYOUT ---
-# Stacked liquidity-stress warnings
-if len(insolvency_months) > 0:
-    st.error(f"{loc['insolv_warn']}{', '.join(insolvency_months)}")
+# === Stacked liquidity-stress warnings (audit Finding 4 — enhanced disclosure) ===
+# Per § 15a InsO Antragspflicht: 3+ consecutive breach months trigger legal duty
+# to file an Insolvenzantrag. Surface this prominently above general breach flags.
+if legal_insolvency_month is not None:
+    total_unfunded = sum(insolvency_severity)
+    n_breach_months = len(insolvency_months)
+    st.error(
+        f"{loc['legal_insolv_warn']}{legal_insolvency_month}\n\n"
+        f"📊 **{loc['insolv_severity_label']}:** €{total_unfunded:,.0f} "
+        f"across {n_breach_months} breach month(s)\n\n"
+        f"ℹ️ {loc['insolv_diagnostic_note']}"
+    )
+elif len(insolvency_months) > 0:
+    # Breach detected but not yet 3 consecutive months — still flag prominently
+    total_unfunded = sum(insolvency_severity)
+    n_breach_months = len(insolvency_months)
+    st.error(
+        f"{loc['insolv_warn']}{', '.join(insolvency_months)}\n\n"
+        f"📊 **{loc['insolv_severity_label']}:** €{total_unfunded:,.0f} "
+        f"across {n_breach_months} breach month(s)"
+    )
 if len(net_liq_breach_months) > 0:
     st.warning(f"{loc['net_liq_warn']}{', '.join(net_liq_breach_months)}")
 if len(cash_breach_months) > 0:
@@ -2258,6 +2373,8 @@ def style_kpi_rows(row):
     elif loc["kpi_ebitda_m"] in row.name:
         return ['font-weight: 700; background-color: #1e1e1e; color: #F2A900; border-top: 1px solid #ffffff40; border-bottom: 2px solid #F2A900;'] * len(row)
     elif loc["kpi_dscr"] in row.name:
+        return ['font-weight: 700; color: #38c172;'] * len(row)
+    elif loc["kpi_fccr"] in row.name:
         return ['font-weight: 700; color: #38c172;'] * len(row)
     elif loc["kpi_net_ltv"] in row.name:
         return ['font-weight: 700; border-top: 1px solid #ffffff40;'] * len(row)
@@ -2907,7 +3024,10 @@ with tabs[6]:
 
             # ---- Invoke the deterministic engine with sampled params ----
             try:
-                pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk = execute_financial_simulation(
+                # === Audit Finding 7: call UNCACHED engine directly inside MC loop ===
+                # Each MC iteration uses unique randomized parameters; caching these
+                # would create thousands of unreachable cache entries and exhaust RAM.
+                pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk, _is, _lim = _execute_financial_simulation_uncached(
                     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
                     active_hours_sampled, speed_sampled, deadhead_sampled, util_mode,
                     target_util_sampled, init_util_sampled, rec_rate_sampled, can_fac_sampled, flat_util, trip_dist_sampled,
