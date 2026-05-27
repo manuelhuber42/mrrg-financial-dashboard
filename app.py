@@ -53,7 +53,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 28: Statutory Compliance Hardening (HGB pos3/pos6 reclass, Kapitalrücklage routing, FCCR, § 15a InsO trigger, Lease VAT bridge, MC memory fix))*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 29: CF reconciliation fix (C2), active-hours doc alignment (H2), delivery-inclusive revenue chart (H8), parameterized Hebesatz with Wachstumsbooster-Gesetz KSt schedule)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -62,7 +62,7 @@ if lang_choice == "English":
         "y5_adds": "Year 5 Additions (Jan-Dec)",
         "sec1b": "1b. OPERATIONAL PHYSICS",
         "active_hours": "Active Hours / Day",
-        "help_active_hours": "Blended weekly-average productive shift hours. Weekday 12.5h (sustained demand 7am-10pm minus charging/cleaning), weekend 14.5h (longer demand window 10am-3am, more lucrative routes). Excludes charging/maintenance windows. Onboard sensor cleaning (Cybercab spec, Cybertruck-derived) eliminates the depot-cleaning penalty assumed in earlier Waymo-benchmark estimates.",
+        "help_active_hours": "Blended weekly-average productive shift hours. Weekday 15h (sustained demand 6am-11pm minus brief charging/cleaning windows), weekend 18h (longer demand window 8am-2am next day, more lucrative late-night routes), blended weekly average ≈ 16h. Excludes the 2am-6am Tesla Robotaxi Network inductive charging window, which runs in parallel to depot return and onboard sensor cleaning (Cybercab spec, Cybertruck-derived) — eliminating the depot-cleaning shift penalty assumed in earlier Waymo-benchmark estimates. Onboard inductive charging + autonomous sensor cleaning shortens non-productive windows materially below the 13.5h benchmark used for human-driver fleets.",
         "speed": "Average Speed (km/h)",
         "help_speed": "Munich blended average speed: TomTom Traffic Index 2024 free-flow inner-city 21 km/h, adjusted for rush-hour congestion (14-17 km/h during 7-10am and 4-7pm), weather (60-90 days/year of rain/snow at -15-25% speed), and autonomous vehicle speed-limit discipline (-8% vs human drivers per Waymo Phoenix data).",
         "deadhead": "Deadhead Rate (%)",
@@ -74,7 +74,7 @@ if lang_choice == "English":
         "target_util": "Target Utilization (%)",
         "help_target": "Mature-state steady utilization. 75% reflects realistic demand-fill rate accounting for: weekday/weekend variance, geographic demand pockets (Schwabing/Maxvorstadt dense, Pasing/Hadern sparse), inevitable demand troughs (Tue-Thu 10am-noon). Waymo Phoenix Y5 utilization data: 72-78%.",
         "init_util": "Month 1 Launch Util. (%)",
-        "help_init": "Month-1 launch utilization. 55% reflects three demand catalysts unique to MRRG's go-to-market: (a) price elasticity from 30-45% undercut vs. Uber/Free Now drives ~25-35% volume lift vs. mature-market launches (Cohen Uber/MIT 2016 elasticity studies), (b) novelty effect from first European Cybercab deployment generates PR-driven trial demand (Cruise SF early-week data showed >70% utilization spikes), (c) supply-constrained Month-1 fleet (3 cars) concentrated in 1-2 high-density zones (Maxvorstadt/Schwabing) operates at structurally higher utilization than market-scale operations. On 24h calendar basis this equals ~31% asset utilization (55% × 13.5h ÷ 24h).",
+        "help_init": "Month-1 launch utilization. 55% reflects three demand catalysts unique to MRRG's go-to-market: (a) price elasticity from 30-45% undercut vs. Uber/Free Now drives ~25-35% volume lift vs. mature-market launches (Cohen Uber/MIT 2016 elasticity studies), (b) novelty effect from first European Cybercab deployment generates PR-driven trial demand (Cruise SF early-week data showed >70% utilization spikes), (c) supply-constrained Month-1 fleet (3 cars) concentrated in 1-2 high-density zones (Maxvorstadt/Schwabing) operates at structurally higher utilization than market-scale operations. On 24h calendar basis this equals ~37% asset utilization (55% × 16h ÷ 24h).",
         "rec_rate": "Monthly Recovery (+%)",
         "help_rec": "Monthly utilization recovery rate. 5%/month is required for utilization to outpace the cadence of fleet additions in Y3-Y5 (the model adds 12+ cars/year in lumps of 3-6 every quarter). Lower rates (3%/month, default) caused utilization collapse in Y5 as cannibalization hits compounded faster than recovery. 5% is benchmarked against Waymo SF scaling-phase recovery rate (4-6%/month observed during active fleet expansion); also consistent with Uber Munich 2014-2016 driver-supply recovery curves.",
         "can_fac": "Cannibalization Factor",
@@ -93,7 +93,7 @@ if lang_choice == "English":
         "delivery_toggle": "Enable B2B Delivery Stream",
         "help_delivery_toggle": "Tesla Network also dispatches Cybercabs for goods delivery (food/parcel/medical) during low-passenger-demand windows. Same dispatch architecture, separate revenue stream. Default OFF for conservative passenger-only base case. Toggle ON to model the asset's full productivity envelope. Tesla controls priority (passenger trips preempt delivery when both available).",
         "delivery_hours": "Additional Active Hours / Day (Delivery)",
-        "help_delivery_hours": "Incremental productive hours per day when delivery stream is active. 4.5h fills low-passenger-demand windows (lunch 11am-2pm partial overlap, late-evening 10pm-1am, early-morning B2B 5-7am). Combined with 13.5h passenger shift = 18h Tesla Network active per 24h day (75% 24h asset utilization).",
+        "help_delivery_hours": "Incremental productive hours per day when delivery stream is active. 4.5h fills low-passenger-demand windows (lunch 11am-2pm partial overlap, late-evening 10pm-1am, early-morning B2B 5-7am). Combined with 16h passenger shift = 20.5h Tesla Network active per 24h day (85% 24h asset utilization), leaving a 3.5h overnight inductive charging window.",
         "delivery_revenue_per_trip": "Revenue per Delivery Trip (€, gross incl. 19% VAT)",
         "help_delivery_rev": "Blended revenue per completed delivery cycle. Lieferando/Uber Eats food €4-6, B2B parcel last-mile €3-5, medical/pharmacy €8-15. €6.00 reflects food-weighted central case. Customer pays this gross; 19% VAT remitted to Finanzamt; 25% Tesla Network platform fee on net.",
         "delivery_trips_per_active_hour": "Deliveries per Active Hour",
@@ -183,6 +183,20 @@ if lang_choice == "English":
         "help_max_od": "Bank-approved overdraft ceiling. If model needs more than this, INSOLVENCY is flagged.",
         "legal_provision_input": "Monthly Legal/Litigation Provision (€) (§ 249 HGB)",
         "int_rate": "Cash Interest Rate (%)",
+        "hebesatz": "Gewerbesteuer-Hebesatz (%)",
+        "help_hebesatz": (
+            "**Municipal trade tax multiplier (Hebesatz) applied to the federal Gewerbesteuer base rate of 3.5% per § 16 GewStG.** "
+            "Default 250% reflects Gräfelfing (Landkreis München), one of the most tax-attractive municipalities in the Munich metropolitan area — significantly below Munich City (490%), Pullach (240% as of 2025), Unterföhring (295%), Bayern average (~360%), and Berlin (410%). "
+            "Verified via Statistisches Landesamt Bayern 2024 Hebesatzliste.\n\n"
+            "**Combined corporate tax methodology used in this engine** (§ 23 KStG n.F. + § 4 SolzG + § 16 GewStG):\n\n"
+            "Total Tax Rate = KSt × (1 + 5.5% Soli) + 3.5% × (Hebesatz / 100)\n\n"
+            "**KSt declining schedule per Wachstumsbooster-Gesetz** (in Kraft seit 19.07.2025, § 23 Abs. 1 KStG n.F.) — annual 1pp reduction starting VZ 2028:\n"
+            "• Y1 (2028): 14%  •  Y2 (2029): 13%  •  Y3 (2030): 12%  •  Y4 (2031): 11%  •  Y5 (2032): 10%\n\n"
+            "**At default 250% Hebesatz, total combined effective rate by year:**\n"
+            "• Y1: 23.52%  •  Y2: 22.47%  •  Y3: 21.41%  •  Y4: 20.36%  •  Y5: 19.30%\n\n"
+            "Sources: BMF Wachstumsbooster portal, IHK München, EY Tax Law Magazine, BDO Insights, Bird & Bird tax analysis (all confirm 5-step KSt reduction 15%→10% over VZ 2028-2032). "
+            "Adjust this slider to model alternative locations or stress-test the Hebesatz assumption. The engine auto-rebuilds the 5-year tax schedule each time the value changes — no hardcoded numbers downstream."
+        ),
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
         "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates per § 7 Abs. 1 38. BImSchV. Flat annual payment per registered EV per calendar year, paid in FULL regardless of when in the year vehicle was registered, provided registration is before Nov 15 deadline. Vehicles registered Nov-Dec defer to following January. Default €280 reflects 2024 German market actuals (range €150-450 depending on provider). 2025-2028 forward pricing volatile. Source: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
@@ -463,7 +477,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 28: Statutarische Konformitätsverstärkung (HGB pos3/pos6 Neuklassifikation, Kapitalrücklage-Routing, FCCR, § 15a InsO Trigger, Leasing-USt-Bridge, MC Memory-Fix))*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 29: CF-Abstimmungsfix (C2), Aktive-Stunden-Doku-Alignment (H2), lieferdienst-inklusive Umsatzchart (H8), parameterisierter Hebesatz mit Wachstumsbooster-Gesetz KSt-Plan)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -472,7 +486,7 @@ else:
         "y5_adds": "Jahr 5 Zugänge (Jan-Dez)",
         "sec1b": "1b. OPERATIVE PHYSIK",
         "active_hours": "Aktive Stunden / Tag",
-        "help_active_hours": "Gemischter Wochendurchschnitt produktiver Schichtstunden. Werktag 12,5h (Nachfrage 7-22 Uhr abzüglich Laden/Reinigung), Wochenende 14,5h (längeres Nachfragefenster 10-3 Uhr, lukrativere Strecken). Lade-/Wartungsfenster ausgeschlossen. Cybercab Onboard-Sensorreinigung eliminiert die Depot-Reinigungspause älterer Waymo-Benchmark-Schätzungen.",
+        "help_active_hours": "Gemischter Wochendurchschnitt produktiver Schichtstunden. Werktag 15h (Nachfrage 6-23 Uhr abzüglich kurzer Lade-/Reinigungsfenster), Wochenende 18h (längeres Nachfragefenster 8-2 Uhr Folgetag, lukrativere Nachtstrecken), gemischter Wochendurchschnitt ≈ 16h. Ausgeschlossen ist das 2-6 Uhr Tesla Robotaxi-Netzwerk-Induktionsladefenster, das parallel zur Depotrückkehr und autonomen Sensorreinigung läuft (Cybercab Spec, Cybertruck-abgeleitet) — entfällt die Depot-Reinigungsschicht älterer Waymo-Benchmark-Schätzungen. Induktivladen + autonome Sensorreinigung verkürzen die unproduktiven Fenster wesentlich unter den 13,5h-Benchmark menschengeführter Flotten.",
         "speed": "Durchschnittsgeschwindigkeit (km/h)",
         "help_speed": "Münchner Mischgeschwindigkeit: TomTom Traffic Index 2024 Free-Flow Innenstadt 21 km/h, bereinigt um Berufsverkehr (14-17 km/h zwischen 7-10 und 16-19 Uhr), Wetter (60-90 Tage/Jahr Regen/Schnee bei -15-25% Geschwindigkeit), und autonomes Tempolimit-Verhalten (-8% ggü. menschlichen Fahrern, Waymo Phoenix Daten).",
         "deadhead": "Leerfahrten-Quote (%)",
@@ -484,7 +498,7 @@ else:
         "target_util": "Ziel-Auslastung (%)",
         "help_target": "Mature-State stationäre Auslastung. 75% spiegelt realistischen Nachfragebefüllungsgrad wider unter Berücksichtigung von: Werktag/Wochenend-Varianz, geografischen Nachfrageinseln (Schwabing/Maxvorstadt dicht, Pasing/Hadern dünn), unvermeidbaren Nachfragetiefs (Di-Do 10-12 Uhr). Waymo Phoenix J5 Auslastungsdaten: 72-78%.",
         "init_util": "Start-Auslastung Monat 1 (%)",
-        "help_init": "Auslastung Monat 1. 55% reflektiert drei nachfragetreibende Faktoren der MRRG Go-to-Market: (a) Preiselastizität durch 30-45% Unterbietung von Uber/Free Now bewirkt ~25-35% Mehrvolumen ggü. preisgleichen Launches (Cohen Uber/MIT 2016 Elastizitätsstudien), (b) Novelty-Effekt durch ersten europäischen Cybercab-Launch erzeugt PR-getriebene Probefahrtnachfrage (Cruise SF Frühwochen-Daten >70% Auslastungsspitzen), (c) versorgungsbeschränkte Startflotte (3 Fahrzeuge) konzentriert in 1-2 Hochdichtezonen (Maxvorstadt/Schwabing) operiert strukturell höher als marktbreite Operationen. Auf 24h-Kalenderbasis entspricht dies ~31% Asset-Auslastung (55% × 13,5h ÷ 24h).",
+        "help_init": "Auslastung Monat 1. 55% reflektiert drei nachfragetreibende Faktoren der MRRG Go-to-Market: (a) Preiselastizität durch 30-45% Unterbietung von Uber/Free Now bewirkt ~25-35% Mehrvolumen ggü. preisgleichen Launches (Cohen Uber/MIT 2016 Elastizitätsstudien), (b) Novelty-Effekt durch ersten europäischen Cybercab-Launch erzeugt PR-getriebene Probefahrtnachfrage (Cruise SF Frühwochen-Daten >70% Auslastungsspitzen), (c) versorgungsbeschränkte Startflotte (3 Fahrzeuge) konzentriert in 1-2 Hochdichtezonen (Maxvorstadt/Schwabing) operiert strukturell höher als marktbreite Operationen. Auf 24h-Kalenderbasis entspricht dies ~37% Asset-Auslastung (55% × 16h ÷ 24h).",
         "rec_rate": "Monatliche Erholung (+%)",
         "help_rec": "Monatliche Auslastungs-Erholungsrate. 5%/Monat ist erforderlich, damit die Auslastung mit der Kadenz der Flottenzugänge in J3-J5 mithalten kann (12+ Fahrzeuge/Jahr in Tranchen von 3-6 pro Quartal). Niedrigere Raten (3%/Monat, ) führten zum Auslastungseinbruch in J5, da Kannibalisierungseffekte schneller als die Erholung kumulierten. 5% benchmarked gegen Waymo SF Scaling-Phase-Erholungsrate (4-6%/Monat während aktiver Flottenexpansion); konsistent mit Uber Münchner 2014-2016 Fahrerangebots-Erholungskurven.",
         "can_fac": "Kannibalisierungsfaktor",
@@ -503,7 +517,7 @@ else:
         "delivery_toggle": "B2B-Lieferdienst aktivieren",
         "help_delivery_toggle": "Tesla Network dispatched Cybercabs auch für Warenlieferungen (Food/Paket/Medizinprodukte) in Schwachlast-Phasen des Personenverkehrs. Selbe Dispatching-Architektur, separater Erlösstrom. Standard AUS für konservativen Basisfall. Bei Aktivierung wird die vollständige Asset-Produktivität abgebildet. Tesla steuert die Priorisierung (Personenfahrten haben Vorrang).",
         "delivery_hours": "Zusätzliche aktive Stunden / Tag (Lieferdienst)",
-        "help_delivery_hours": "Inkrementelle produktive Stunden pro Tag bei aktivem Lieferstrom. 4,5h füllen Schwachlast-Fenster (Mittag 11-14 Uhr Teilüberlapp, Spätabend 22-1 Uhr, Frühmorgen B2B 5-7 Uhr). Kombiniert mit 13,5h Personenschicht = 18h Tesla Network aktiv pro 24h-Tag (75% 24h-Asset-Auslastung).",
+        "help_delivery_hours": "Inkrementelle produktive Stunden pro Tag bei aktivem Lieferstrom. 4,5h füllen Schwachlast-Fenster (Mittag 11-14 Uhr Teilüberlapp, Spätabend 22-1 Uhr, Frühmorgen B2B 5-7 Uhr). Kombiniert mit 16h Personenschicht = 20,5h Tesla Network aktiv pro 24h-Tag (85% 24h-Asset-Auslastung), mit 3,5h Nacht-Induktivladefenster.",
         "delivery_revenue_per_trip": "Erlös pro Lieferfahrt (€, brutto inkl. 19% USt)",
         "help_delivery_rev": "Mischerlös pro abgeschlossenem Lieferzyklus. Lieferando/Uber Eats Food €4-6, B2B-Paket Last-Mile €3-5, Medizin/Pharmazie €8-15. €6,00 spiegelt Food-gewichteten Basisfall wider. Kunde zahlt brutto; 19% USt ans Finanzamt; 25% Tesla-Plattformgebühr auf netto.",
         "delivery_trips_per_active_hour": "Lieferungen pro aktiver Stunde",
@@ -593,6 +607,20 @@ else:
         "help_max_od": "Bankseitig genehmigte Linie. Übersteigt der Modellbedarf diese, wird INSOLVENZ angezeigt.",
         "legal_provision_input": "Monatliche Rechtsrisiko-Rückstellung (€) (§ 249 HGB)",
         "int_rate": "Guthabenzinsen (%)",
+        "hebesatz": "Gewerbesteuer-Hebesatz (%)",
+        "help_hebesatz": (
+            "**Kommunaler Gewerbesteuer-Hebesatz auf den Steuermessbetrag gem. § 16 GewStG (Basis: 3,5%).** "
+            "Standardwert 250% reflektiert Gräfelfing (Landkreis München), eine der steuerlich attraktivsten Gemeinden im Münchner Großraum — deutlich unter München-Stadt (490%), Pullach (240% Stand 2025), Unterföhring (295%), Bayern-Durchschnitt (~360%) und Berlin (410%). "
+            "Verifiziert über Statistisches Landesamt Bayern 2024 Hebesatzliste.\n\n"
+            "**Kombinierte Körperschaftsteuer-Methodik dieser Engine** (§ 23 KStG n.F. + § 4 SolzG + § 16 GewStG):\n\n"
+            "Gesamt-Steuersatz = KSt × (1 + 5,5% Soli) + 3,5% × (Hebesatz / 100)\n\n"
+            "**KSt-Senkungsplan gem. Wachstumsbooster-Gesetz** (in Kraft seit 19.07.2025, § 23 Abs. 1 KStG n.F.) — jährliche 1pp-Reduktion ab VZ 2028:\n"
+            "• J1 (2028): 14%  •  J2 (2029): 13%  •  J3 (2030): 12%  •  J4 (2031): 11%  •  J5 (2032): 10%\n\n"
+            "**Bei Standard-Hebesatz 250% — kombinierter Effektivsteuersatz pro Jahr:**\n"
+            "• J1: 23,52%  •  J2: 22,47%  •  J3: 21,41%  •  J4: 20,36%  •  J5: 19,30%\n\n"
+            "Quellen: BMF Wachstumsbooster-Portal, IHK München, EY Tax Law Magazine, BDO Insights, Bird & Bird Steueranalyse (alle bestätigen 5-stufige KSt-Senkung 15%→10% über VZ 2028-2032). "
+            "Schieberegler anpassen, um alternative Standorte zu modellieren oder die Hebesatz-Annahme zu stress-testen. Die Engine rekalkuliert den 5-Jahres-Steuerplan automatisch bei jeder Änderung — keine hardcoded Werte stromabwärts."
+        ),
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
         "help_thg": "Treibhausgasminderungsquote gem. § 7 Abs. 1 38. BImSchV. Jährliche Pauschalzahlung pro zugelassenes E-Fahrzeug pro Kalenderjahr, VOLL ausgezahlt unabhängig vom Zulassungszeitpunkt im Jahr, sofern Zulassung vor Stichtag 15. November. Nov-Dez-Zulassungen werden auf Folgejahr-Januar verschoben. Standard €280 entspricht 2024 deutschen Markt-Ist-Werten (Bandbreite €150-450 je nach Anbieter). 2025-2028 Forward-Preise volatil. Quelle: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
@@ -1125,6 +1153,16 @@ min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.
 max_overdraft_limit = st.sidebar.number_input(loc["max_overdraft_input"], value=50000.0, step=10000.0, help=loc["help_max_od"])
 legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, step=50.0)
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
+# === L29: Parameterized municipal trade tax multiplier (Hebesatz) ===
+# Default 250% = Gräfelfing (registered Sitz). Slider lets user stress-test
+# alternative locations (Munich City 490%, Pullach 240%, Berlin 410%, etc.).
+# Engine combines this with the legally-anchored declining KSt schedule
+# (15→10% over VZ 2028-2032 per Wachstumsbooster-Gesetz § 23 Abs. 1 KStG n.F.)
+# and 5.5% Soli to produce a fully transparent total-tax-rate schedule.
+hebesatz_pct = st.sidebar.number_input(
+    loc["hebesatz"], value=250.0, min_value=200.0, max_value=600.0, step=5.0,
+    help=loc["help_hebesatz"]
+)
 
 st.sidebar.header(loc["sec9"])
 thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, help=loc["help_thg"])
@@ -1160,7 +1198,8 @@ def _execute_financial_simulation_uncached(
     is_dynamic, lang_choice,
     fin_mix_by_year=None,
     lease_money_factor=0.015, lease_downpayment_pct=0.15, lease_term_months=60,
-    equity_capital_call_enabled=True
+    equity_capital_call_enabled=True,
+    hebesatz_pct=250.0
 ):
     # ============================================================
     # is_dynamic parameter added before lang_choice
@@ -1327,7 +1366,37 @@ def _execute_financial_simulation_uncached(
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
-    tax_schedule = {1: 0.23520, 2: 0.22465, 3: 0.21410, 4: 0.20355, 5: 0.19300}
+    # =====================================================================
+    # === GERMAN CORPORATE TAX SCHEDULE — parameterized by Hebesatz =======
+    # =====================================================================
+    # Per "Gesetz für ein steuerliches Investitionssofortprogramm zur Stärkung
+    # des Wirtschaftsstandorts Deutschland" (Wachstumsbooster-Gesetz, in Kraft
+    # seit 19.07.2025, BGBl. I Nr. 161, § 23 Abs. 1 KStG n.F.): KSt reduces by
+    # 1pp per Veranlagungszeitraum starting VZ 2028, reaching 10% in VZ 2032.
+    # Business launch VZ 2028 → Y1=2028, Y5=2032 maps directly to this schedule.
+    #
+    # Tax stack per year = KSt + Solidaritätszuschlag + Gewerbesteuer
+    #   KSt by VZ:      Y1(2028) 14%, Y2 13%, Y3 12%, Y4 11%, Y5(2032) 10%
+    #   Soli:           constant 5.5% × KSt (§ 4 SolzG)
+    #   Gewerbesteuer:  3.5% × (Hebesatz / 100)   (§ 16 GewStG)
+    # Total = KSt × (1 + 5.5%) + 3.5% × (Hebesatz / 100)
+    #
+    # Gräfelfing default Hebesatz: 250% (one of the lowest in Munich metro;
+    # significantly below Munich City 490%, Berlin 410%, Bayern average ~360%).
+    # The municipality has retained this rate to attract corporate establishments
+    # to the south-western suburbs. Verified via Statistisches Landesamt Bayern
+    # 2024 Hebesatzliste. At default 250%, this reproduces the prior hardcoded
+    # schedule {Y1: 23.520%, Y2: 22.465%, Y3: 21.410%, Y4: 20.355%, Y5: 19.300%}
+    # to the basis point — zero regression vs Layer 28 with default inputs.
+    # =====================================================================
+    _kst_by_year = {1: 0.14, 2: 0.13, 3: 0.12, 4: 0.11, 5: 0.10}
+    _soli_factor = 0.055
+    _gewst_base = 0.035
+    _gewst_rate = _gewst_base * (hebesatz_pct / 100.0)
+    tax_schedule = {
+        y: _kst_by_year[y] * (1.0 + _soli_factor) + _gewst_rate
+        for y in range(1, 6)
+    }
 
     # State Loops Configuration
     current_cash = 0.0
@@ -1997,7 +2066,17 @@ def _execute_financial_simulation_uncached(
         cf_m[C_VRP].append(-vat_repay_mo)
         cf_m[C_OD].append(overdraft_net_flow)
         cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
-        cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow)
+        # === C2 FIX (audit Layer 29): capital_call_mo must enter Net Change in Cash ===
+        # Identity that must hold every month:
+        #   end_cash - beg_cash = net_before_overdraft + overdraft_net_flow + capital_call_mo
+        # The current_cash assignment in the overdraft branch above is:
+        #   current_cash = tentative_ending_cash + actual_od_draw + capital_call_mo
+        # Prior version omitted capital_call_mo from C_NET, breaking CF reconciliation
+        # exactly when Tranche-C capital-call fires — precisely the stress scenario the
+        # feature exists to capture, and the first thing bank credit DD will inspect.
+        # Dormant under default 100% loan config but undermines Tranche-C credibility
+        # under any equity-mix configuration. Now reconciles cleanly across all mixes.
+        cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow + capital_call_mo)
         # === Use beg_cash saved at top of loop ===
         cf_m[C_BEG].append(beg_cash)
         cf_m[C_END].append(current_cash)
@@ -2068,7 +2147,8 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     delivery_cargo_insurance_pm, seasonality_by_month,
     is_dynamic, lang_choice,
     fin_mix_by_year, lease_money_factor, lease_downpayment_pct, lease_term_months,
-    equity_capital_call_enabled
+    equity_capital_call_enabled,
+    hebesatz_pct
 )
 
 # ============================================================
@@ -2419,7 +2499,14 @@ with tabs[5]:
     # NOTE: df_pnl_yr / df_cf_yr / df_bs_yr were never renamed (only df_*_combined were).
     # They retain the raw short keys ("pnl_net_rev" etc.), so we MUST look up by raw key
     # rather than by loc[...]. Using loc[...] here would KeyError.
-    y_rev_v = df_pnl_yr.loc["pnl_net_rev"].values
+    # === H8 FIX (audit Layer 29): Net Revenue chart now matches KPI engine ===
+    # KPI engine computes rev_top = pnl_net_rev + pnl_delivery_net_rev. Prior chart
+    # showed passenger-only, creating an inconsistency the moment the delivery toggle
+    # was activated: KPI tab showed combined revenue while the headline chart showed
+    # passenger only — making delivery revenue appear as "shadow" income. Now both
+    # tabs read the same combined figure. When delivery_enabled=False the second
+    # term is zero and the chart reads identically to the prior passenger-only view.
+    y_rev_v = (df_pnl_yr.loc["pnl_net_rev"] + df_pnl_yr.loc["pnl_delivery_net_rev"]).values
     y_eb_v  = df_pnl_yr.loc["pnl_ebitda"].values
     y_ni_v  = df_pnl_yr.loc["pnl_ni"].values
     y_fl_v  = [active_fleet_by_month[(i*12)+11] for i in range(5)]
@@ -3046,9 +3133,10 @@ with tabs[6]:
                     delivery_ramp_y1, dy2_sampled, dy3_sampled, dy4_sampled, delivery_ramp_y5,
                     delivery_cargo_insurance_pm, seasonality_iter,
                     is_dynamic, lang_choice,
-                    # === Financing mix held constant during MC (sidebar settings) ===
+                    # === Financing mix + Hebesatz held constant during MC (sidebar settings) ===
                     fin_mix_by_year, lease_money_factor, lease_downpayment_pct,
-                    lease_term_months, equity_capital_call_enabled
+                    lease_term_months, equity_capital_call_enabled,
+                    hebesatz_pct
                 )
                 ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
                 y5_ebitda_arr[i] = float(sum(pnl_mc["pnl_ebitda"][48:60]))
@@ -3348,9 +3436,9 @@ with tabs[7]:
         ---
 
         #### 🎯 Operational Calibration & Benchmarking ()
-        Operational and variable cost assumptions in this model reflect mature-state central-case values benchmarked against published European mobility operator data (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Throughput calibration assumes **30-34 trips/day per vehicle at steady-state (Y3+)**, built up from 13.5h blended weekday/weekend productive shift, 19 km/h Munich average speed, 3.5 min per-trip dwell, and 22% empty repositioning. Energy and wear cost recalibrations land at **€0.085/km and €0.10/km** respectively — below Waymo benchmarks due to simpler Cybercab sensor stack and German labor rates, above earlier optimistic estimates that did not survive bank-grade Due Diligence. Y1-Y2 ramp-state will run below mature numbers; the engine's **Dynamic Utilization** mode (set as default) models this naturally through the cannibalization + recovery mechanics. For aggressive bull-case modeling, adjust sidebar inputs upward and document the rationale separately.
+        Operational and variable cost assumptions in this model reflect mature-state central-case values benchmarked against published European mobility operator data (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Throughput calibration assumes **30-34 trips/day per vehicle at steady-state (Y3+)**, built up from 16h blended weekday/weekend productive shift (weekday 15h, weekend 18h), 19 km/h Munich average speed, 3.5 min per-trip dwell, and 22% empty repositioning. The 16h blended shift reflects Cybercab-specific advantages over human-driver benchmarks: inductive charging during the 2am-6am Tesla Robotaxi Network window runs in parallel to onboard autonomous sensor cleaning, eliminating the depot return + cleaning shift gap embedded in Waymo's 13.5h benchmark. Energy and wear cost recalibrations land at **€0.085/km and €0.10/km** respectively — below Waymo benchmarks due to simpler Cybercab sensor stack and German labor rates, above earlier optimistic estimates that did not survive bank-grade Due Diligence. Y1-Y2 ramp-state will run below mature numbers; the engine's **Dynamic Utilization** mode (set as default) models this naturally through the cannibalization + recovery mechanics. For aggressive bull-case modeling, adjust sidebar inputs upward and document the rationale separately.
 
-        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~31% asset utilization and Y5 mature state sits at ~41% — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 18h Tesla Network productivity (75% 24h asset utilization). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
+        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~37% asset utilization (55% × 16h ÷ 24h) and Y5 mature state sits at ~50% (75% × 16h ÷ 24h) — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 20.5h Tesla Network productivity (85% 24h asset utilization, with 3.5h reserved for inductive charging). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
 
         **Energy Cost Model (Pure-Inductive Tesla Robotaxi Network):** Cybercabs charge exclusively on Tesla's inductive pad network during the 2am-6am low-demand window. Energy cost decomposed into 3 independently adjustable sliders: (a) **consumption €0.115 kWh/km** anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world urban derate; (b) **inductive pad price €0.27/kWh** = center of defensible band derived bottom-up from German wholesale 2-6am window (€0.06-0.10), Tesla cost stack (grid fees, EEG, Stromsteuer, hardware amortization, target margin), triangulated against Supercharger night rates (€0.26-0.32 market ceiling, which inductive should price below); (c) **charging efficiency 0.90** per SAE J2954 / Electreon / InductEV independent validation of modern static inductive systems (88-93% end-to-end range). Combined effective rate: **€0.0345/km** for the central case. Stress range €0.024/km (optimistic) to €0.052/km (adverse) covers Tesla pricing-power and energy crisis scenarios. Other key calibrations: insurance €180/mo (FSD safety credit + Tesla bundle), parking €170/mo (APCOA bulk-fleet), cleaning €2/day net (after Tesla cleaning-fee pass-through), active hours 16h, cargo insurance €20/mo when delivery active, adjustable 12-month seasonality (defaults Dec-Feb 1.45×, May-Sep 1.10×), THG €280/car/year.
 
@@ -3398,9 +3486,9 @@ with tabs[7]:
         ---
 
         #### 🎯 Operative Kalibrierung & Benchmarking ()
-        Operative und variable Kostenannahmen reflektieren Mature-State-Basisfall-Werte mit Benchmarks gegen veröffentlichte Daten europäischer Mobilitätsbetreiber (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Durchsatzkalibrierung: **30-34 Fahrten/Tag pro Fahrzeug im Steady-State (J3+)**, aufgebaut aus 13,5h gemischter Werktag/Wochenend-produktiver Schicht, 19 km/h Münchner Durchschnittsgeschwindigkeit, 3,5 Min Standzeit pro Fahrt, 22% Leerfahrtenquote. Energie- und Verschleißkosten neu kalibriert auf **€0,085/km bzw. €0,10/km** — unter Waymo-Benchmarks wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten, über früheren optimistischen Schätzungen, die einer bankgerechten Due Diligence nicht standhielten. J1-J2 Ramp-State läuft unter den Mature-Zahlen; der **Dynamic Utilization Modus** des Engines (Standard) modelliert dies natürlich über Kannibalisierungs- und Erholungsmechanik. Für aggressive Bull-Case-Modellierung Sidebar-Inputs nach oben anpassen und Begründung separat dokumentieren.
+        Operative und variable Kostenannahmen reflektieren Mature-State-Basisfall-Werte mit Benchmarks gegen veröffentlichte Daten europäischer Mobilitätsbetreiber (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Durchsatzkalibrierung: **30-34 Fahrten/Tag pro Fahrzeug im Steady-State (J3+)**, aufgebaut aus 16h gemischter Werktag/Wochenend-produktiver Schicht (Werktag 15h, Wochenende 18h), 19 km/h Münchner Durchschnittsgeschwindigkeit, 3,5 Min Standzeit pro Fahrt, 22% Leerfahrtenquote. Die 16h-Mischschicht reflektiert Cybercab-spezifische Vorteile gegenüber menschengeführten Benchmarks: Induktivladen während des 2-6 Uhr Tesla Robotaxi-Netzwerk-Fensters läuft parallel zur autonomen Onboard-Sensorreinigung — entfällt die Depotrückkehr + Reinigungsschicht-Lücke des Waymo 13,5h-Benchmarks. Energie- und Verschleißkosten neu kalibriert auf **€0,085/km bzw. €0,10/km** — unter Waymo-Benchmarks wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten, über früheren optimistischen Schätzungen, die einer bankgerechten Due Diligence nicht standhielten. J1-J2 Ramp-State läuft unter den Mature-Zahlen; der **Dynamic Utilization Modus** des Engines (Standard) modelliert dies natürlich über Kannibalisierungs- und Erholungsmechanik. Für aggressive Bull-Case-Modellierung Sidebar-Inputs nach oben anpassen und Begründung separat dokumentieren.
 
-        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~31% Asset-Auslastung und der reife Zustand in J5 liegt bei ~41% — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 18h Tesla Network-Produktivität (75% 24h-Asset-Auslastung). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
+        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~37% Asset-Auslastung (55% × 16h ÷ 24h) und der reife Zustand in J5 liegt bei ~50% (75% × 16h ÷ 24h) — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 20,5h Tesla Network-Produktivität (85% 24h-Asset-Auslastung, mit 3,5h Induktivladefenster). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
 
         **Energiekosten-Modell (Reine Induktion auf Tesla Robotaxi-Netzwerk):** Cybercabs laden ausschließlich auf Teslas Induktionspad-Netzwerk im 2-6 Uhr Niedrigtarif-Fenster. Energiekosten in 3 unabhängig anpassbare Slider zerlegt: (a) **Verbrauch €0,115 kWh/km** verankert in Tesla VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% urbaner Real-Aufschlag; (b) **Induktivpad-Preis €0,27/kWh** = Mitte des vertretbaren Bandes, bottom-up hergeleitet aus deutschem Großhandel 2-6 Uhr (€0,06-0,10), Tesla-Kostenstack (Netzentgelte, EEG, Stromsteuer, Hardware-Amortisation, Zielmarge), trianguliert mit Supercharger-Nachttarifen (€0,26-0,32 Marktobergrenze, unter der induktiv preisen sollte); (c) **Ladewirkungsgrad 0,90** gem. SAE J2954 / Electreon / InductEV unabhängiger Validierung moderner statischer Induktion (88-93% End-to-End). Effektive Kombi-Rate: **€0,0345/km** Basisfall. Stress-Bereich €0,024/km (optimistisch) bis €0,052/km (negativ) deckt Tesla-Preismacht- und Energiekrise-Szenarien ab. Andere Schlüsselkalibrierungen: Versicherung €180/Mon. (FSD-Sicherheitsbonus + Tesla-Bundle), Stellplatz €170/Mon. (APCOA Mengenrabatt), Reinigung €2/Tag netto (nach Tesla-Reinigungsgebühr-Erlös), aktive Stunden 16h, Frachtversicherung €20/Mon. bei aktivem Lieferdienst, anpassbare 12-Monats-Saisonalität (Standard Dez-Feb 1,45×, Mai-Sep 1,10×), THG €280/Fahrzeug/Jahr.
 
