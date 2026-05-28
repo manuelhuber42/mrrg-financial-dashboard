@@ -47,13 +47,35 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# --- RESET TO DEFAULTS BUTTON ---
+# Streamlit widgets fall back to their `value=` parameter when their session_state
+# key is absent. Clearing all session_state keys (except a small whitelist we want
+# to preserve, e.g. MC simulation results the user already paid 30-120s to compute)
+# resets every input back to the values declared in this script. The on_click
+# callback fires BEFORE Streamlit's automatic rerun, so no explicit st.rerun()
+# is needed.
+def _reset_sidebar_to_defaults():
+    _preserve_keys = ("mc_results",)
+    _preserved = {k: st.session_state[k] for k in _preserve_keys if k in st.session_state}
+    st.session_state.clear()
+    for k, v in _preserved.items():
+        st.session_state[k] = v
+
+st.sidebar.button(
+    "🔄 Reset to default settings",
+    on_click=_reset_sidebar_to_defaults,
+    use_container_width=True,
+    help="Restore every sidebar input back to the value declared in code. Preserves any Monte Carlo simulation results already computed in the Risk & Variance tab."
+)
+st.sidebar.divider()
+
 # --- LANGUAGE DICTIONARY ---
 lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 29: CF reconciliation fix (C2), active-hours doc alignment (H2), delivery-inclusive revenue chart (H8), parameterized Hebesatz with Wachstumsbooster-Gesetz KSt schedule)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 31: Sidebar Reorganization (seasonality → sec1, capital allocation → top of sec8) + Reset-to-defaults button + Hardened fleet validation)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -93,7 +115,7 @@ if lang_choice == "English":
         "delivery_toggle": "Enable B2B Delivery Stream",
         "help_delivery_toggle": "Tesla Network also dispatches Cybercabs for goods delivery (food/parcel/medical) during low-passenger-demand windows. Same dispatch architecture, separate revenue stream. Default OFF for conservative passenger-only base case. Toggle ON to model the asset's full productivity envelope. Tesla controls priority (passenger trips preempt delivery when both available).",
         "delivery_hours": "Additional Active Hours / Day (Delivery)",
-        "help_delivery_hours": "Incremental productive hours per day when delivery stream is active. 4.5h fills low-passenger-demand windows (lunch 11am-2pm partial overlap, late-evening 10pm-1am, early-morning B2B 5-7am). Combined with 16h passenger shift = 20.5h Tesla Network active per 24h day (85% 24h asset utilization), leaving a 3.5h overnight inductive charging window.",
+        "help_delivery_hours": "Incremental productive hours per day when delivery stream is active. 4.0h fills low-passenger-demand windows (lunch 11am-2pm partial overlap, late-evening 10pm-1am, early-morning B2B 5-7am). Combined with the 16h passenger shift = 20h Tesla Network active per 24h day (83% 24h asset utilization), leaving a 4h overnight inductive charging window. Cross-field guardrail enforces active + delivery ≤ 20h.",
         "delivery_revenue_per_trip": "Revenue per Delivery Trip (€, gross incl. 19% VAT)",
         "help_delivery_rev": "Blended revenue per completed delivery cycle. Lieferando/Uber Eats food €4-6, B2B parcel last-mile €3-5, medical/pharmacy €8-15. €6.00 reflects food-weighted central case. Customer pays this gross; 19% VAT remitted to Finanzamt; 25% Tesla Network platform fee on net.",
         "delivery_trips_per_active_hour": "Deliveries per Active Hour",
@@ -132,7 +154,7 @@ if lang_choice == "English":
         "cargo_ins": "Cargo Insurance (Verkehrshaftungsversicherung)",
         "help_cargo_ins": "NEW LINE. Mandatory transport liability insurance when B2B delivery toggle is ON. Covers cargo value, theft in transit, weather damage, in-transit handling claims. Doesn't benefit from FSD safety credit (these risks don't depend on driver behavior). €20/car/month reflects 2024 German Verkehrshaftungsversicherung rates for low-value parcel/food courier operations. Only billed when delivery stream is active.",
         # === Monthly seasonality multipliers (12 months adjustable) ===
-        "sec_season": "1d. SEASONALITY (Winter Penalty)",
+        "sec_season": "1d. SEASONAL ENERGY MODIFIER",
         "season_expander": "📅 Monthly Energy Multipliers",
         "season_caption": "Adjust per-month energy cost multipliers. Affects energy line in P&L. Empirical anchors: ADAC Wintertest 2023 (-35-55% EV range Dec-Feb), Geotab fleet study (+8-15% summer A/C). Tesla 4680 dry-cathode reduces winter penalty 10-15% vs 2170 cells.",
         "month_jan": "January Multiplier",
@@ -467,6 +489,8 @@ if lang_choice == "English":
         "chart_ta": "Total Balance Sheet (Assets)",
         "toggle_fcf": "Show Cumulative FCF",
         "cash_warn": "🚨 CRITICAL: Liquidity Floor Breached! Minimum cash cushion violated in month: ",
+        "err_init_util": "❌ **Input conflict:** Month-1 Launch Utilization ({init:.0f}%) cannot exceed Target Utilization ({target:.0f}%). The init-utilization is the *starting point* on the ramp-up curve; the target is the *mature-state ceiling*. Please lower init or raise target before continuing.",
+        "err_combined_hours": "❌ **Operational ceiling breached:** Active Hours/Day ({active:.1f}h) + Delivery Hours/Day ({delivery:.1f}h) = {total:.1f}h exceeds the 20h/day operational ceiling. The remaining 4+ hours of the 24h calendar day are required for inductive overnight charging, sensor cleaning, and depot maintenance windows. Reduce one of the two hour inputs.",
         "net_liq_warn": "⚠️  Net Liquidity Negative (Cash − Overdraft < Min Buffer) in month: ",
         "insolv_warn": "💀 INSOLVENCY: Required cash shortfall exceeds the bank-approved overdraft ceiling in month: ",
         "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ consecutive months of unfunded shortfall first triggered in month: ",
@@ -477,7 +501,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 29: CF-Abstimmungsfix (C2), Aktive-Stunden-Doku-Alignment (H2), lieferdienst-inklusive Umsatzchart (H8), parameterisierter Hebesatz mit Wachstumsbooster-Gesetz KSt-Plan)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 31: Sidebar-Umorganisation (Saisonalität → Sec1, Kapitalallokation → Anfang Sec8) + Zurücksetzen-Button + Verschärfte Flottenvalidierung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -517,7 +541,7 @@ else:
         "delivery_toggle": "B2B-Lieferdienst aktivieren",
         "help_delivery_toggle": "Tesla Network dispatched Cybercabs auch für Warenlieferungen (Food/Paket/Medizinprodukte) in Schwachlast-Phasen des Personenverkehrs. Selbe Dispatching-Architektur, separater Erlösstrom. Standard AUS für konservativen Basisfall. Bei Aktivierung wird die vollständige Asset-Produktivität abgebildet. Tesla steuert die Priorisierung (Personenfahrten haben Vorrang).",
         "delivery_hours": "Zusätzliche aktive Stunden / Tag (Lieferdienst)",
-        "help_delivery_hours": "Inkrementelle produktive Stunden pro Tag bei aktivem Lieferstrom. 4,5h füllen Schwachlast-Fenster (Mittag 11-14 Uhr Teilüberlapp, Spätabend 22-1 Uhr, Frühmorgen B2B 5-7 Uhr). Kombiniert mit 16h Personenschicht = 20,5h Tesla Network aktiv pro 24h-Tag (85% 24h-Asset-Auslastung), mit 3,5h Nacht-Induktivladefenster.",
+        "help_delivery_hours": "Inkrementelle produktive Stunden pro Tag bei aktivem Lieferstrom. 4,0h füllen Schwachlast-Fenster (Mittag 11-14 Uhr Teilüberlapp, Spätabend 22-1 Uhr, Frühmorgen B2B 5-7 Uhr). Kombiniert mit der 16h Personenschicht = 20h Tesla Network aktiv pro 24h-Tag (83% 24h-Asset-Auslastung), mit 4h Nacht-Induktivladefenster. Querfeld-Guardrail erzwingt aktive + Lieferstunden ≤ 20h.",
         "delivery_revenue_per_trip": "Erlös pro Lieferfahrt (€, brutto inkl. 19% USt)",
         "help_delivery_rev": "Mischerlös pro abgeschlossenem Lieferzyklus. Lieferando/Uber Eats Food €4-6, B2B-Paket Last-Mile €3-5, Medizin/Pharmazie €8-15. €6,00 spiegelt Food-gewichteten Basisfall wider. Kunde zahlt brutto; 19% USt ans Finanzamt; 25% Tesla-Plattformgebühr auf netto.",
         "delivery_trips_per_active_hour": "Lieferungen pro aktiver Stunde",
@@ -556,7 +580,7 @@ else:
         "cargo_ins": "Verkehrshaftungsversicherung (Frachtgut)",
         "help_cargo_ins": "NEUE POSITION. Gesetzliche Transporthaftpflicht bei aktivem B2B-Lieferdienst-Toggle. Deckt Frachtwert, Diebstahl in Transit, Wetterschäden, Handhabungsansprüche. Profitiert NICHT vom FSD-Sicherheitsbonus (Risiken hängen nicht vom Fahrverhalten ab). €20/Fahrzeug/Monat entspricht 2024 deutschen Verkehrshaftungsversicherungs-Tarifen für niedrigwertige Paket-/Food-Kurier-Operationen. Nur fakturiert wenn Lieferstrom aktiv.",
         # === Monatliche Saisonalitäts-Multiplikatoren ===
-        "sec_season": "1d. SAISONALITÄT (Winter-Aufschlag)",
+        "sec_season": "1d. SAISONALER ENERGIE-MODIFIKATOR",
         "season_expander": "📅 Monatliche Energie-Multiplikatoren",
         "season_caption": "Pro-Monat Energiekosten-Multiplikatoren anpassen. Wirkt auf Energieposten in GuV. Empirische Anker: ADAC Wintertest 2023 (-35-55% EV-Reichweite Dez-Feb), Geotab Flottenstudie (+8-15% Sommer-Klimaanlage). Tesla 4680 Trocken-Kathode reduziert Winter-Aufschlag um 10-15% ggü. 2170-Zellen.",
         "month_jan": "Januar Multiplikator",
@@ -891,6 +915,8 @@ else:
         "chart_ta": "Bilanzsumme (Aktiva)",
         "toggle_fcf": "Kumulierten FCF anzeigen",
         "cash_warn": "🚨 KRITISCH: Mindestliquidität unterschritten in Monat: ",
+        "err_init_util": "❌ **Eingabekonflikt:** Start-Auslastung Monat 1 ({init:.0f}%) darf nicht über der Ziel-Auslastung ({target:.0f}%) liegen. Die Start-Auslastung ist der *Ausgangspunkt* der Hochlaufkurve; das Ziel ist die *Mature-State-Obergrenze*. Bitte Start senken oder Ziel anheben.",
+        "err_combined_hours": "❌ **Betriebliche Obergrenze überschritten:** Aktive Stunden/Tag ({active:.1f}h) + Lieferstunden/Tag ({delivery:.1f}h) = {total:.1f}h überschreitet die 20h/Tag-Betriebsobergrenze. Die restlichen 4+ Stunden des 24h-Kalendertages werden für induktive Nachtladung, Sensorreinigung und Depot-Wartungsfenster benötigt. Einer der beiden Stundenwerte muss reduziert werden.",
         "net_liq_warn": "⚠️  Netto-Liquidität negativ (Kasse − Kontokorrent < Mindestpuffer) in Monat: ",
         "insolv_warn": "💀 INSOLVENZ: Erforderlicher Liquiditätsbedarf übersteigt die genehmigte Kontokorrentlinie in Monat: ",
         "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ aufeinanderfolgende Monate ungedeckten Liquiditätsbedarfs erstmals erreicht in Monat: ",
@@ -908,38 +934,78 @@ y3_adds_str = st.sidebar.text_input(loc["y3_adds"], "3, 0, 0, 3, 0, 0, 3, 0, 0, 
 y4_adds_str = st.sidebar.text_input(loc["y4_adds"], "4, 0, 0, 4, 0, 0, 4, 0, 0, 3, 0, 0")
 y5_adds_str = st.sidebar.text_input(loc["y5_adds"], "6, 0, 0, 5, 0, 0, 5, 0, 0, 5, 0, 0")
 
-# Surface bad fleet input to the user (rather than silently zeroing out).
+# === L31 Hardened Fleet Validation ===
+# Prior layers issued warnings on parse errors / negatives but allowed execution
+# to continue, silently producing wrong outputs. L31 elevates these to hard
+# guardrails: bad input → sidebar error + st.stop(). The length check stays
+# soft (warning only) because the engine handles padding/truncation gracefully
+# and 12-value cohort schedules can sometimes legitimately be shortened.
+# Also clamps individual additions to 0–500 (defensible commercial fleet
+# scaling cap — beyond this, scenario testing should explicitly justify).
+_fleet_errors = []
+_fleet_warnings = []
 def _validate_fleet_str(label, s):
     try:
-        arr = [int(x.strip()) for x in s.split(',')]
+        arr = [int(x.strip()) for x in s.split(',') if x.strip() != ""]
     except ValueError:
-        st.sidebar.error(f"⚠️ {label}: invalid number(s) — parsed as zero fleet. Use comma-separated integers.")
+        _fleet_errors.append(
+            f"❌ **{label}:** invalid input — must be comma-separated integers (e.g., '3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0')."
+        )
+        return
+    if any(x < 0 for x in arr):
+        _fleet_errors.append(
+            f"❌ **{label}:** negative additions detected. Fleet additions must be ≥ 0."
+        )
+        return
+    if any(x > 500 for x in arr):
+        _fleet_errors.append(
+            f"❌ **{label}:** individual monthly addition exceeds the 500-vehicle sanity ceiling. "
+            "If this is intentional, lower the ceiling locally — but verify capex, financing capacity, "
+            "and depot footprint can support this scale."
+        )
         return
     if len(arr) != 12:
-        st.sidebar.warning(f"ℹ️ {label}: expected 12 values, got {len(arr)}. Engine pads/truncates to 12.")
-    if any(x < 0 for x in arr):
-        st.sidebar.warning(f"ℹ️ {label}: negative additions detected — typically fleet additions are ≥ 0.")
+        _fleet_warnings.append(
+            f"ℹ️ {label}: expected 12 values, got {len(arr)}. Engine will pad with zeros or truncate to 12."
+        )
 
 for _label, _s in [(loc["y1_adds"], y1_adds_str), (loc["y2_adds"], y2_adds_str),
                    (loc["y3_adds"], y3_adds_str), (loc["y4_adds"], y4_adds_str),
                    (loc["y5_adds"], y5_adds_str)]:
     _validate_fleet_str(_label, _s)
 
+# Surface warnings (non-fatal), then halt on errors so the user can correct
+# before the engine sees the bad input.
+for _w in _fleet_warnings:
+    st.sidebar.warning(_w)
+if _fleet_errors:
+    for _e in _fleet_errors:
+        st.sidebar.error(_e)
+    st.stop()
+
 st.sidebar.header(loc["sec1b"])
-active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0, help=loc["help_active_hours"])
-avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=19.0, help=loc["help_speed"])
-deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=22.0, help=loc["help_deadhead"]) / 100
+active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0, min_value=10.0, max_value=20.0, step=0.5, help=loc["help_active_hours"])
+avg_speed_kmh = st.sidebar.number_input(loc["speed"], value=19.0, min_value=15.0, max_value=35.0, step=0.5, help=loc["help_speed"])
+deadhead_rate = st.sidebar.number_input(loc["deadhead"], value=22.0, min_value=15.0, max_value=50.0, step=0.5, help=loc["help_deadhead"]) / 100
 
 st.sidebar.header(loc["sec1c"])
 util_mode = st.sidebar.radio(loc["util_mode"], [loc["util_dyn"], loc["util_fix"]])
 if util_mode == loc["util_dyn"]:
-    target_util = st.sidebar.number_input(loc["target_util"], value=75.0, help=loc["help_target"]) / 100
-    init_util = st.sidebar.number_input(loc["init_util"], value=55.0, help=loc["help_init"]) / 100
-    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0, help=loc["help_rec"]) / 100
-    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.35, step=0.05, help=loc["help_can"])
+    target_util = st.sidebar.number_input(loc["target_util"], value=75.0, min_value=40.0, max_value=100.0, step=1.0, help=loc["help_target"]) / 100
+    init_util = st.sidebar.number_input(loc["init_util"], value=55.0, min_value=40.0, max_value=100.0, step=1.0, help=loc["help_init"]) / 100
+    # ===== L30 CROSS-FIELD GUARDRAIL: init_util must not exceed target_util =====
+    # Conceptual integrity: init = launch month starting point on the ramp-up
+    # curve; target = mature-state ceiling. init > target inverts the curve
+    # semantics and breaks the cannibalization recovery logic in the engine.
+    # Halt execution with a clear sidebar error so the user can self-correct.
+    if init_util > target_util:
+        st.sidebar.error(loc["err_init_util"].format(init=init_util * 100, target=target_util * 100))
+        st.stop()
+    rec_rate = st.sidebar.number_input(loc["rec_rate"], value=5.0, min_value=1.0, max_value=25.0, step=0.5, help=loc["help_rec"]) / 100
+    can_fac = st.sidebar.number_input(loc["can_fac"], value=0.35, min_value=0.10, max_value=0.50, step=0.05, help=loc["help_can"])
     flat_util = target_util
 else:
-    flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0) / 100
+    flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0, min_value=40.0, max_value=100.0, step=1.0) / 100
     target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
 # === Compute is_dynamic boolean from localized radio selection ===
@@ -947,23 +1013,63 @@ else:
 # which would silently fail in German mode.
 is_dynamic = (util_mode == loc["util_dyn"])
 
+# === Seasonality (1d) — moved into the Section-1 operational block ====
+# Empirical anchors and rationale are documented in the loc tooltips
+# (loc["season_caption"]). Sits between 1c Utilization Dynamics and Section 2
+# Trip Dynamics because it is an operational/physics-side input, not a cost.
+st.sidebar.header(loc["sec_season"])
+with st.sidebar.expander(loc["season_expander"], expanded=False):
+    st.caption(loc["season_caption"])
+    season_jan = st.number_input(loc["month_jan"], value=1.45, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_feb = st.number_input(loc["month_feb"], value=1.45, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_mar = st.number_input(loc["month_mar"], value=1.30, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_apr = st.number_input(loc["month_apr"], value=1.05, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_may = st.number_input(loc["month_may"], value=1.10, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_jun = st.number_input(loc["month_jun"], value=1.10, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_jul = st.number_input(loc["month_jul"], value=1.10, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_aug = st.number_input(loc["month_aug"], value=1.10, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_sep = st.number_input(loc["month_sep"], value=1.10, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_oct = st.number_input(loc["month_oct"], value=1.05, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_nov = st.number_input(loc["month_nov"], value=1.30, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+    season_dec = st.number_input(loc["month_dec"], value=1.45, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
+# Assemble lookup dict (month index 1-12 → multiplier)
+seasonality_by_month = {
+    1: season_jan, 2: season_feb, 3: season_mar, 4: season_apr,
+    5: season_may, 6: season_jun, 7: season_jul, 8: season_aug,
+    9: season_sep, 10: season_oct, 11: season_nov, 12: season_dec
+}
+_season_blend = sum(seasonality_by_month.values()) / 12
+st.sidebar.caption(loc["season_blend_caption"].format(blend=_season_blend))
+
 st.sidebar.header(loc["sec2"])
-avg_trip_distance_km = st.sidebar.number_input(loc["trip_dist"], value=5.0)
-dwell_time_mins = st.sidebar.number_input(loc["dwell"], value=3.5, help=loc["help_dwell"])
+avg_trip_distance_km = st.sidebar.number_input(loc["trip_dist"], value=5.0, min_value=1.5, max_value=15.0, step=0.5)
+dwell_time_mins = st.sidebar.number_input(loc["dwell"], value=3.5, min_value=1.0, max_value=10.0, step=0.5, help=loc["help_dwell"])
 
 st.sidebar.header(loc["sec3"])
-base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50)
-price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49)
-tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0) / 100
+base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50, min_value=0.0, max_value=5.0, step=0.10)
+price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49, min_value=0.50, max_value=4.0, step=0.05)
+tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0, min_value=15.0, max_value=50.0, step=1.0) / 100
 
 # === B2B Delivery Stream sidebar section ===
 st.sidebar.header(loc["sec3b"])
 delivery_enabled = st.sidebar.checkbox(loc["delivery_toggle"], value=False, help=loc["help_delivery_toggle"])
 if delivery_enabled:
-    delivery_hours_per_day = st.sidebar.number_input(loc["delivery_hours"], value=4.5, help=loc["help_delivery_hours"])
-    delivery_rev_per_trip = st.sidebar.number_input(loc["delivery_revenue_per_trip"], value=6.00, step=0.50, help=loc["help_delivery_rev"])
-    delivery_trips_per_hour = st.sidebar.number_input(loc["delivery_trips_per_active_hour"], value=3.0, step=0.5, help=loc["help_delivery_trips"])
-    delivery_take_rate = st.sidebar.number_input(loc["delivery_take_rate"], value=25.0, step=1.0, help=loc["help_delivery_take"]) / 100
+    delivery_hours_per_day = st.sidebar.number_input(loc["delivery_hours"], value=4.0, min_value=0.0, max_value=10.0, step=0.5, help=loc["help_delivery_hours"])
+    # ===== L30 CROSS-FIELD GUARDRAIL: active_hours + delivery_hours ≤ 20h =====
+    # Operational ceiling: a 24h calendar day must reserve ≥4h for inductive
+    # overnight charging + sensor cleaning + depot maintenance windows. The
+    # asset is physically incapable of producing revenue during that window.
+    # Halt with clear sidebar error rather than silently producing nonsensical
+    # "23h Tesla Network active" outputs.
+    _combined_hours = active_hours_per_day + delivery_hours_per_day
+    if _combined_hours > 20.0:
+        st.sidebar.error(loc["err_combined_hours"].format(
+            active=active_hours_per_day, delivery=delivery_hours_per_day, total=_combined_hours
+        ))
+        st.stop()
+    delivery_rev_per_trip = st.sidebar.number_input(loc["delivery_revenue_per_trip"], value=6.00, min_value=1.0, max_value=20.0, step=0.50, help=loc["help_delivery_rev"])
+    delivery_trips_per_hour = st.sidebar.number_input(loc["delivery_trips_per_active_hour"], value=3.0, min_value=0.5, max_value=6.0, step=0.5, help=loc["help_delivery_trips"])
+    delivery_take_rate = st.sidebar.number_input(loc["delivery_take_rate"], value=25.0, min_value=15.0, max_value=50.0, step=1.0, help=loc["help_delivery_take"]) / 100
     delivery_ramp_y1 = st.sidebar.number_input(loc["delivery_ramp_y1"], value=0.0, min_value=0.0, max_value=100.0, step=10.0, help=loc["help_delivery_ramp"]) / 100
     delivery_ramp_y2 = st.sidebar.number_input(loc["delivery_ramp_y2"], value=0.0, min_value=0.0, max_value=100.0, step=10.0) / 100
     delivery_ramp_y3 = st.sidebar.number_input(loc["delivery_ramp_y3"], value=30.0, min_value=0.0, max_value=100.0, step=10.0) / 100
@@ -977,38 +1083,10 @@ else:
     delivery_take_rate = 0.0
     delivery_ramp_y1 = delivery_ramp_y2 = delivery_ramp_y3 = delivery_ramp_y4 = delivery_ramp_y5 = 0.0
 
-# === Monthly Seasonality Multipliers — fully adjustable ===
-# Prior Layers 20/21 hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05, May-Sep 1.10).
-# exposes all 12 months as individual sliders so user can stress-test
-# winter penalty assumptions (e.g., dry-cathode 4680 battery reduces winter penalty).
-# Annual blend computed at runtime; default values preserve 1.2125× blend.
-st.sidebar.header(loc["sec_season"])
-with st.sidebar.expander(loc["season_expander"], expanded=False):
-    st.caption(loc["season_caption"])
-    season_jan = st.number_input(loc["month_jan"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_feb = st.number_input(loc["month_feb"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_mar = st.number_input(loc["month_mar"], value=1.30, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_apr = st.number_input(loc["month_apr"], value=1.05, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_may = st.number_input(loc["month_may"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_jun = st.number_input(loc["month_jun"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_jul = st.number_input(loc["month_jul"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_aug = st.number_input(loc["month_aug"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_sep = st.number_input(loc["month_sep"], value=1.10, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_oct = st.number_input(loc["month_oct"], value=1.05, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_nov = st.number_input(loc["month_nov"], value=1.30, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-    season_dec = st.number_input(loc["month_dec"], value=1.45, format="%.2f", step=0.01, min_value=0.50, max_value=2.50)
-# Assemble lookup dict (month index 1-12 → multiplier)
-seasonality_by_month = {
-    1: season_jan, 2: season_feb, 3: season_mar, 4: season_apr,
-    5: season_may, 6: season_jun, 7: season_jul, 8: season_aug,
-    9: season_sep, 10: season_oct, 11: season_nov, 12: season_dec
-}
-_season_blend = sum(seasonality_by_month.values()) / 12
-st.sidebar.caption(loc["season_blend_caption"].format(blend=_season_blend))
 
 st.sidebar.header(loc["sec4"])
-cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, help=loc["help_cleaning"])
-wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, format="%.2f", step=0.01, help=loc["wear_help"])
+cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, min_value=0.0, max_value=25.0, step=0.5, help=loc["help_cleaning"])
+wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, min_value=0.07, max_value=0.25, format="%.2f", step=0.01, help=loc["wear_help"])
 # === Energy decomposed into 3 sliders ===
 # Three independent drivers replace the prior single energy_rate parameter,
 # making each driver visible and adjustable for stress-testing.
@@ -1016,9 +1094,9 @@ wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, forma
 # Combined: 0.115 * 0.27 / 0.90 = €0.0345/km (was €0.0269 with old defaults).
 # +28% increase reflects realistic Tesla pricing — see help tooltips for full
 # bottom-up derivation including wholesale + grid fees + Tesla margin stack.
-energy_kwh_per_km = st.sidebar.number_input(loc["energy_kwh"], value=0.115, format="%.3f", step=0.005, help=loc["help_energy_kwh"])
-energy_eur_per_kwh = st.sidebar.number_input(loc["energy_eur"], value=0.270, format="%.3f", step=0.01, help=loc["help_energy_eur"])
-charging_efficiency = st.sidebar.number_input(loc["charging_eff"], value=0.90, format="%.2f", step=0.01, min_value=0.50, max_value=1.00, help=loc["help_charging_eff"])
+energy_kwh_per_km = st.sidebar.number_input(loc["energy_kwh"], value=0.115, min_value=0.100, max_value=0.150, format="%.3f", step=0.005, help=loc["help_energy_kwh"])
+energy_eur_per_kwh = st.sidebar.number_input(loc["energy_eur"], value=0.270, min_value=0.150, max_value=0.500, format="%.3f", step=0.01, help=loc["help_energy_eur"])
+charging_efficiency = st.sidebar.number_input(loc["charging_eff"], value=0.90, format="%.2f", step=0.01, min_value=0.80, max_value=0.96, help=loc["help_charging_eff"])
 # Derived: effective €/km consumed (before seasonality multiplier in engine)
 energy_rate = (energy_kwh_per_km * energy_eur_per_kwh) / charging_efficiency
 # Visible read-out in sidebar so user can see the combined number
@@ -1026,51 +1104,47 @@ st.sidebar.caption(loc["energy_derived_caption"].format(rate=energy_rate))
 
 st.sidebar.header(loc["sec5"])
 # Insurance recalibrated €300 → €180 (Tesla bundling thesis, FSD safety credit, theft-zero)
-insurance_pm = st.sidebar.number_input(loc["insurance"], value=180.0, help=loc["help_insurance"])
+insurance_pm = st.sidebar.number_input(loc["insurance"], value=180.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_insurance"])
 # APCOA parking recalibrated €250 → €170 (published APCOA rates + bulk discount)
-parking_pm = st.sidebar.number_input(loc["parking"], value=170.0, help=loc["help_parking"])
-telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0)
-tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, help=loc["help_tuev"])
-charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0)
+parking_pm = st.sidebar.number_input(loc["parking"], value=170.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_parking"])
+telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0, min_value=0.0, max_value=500.0, step=5.0)
+tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_tuev"])
+charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0, min_value=0.0, max_value=200.0, step=1.0)
 # === Cargo insurance — only applies when delivery toggle ON ===
 # Verkehrshaftungsversicherung for B2B goods transport. Doesn't benefit from FSD
 # safety credit (covers cargo theft, weather damage, in-transit handling claims).
 if delivery_enabled:
-    delivery_cargo_insurance_pm = st.sidebar.number_input(loc["cargo_ins"], value=20.0, help=loc["help_cargo_ins"])
+    delivery_cargo_insurance_pm = st.sidebar.number_input(loc["cargo_ins"], value=20.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_cargo_ins"])
 else:
     delivery_cargo_insurance_pm = 0.0
 
 st.sidebar.header(loc["sec6"])
-hq_lease_pm = st.sidebar.number_input(loc["hq_lease"], value=450.0)
-it_cloud_pm = st.sidebar.number_input(loc["it_cloud"], value=320.0)
-legal_bookkeeping_pm = st.sidebar.number_input(loc["base_legal"], value=230.0)
-hq_insurance_pm = st.sidebar.number_input(loc["base_hq_ins"], value=250.0)
-legal_scaling_pm = st.sidebar.number_input(loc["legal_scale"], value=25.0)
-insurance_scaling_pm = st.sidebar.number_input(loc["ins_scale"], value=40.0)
-bank_fees_pm = st.sidebar.number_input(loc["bank_fees"], value=20.0)
-ihk_pm = st.sidebar.number_input(loc["ihk"], value=35.0)
-gez_pm_per_car = st.sidebar.number_input(loc["gez"], value=7.0)
-setup_costs_y1 = st.sidebar.number_input(loc["setup_costs"], value=1700.0)
+hq_lease_pm = st.sidebar.number_input(loc["hq_lease"], value=450.0, min_value=0.0, max_value=5000.0, step=25.0)
+it_cloud_pm = st.sidebar.number_input(loc["it_cloud"], value=320.0, min_value=0.0, max_value=5000.0, step=10.0)
+legal_bookkeeping_pm = st.sidebar.number_input(loc["base_legal"], value=230.0, min_value=0.0, max_value=5000.0, step=10.0)
+hq_insurance_pm = st.sidebar.number_input(loc["base_hq_ins"], value=250.0, min_value=0.0, max_value=5000.0, step=10.0)
+legal_scaling_pm = st.sidebar.number_input(loc["legal_scale"], value=25.0, min_value=0.0, max_value=500.0, step=1.0)
+insurance_scaling_pm = st.sidebar.number_input(loc["ins_scale"], value=40.0, min_value=0.0, max_value=500.0, step=1.0)
+bank_fees_pm = st.sidebar.number_input(loc["bank_fees"], value=20.0, min_value=0.0, max_value=500.0, step=1.0)
+ihk_pm = st.sidebar.number_input(loc["ihk"], value=35.0, min_value=0.0, max_value=500.0, step=1.0)
+gez_pm_per_car = st.sidebar.number_input(loc["gez"], value=7.0, min_value=0.0, max_value=50.0, step=0.5)
+setup_costs_y1 = st.sidebar.number_input(loc["setup_costs"], value=1700.0, min_value=0.0, max_value=50000.0, step=100.0)
 
 st.sidebar.header(loc["sec7"])
-cybercab_base_usd = st.sidebar.number_input(loc["base_price"], value=30000.0)
-usd_eur_rate = st.sidebar.number_input(loc["fx"], value=1.15)
-import_freight_eur = st.sidebar.number_input(loc["freight"], value=1800.0)
-customs_duty_rate = st.sidebar.number_input(loc["duty"], value=10.0) / 100
-it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0)
+cybercab_base_usd = st.sidebar.number_input(loc["base_price"], value=30000.0, min_value=10000.0, max_value=100000.0, step=500.0)
+usd_eur_rate = st.sidebar.number_input(loc["fx"], value=1.15, min_value=0.50, max_value=3.00, step=0.01)
+import_freight_eur = st.sidebar.number_input(loc["freight"], value=1800.0, min_value=0.0, max_value=10000.0, step=50.0)
+customs_duty_rate = st.sidebar.number_input(loc["duty"], value=10.0, min_value=0.0, max_value=50.0, step=0.5) / 100
+it_hardware_capex_y1 = st.sidebar.number_input(loc["it_hw"], value=2500.0, min_value=0.0, max_value=50000.0, step=100.0)
 imp_month = st.sidebar.number_input(loc["imp_trigger"], value=0, min_value=0, max_value=60)
-imp_pct_val = st.sidebar.number_input(loc["imp_pct"], value=0.0, step=5.0) / 100
+imp_pct_val = st.sidebar.number_input(loc["imp_pct"], value=0.0, min_value=0.0, max_value=100.0, step=5.0) / 100
 
 st.sidebar.header(loc["sec8"])
-stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0)
-shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0)
-sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, step=0.1, help=loc["help_sh_rate"]) / 100
-vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, help=loc["help_ltv"]) / 100
-y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, step=0.1) / 100
-y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, step=0.1) / 100
-
 # ===================================================================
 # === CAPITAL ALLOCATION & VEHICLE FINANCING STRATEGY MATRIX ========
+# === (L31: moved to top of sec8 — the per-vehicle financing strategy
+# === is the FIRST decision under capital structure, dictating debt
+# === drawdowns, ARAP/lease flows, and equity capital calls)
 # ===================================================================
 # Per-year (Y1-Y5) financing mix configuration. Each year's vehicle
 # cohort additions are split into three tranches with independent HGB
@@ -1147,12 +1221,19 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
         help=loc["fin_equity_capital_call_help"]
     )
 
-vat_bridge_rate = st.sidebar.number_input(loc["vat_rate_input"], value=6.5, step=0.1) / 100
-vat_lag_months = st.sidebar.number_input(loc["vat_lag_input"], value=3, min_value=1, max_value=12)
-min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.0, step=5000.0)
-max_overdraft_limit = st.sidebar.number_input(loc["max_overdraft_input"], value=50000.0, step=10000.0, help=loc["help_max_od"])
-legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, step=50.0)
-interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2) / 100
+stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0, min_value=25000.0, max_value=1000000.0, step=1000.0)
+shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0, min_value=0.0, max_value=1000000.0, step=1000.0)
+sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, min_value=0.0, max_value=20.0, step=0.1, help=loc["help_sh_rate"]) / 100
+vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_ltv"]) / 100
+y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, min_value=0.0, max_value=20.0, step=0.1) / 100
+y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, min_value=0.0, max_value=20.0, step=0.1) / 100
+
+vat_bridge_rate = st.sidebar.number_input(loc["vat_rate_input"], value=6.5, min_value=0.0, max_value=20.0, step=0.1) / 100
+vat_lag_months = st.sidebar.number_input(loc["vat_lag_input"], value=3, min_value=1, max_value=12, step=1)
+min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.0, min_value=0.0, max_value=1000000.0, step=5000.0)
+max_overdraft_limit = st.sidebar.number_input(loc["max_overdraft_input"], value=50000.0, min_value=0.0, max_value=2000000.0, step=10000.0, help=loc["help_max_od"])
+legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, min_value=0.0, max_value=5000.0, step=50.0)
+interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2, min_value=0.0, max_value=15.0, step=0.1) / 100
 # === L29: Parameterized municipal trade tax multiplier (Hebesatz) ===
 # Default 250% = Gräfelfing (registered Sitz). Slider lets user stress-test
 # alternative locations (Munich City 490%, Pullach 240%, Berlin 410%, etc.).
@@ -1165,8 +1246,8 @@ hebesatz_pct = st.sidebar.number_input(
 )
 
 st.sidebar.header(loc["sec9"])
-thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, help=loc["help_thg"])
-salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0)
+thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_thg"])
+salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0, min_value=0.0, max_value=50000.0, step=500.0)
 
 
 # --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION ===
@@ -3438,7 +3519,7 @@ with tabs[7]:
         #### 🎯 Operational Calibration & Benchmarking ()
         Operational and variable cost assumptions in this model reflect mature-state central-case values benchmarked against published European mobility operator data (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Throughput calibration assumes **30-34 trips/day per vehicle at steady-state (Y3+)**, built up from 16h blended weekday/weekend productive shift (weekday 15h, weekend 18h), 19 km/h Munich average speed, 3.5 min per-trip dwell, and 22% empty repositioning. The 16h blended shift reflects Cybercab-specific advantages over human-driver benchmarks: inductive charging during the 2am-6am Tesla Robotaxi Network window runs in parallel to onboard autonomous sensor cleaning, eliminating the depot return + cleaning shift gap embedded in Waymo's 13.5h benchmark. Energy and wear cost recalibrations land at **€0.085/km and €0.10/km** respectively — below Waymo benchmarks due to simpler Cybercab sensor stack and German labor rates, above earlier optimistic estimates that did not survive bank-grade Due Diligence. Y1-Y2 ramp-state will run below mature numbers; the engine's **Dynamic Utilization** mode (set as default) models this naturally through the cannibalization + recovery mechanics. For aggressive bull-case modeling, adjust sidebar inputs upward and document the rationale separately.
 
-        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~37% asset utilization (55% × 16h ÷ 24h) and Y5 mature state sits at ~50% (75% × 16h ÷ 24h) — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.5h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 20.5h Tesla Network productivity (85% 24h asset utilization, with 3.5h reserved for inductive charging). Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
+        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~37% asset utilization (55% × 16h ÷ 24h) and Y5 mature state sits at ~50% (75% × 16h ÷ 24h) — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.0h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 20h Tesla Network productivity (83% 24h asset utilization, with a 4h overnight inductive charging window). A cross-field guardrail enforces active + delivery hours ≤ 20h, since the remaining 4h are physically required for charging + sensor cleaning + depot maintenance. Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
 
         **Energy Cost Model (Pure-Inductive Tesla Robotaxi Network):** Cybercabs charge exclusively on Tesla's inductive pad network during the 2am-6am low-demand window. Energy cost decomposed into 3 independently adjustable sliders: (a) **consumption €0.115 kWh/km** anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world urban derate; (b) **inductive pad price €0.27/kWh** = center of defensible band derived bottom-up from German wholesale 2-6am window (€0.06-0.10), Tesla cost stack (grid fees, EEG, Stromsteuer, hardware amortization, target margin), triangulated against Supercharger night rates (€0.26-0.32 market ceiling, which inductive should price below); (c) **charging efficiency 0.90** per SAE J2954 / Electreon / InductEV independent validation of modern static inductive systems (88-93% end-to-end range). Combined effective rate: **€0.0345/km** for the central case. Stress range €0.024/km (optimistic) to €0.052/km (adverse) covers Tesla pricing-power and energy crisis scenarios. Other key calibrations: insurance €180/mo (FSD safety credit + Tesla bundle), parking €170/mo (APCOA bulk-fleet), cleaning €2/day net (after Tesla cleaning-fee pass-through), active hours 16h, cargo insurance €20/mo when delivery active, adjustable 12-month seasonality (defaults Dec-Feb 1.45×, May-Sep 1.10×), THG €280/car/year.
 
@@ -3488,7 +3569,7 @@ with tabs[7]:
         #### 🎯 Operative Kalibrierung & Benchmarking ()
         Operative und variable Kostenannahmen reflektieren Mature-State-Basisfall-Werte mit Benchmarks gegen veröffentlichte Daten europäischer Mobilitätsbetreiber (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Durchsatzkalibrierung: **30-34 Fahrten/Tag pro Fahrzeug im Steady-State (J3+)**, aufgebaut aus 16h gemischter Werktag/Wochenend-produktiver Schicht (Werktag 15h, Wochenende 18h), 19 km/h Münchner Durchschnittsgeschwindigkeit, 3,5 Min Standzeit pro Fahrt, 22% Leerfahrtenquote. Die 16h-Mischschicht reflektiert Cybercab-spezifische Vorteile gegenüber menschengeführten Benchmarks: Induktivladen während des 2-6 Uhr Tesla Robotaxi-Netzwerk-Fensters läuft parallel zur autonomen Onboard-Sensorreinigung — entfällt die Depotrückkehr + Reinigungsschicht-Lücke des Waymo 13,5h-Benchmarks. Energie- und Verschleißkosten neu kalibriert auf **€0,085/km bzw. €0,10/km** — unter Waymo-Benchmarks wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten, über früheren optimistischen Schätzungen, die einer bankgerechten Due Diligence nicht standhielten. J1-J2 Ramp-State läuft unter den Mature-Zahlen; der **Dynamic Utilization Modus** des Engines (Standard) modelliert dies natürlich über Kannibalisierungs- und Erholungsmechanik. Für aggressive Bull-Case-Modellierung Sidebar-Inputs nach oben anpassen und Begründung separat dokumentieren.
 
-        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~37% Asset-Auslastung (55% × 16h ÷ 24h) und der reife Zustand in J5 liegt bei ~50% (75% × 16h ÷ 24h) — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,5h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 20,5h Tesla Network-Produktivität (85% 24h-Asset-Auslastung, mit 3,5h Induktivladefenster). Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
+        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~37% Asset-Auslastung (55% × 16h ÷ 24h) und der reife Zustand in J5 liegt bei ~50% (75% × 16h ÷ 24h) — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,0h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 20h Tesla Network-Produktivität (83% 24h-Asset-Auslastung, mit 4h Nacht-Induktivladefenster). Eine Querfeld-Guardrail erzwingt aktive + Lieferstunden ≤ 20h, da die restlichen 4h physisch für Ladung + Sensorreinigung + Depot-Wartung benötigt werden. Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
 
         **Energiekosten-Modell (Reine Induktion auf Tesla Robotaxi-Netzwerk):** Cybercabs laden ausschließlich auf Teslas Induktionspad-Netzwerk im 2-6 Uhr Niedrigtarif-Fenster. Energiekosten in 3 unabhängig anpassbare Slider zerlegt: (a) **Verbrauch €0,115 kWh/km** verankert in Tesla VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% urbaner Real-Aufschlag; (b) **Induktivpad-Preis €0,27/kWh** = Mitte des vertretbaren Bandes, bottom-up hergeleitet aus deutschem Großhandel 2-6 Uhr (€0,06-0,10), Tesla-Kostenstack (Netzentgelte, EEG, Stromsteuer, Hardware-Amortisation, Zielmarge), trianguliert mit Supercharger-Nachttarifen (€0,26-0,32 Marktobergrenze, unter der induktiv preisen sollte); (c) **Ladewirkungsgrad 0,90** gem. SAE J2954 / Electreon / InductEV unabhängiger Validierung moderner statischer Induktion (88-93% End-to-End). Effektive Kombi-Rate: **€0,0345/km** Basisfall. Stress-Bereich €0,024/km (optimistisch) bis €0,052/km (negativ) deckt Tesla-Preismacht- und Energiekrise-Szenarien ab. Andere Schlüsselkalibrierungen: Versicherung €180/Mon. (FSD-Sicherheitsbonus + Tesla-Bundle), Stellplatz €170/Mon. (APCOA Mengenrabatt), Reinigung €2/Tag netto (nach Tesla-Reinigungsgebühr-Erlös), aktive Stunden 16h, Frachtversicherung €20/Mon. bei aktivem Lieferdienst, anpassbare 12-Monats-Saisonalität (Standard Dez-Feb 1,45×, Mai-Sep 1,10×), THG €280/Fahrzeug/Jahr.
 
