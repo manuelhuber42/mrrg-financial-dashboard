@@ -2263,8 +2263,19 @@ def _execute_financial_simulation_uncached(
 # when user revisits the page with identical sidebar inputs. The MC harness
 # bypasses this and calls _execute_financial_simulation_uncached directly,
 # preventing cache pollution from random parameter sweeps.
+_ENGINE_OUTPUT_VERSION = "L32-M-fixes-schema-v1"
+# Bump this string whenever the engine's pnl_m / cf_m / bs_m output schemas
+# change (e.g., new row keys added). Without bumping, Streamlit Cloud will
+# serve the prior deployment's cached return tuple — which lacks new keys —
+# and the downstream KPI engine raises a KeyError on lookup. The string is
+# hashable and participates in @st.cache_data's hash, so changing it forces
+# a fresh evaluation across the entire deployed cache.
+
 @st.cache_data
-def execute_financial_simulation(*args, **kwargs):
+def execute_financial_simulation(*args, engine_version=_ENGINE_OUTPUT_VERSION, **kwargs):
+    # `engine_version` is hashed by Streamlit (no underscore prefix), so
+    # changing _ENGINE_OUTPUT_VERSION above invalidates all prior cached entries.
+    # The argument is otherwise unused — it's a pure cache-key sentinel.
     return _execute_financial_simulation_uncached(*args, **kwargs)
 
 
