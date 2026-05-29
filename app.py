@@ -75,7 +75,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 31: Sidebar Reorganization (seasonality → sec1, capital allocation → top of sec8) + Reset-to-defaults button + Hardened fleet validation)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 32: M2 interest-on-net-cash, M3 post-horizon VAT pickup, M5 senior DSCR, M6 SH Rangrücktritt toggle, M1 lease classification policy disclosure)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -194,6 +194,8 @@ if lang_choice == "English":
         "sh_loan": "Shareholder Loan (Subord.) (€)",
         "sh_loan_rate": "SH Loan Interest Rate (%)",
         "help_sh_rate": "Market rate required by Finanzamt to avoid hidden profit distribution (vGA) tax issues.",
+        "sh_rangruecktritt": "SH loan with Rangrücktritt (treat as economic equity for KPIs)",
+        "help_rangruecktritt": "Toggle ON when the shareholder loan is formally subordinated via a notarized Rangrücktrittserklärung — standard under KfW Universell covenants and required to avoid Eigenkapitalersatz-Risiko under §§ 39, 135 InsO. With Rangrücktritt, banks treat the SH loan as Eigenkapital-Ersatz für die Kreditwürdigkeitsprüfung (economic equity for creditworthiness). Effect: SH loan moves from financial debt to equity in Equity Ratio + Net LTV KPI computations ONLY. Engine numbers, balance sheet line items, and HGB statutory P&L are UNCHANGED — this is purely a bank-style economic recharacterization.",
         "ltv": "Vehicle Loan-to-Value (LTV) %",
         "help_ltv": "Percentage of total vehicle landing costs financed via bank debt.",
         "y1_loan_rate": "KfW Gründerkredit Rate (Y1) %",
@@ -262,6 +264,7 @@ if lang_choice == "English":
         "pnl_ebit": "EBIT (Operating Income)",
         "pnl_int_inc": "Add: Interest Income (Zinserträge)",
         "pnl_int_exp": "Less: Interest Expense (Loans & Overdraft)",
+        "pnl_int_exp_sh": "  ↳ Memo: Shareholder Loan Interest (subset of above)",
         "pnl_ebt": "EBT (Earnings Before Tax)",
         "pnl_tax": "Less: Corporate Taxes (Ertragsteuern)",
         "pnl_ni": "Net Income / Periodenergebnis",
@@ -451,7 +454,9 @@ if lang_choice == "English":
         "hgb_pos9": "16. Period Result (Jahresüberschuss per § 275 HGB in annual view)",
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
-        "kpi_dscr": "Debt Service Coverage Ratio (DSCR)",
+        "kpi_dscr": "Debt Service Coverage Ratio (DSCR — total)",
+        "kpi_dscr_senior": "Senior DSCR (bank debt only, ex-shareholder loan)",
+        "kpi_dscr_senior_help": "Bank-standard DSCR using SENIOR debt service only — KfW/commercial Kfz loan principal+interest plus Kontokorrent interest, EXCLUDING shareholder-loan interest. Subordinated shareholder loans function as economic equity for credit purposes (most KfW Universell facilities require formal Rangrücktritt). Including SH interest in the denominator artificially understates the bank-relevant DSCR — this row shows the metric the credit committee actually computes.",
         "kpi_fccr": "Fixed-Charge Coverage Ratio (FCCR — lease-adjusted)",
         "kpi_fccr_help": "Bank-grade lease-adjusted coverage metric: (EBITDA + Lease Expense) / (Principal + Interest + Lease Expense). Operating lease commitments are non-discretionary contractual obligations economically identical to senior debt service — bank credit committees compute this internally even though German GAAP does not require lease capitalization (unlike IFRS 16). FCCR is the right metric when comparing capital structures with different loan/lease mixes. Target: >1.5× for senior debt covenants; >2.0× for strong rating.",
         "kpi_eq_ratio": "Equity Ratio",
@@ -501,7 +506,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 31: Sidebar-Umorganisation (Saisonalität → Sec1, Kapitalallokation → Anfang Sec8) + Zurücksetzen-Button + Verschärfte Flottenvalidierung)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 32: M2 Zinsen auf Netto-Cash, M3 Post-Horizont USt-Erstattung, M5 Senior-DSCR, M6 Rangrücktritt-Toggle, M1 Leasing-Klassifikation Policy-Offenlegung)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -620,6 +625,8 @@ else:
         "sh_loan": "Gesellschafterdarlehen (Nachrangig) (€)",
         "sh_loan_rate": "Gesellschafterdarlehen Zins (%)",
         "help_sh_rate": "Marktüblicher Zins, den das Finanzamt verlangt, um verdeckte Gewinnausschüttungen (vGA) zu vermeiden.",
+        "sh_rangruecktritt": "Gesellschafterdarlehen mit Rangrücktritt (KPI-seitig als wirtschaftliches EK)",
+        "help_rangruecktritt": "Aktivieren, wenn das Gesellschafterdarlehen formal über eine notarielle Rangrücktrittserklärung subordiniert ist — Standard bei KfW-Universell-Auflagen und erforderlich zur Vermeidung von Eigenkapitalersatz-Risiken gem. §§ 39, 135 InsO. Mit Rangrücktritt behandeln Banken das Gesellschafterdarlehen kreditseitig als Eigenkapital-Ersatz für die Kreditwürdigkeitsprüfung. Wirkung: Gesellschafterdarlehen verschiebt sich von Finanzverbindlichkeit zu Eigenkapital NUR bei Eigenkapitalquote- und Netto-LTV-Berechnung. Engine-Zahlen, Bilanzposten und gesetzliche HGB-GuV bleiben UNVERÄNDERT — rein bankseitige wirtschaftliche Umklassifikation.",
         "ltv": "Fremdkapitalquote Fahrzeuge (LTV) %",
         "help_ltv": "Prozentualer Anteil der finanzierten Anschaffungskosten.",
         "y1_loan_rate": "KfW Gründerkredit Zins (J1) %",
@@ -688,6 +695,7 @@ else:
         "pnl_ebit": "EBIT (Betriebsergebnis)",
         "pnl_int_inc": "Zuzüglich: Zinserträge",
         "pnl_int_exp": "Abzüglich: Zinsaufwendungen (Kredite & Überzug)",
+        "pnl_int_exp_sh": "  ↳ Memo: Gesellschafterdarlehen-Zinsen (Teilmenge von oben)",
         "pnl_ebt": "EBT (Ergebnis vor Steuern)",
         "pnl_tax": "Abzüglich: Ertragsteuern",
         "pnl_ni": "Periodenergebnis (Nettoergebnis)",
@@ -877,7 +885,9 @@ else:
         "hgb_pos9": "16. Periodenergebnis (Jahresüberschuss i.S.d. § 275 HGB bei Jahresansicht)",
 
         # === KPI LABELS (RESTORED — these were missing and would KeyError) ===
-        "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR)",
+        "kpi_dscr": "Schuldendienstdeckungsgrad (DSCR — gesamt)",
+        "kpi_dscr_senior": "Senior-DSCR (nur Bankschulden, ohne Gesellschafterdarlehen)",
+        "kpi_dscr_senior_help": "Bank-konformer DSCR mit SENIOR-Schuldendienst — KfW/kommerzielles Kfz-Darlehen Tilgung+Zinsen plus Kontokorrent-Zinsen, OHNE Gesellschafterdarlehens-Zinsen. Nachrangige Gesellschafterdarlehen fungieren kreditseitig als wirtschaftliches Eigenkapital (die meisten KfW-Universell-Linien fordern formale Rangrücktrittserklärung). Einschluss von SH-Zinsen im Nenner verzerrt den bankrelevanten DSCR künstlich nach unten — diese Zeile zeigt die Kennzahl, die das Kreditkomitee tatsächlich berechnet.",
         "kpi_fccr": "Fixed-Charge Coverage Ratio (FCCR — leasing-adjustiert)",
         "kpi_fccr_help": "Bank-konformer leasing-adjustierter Deckungsgrad: (EBITDA + Leasingaufwand) / (Tilgung + Zinsen + Leasingaufwand). Operating-Leasing-Verpflichtungen sind nicht-diskretionäre vertragliche Zahlungsströme, wirtschaftlich identisch zum Senior-Schuldendienst — Bank-Kreditkomitees berechnen dies intern, auch wenn HGB im Gegensatz zu IFRS 16 keine Leasingbilanzierung verlangt. FCCR ist die richtige Kennzahl beim Vergleich von Kapitalstrukturen mit unterschiedlichem Darlehens-/Leasingmix. Ziel: >1,5× für Senior-Debt-Covenants; >2,0× für starkes Rating.",
         "kpi_eq_ratio": "Eigenkapitalquote",
@@ -1224,6 +1234,17 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
 stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0, min_value=25000.0, max_value=1000000.0, step=1000.0)
 shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0, min_value=0.0, max_value=1000000.0, step=1000.0)
 sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, min_value=0.0, max_value=20.0, step=0.1, help=loc["help_sh_rate"]) / 100
+# === L32 M6: SH loan Rangrücktritt toggle (KPI-only reclassification) ===
+# Under KfW Universell financing covenants, the shareholder loan typically must be
+# formally subordinated via a notarized Rangrücktrittserklärung. Banks then treat
+# the subordinated loan as Eigenkapital-Ersatz for the Kreditwürdigkeitsprüfung
+# (creditworthiness assessment). This toggle reclassifies the SH loan as "economic
+# equity" for KPI computation purposes only (Equity Ratio + Net LTV) — engine
+# numbers, BS presentation, and HGB statutory P&L are UNCHANGED. The reclassification
+# matches what bank credit committees compute internally for Mittelstand GmbHs.
+sh_loan_rangruecktritt = st.sidebar.checkbox(
+    loc["sh_rangruecktritt"], value=True, help=loc["help_rangruecktritt"]
+)
 vehicle_ltv = st.sidebar.number_input(loc["ltv"], value=80.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_ltv"]) / 100
 y1_loan_rate = st.sidebar.number_input(loc["y1_loan_rate"], value=4.5, min_value=0.0, max_value=20.0, step=0.1) / 100
 y2_loan_rate = st.sidebar.number_input(loc["y2_loan_rate"], value=5.5, min_value=0.0, max_value=20.0, step=0.1) / 100
@@ -1296,12 +1317,12 @@ def _execute_financial_simulation_uncached(
     # P_DTFEE = Tesla Network fee on delivery net
     # P_DMNET = MRRG Net Revenue from Delivery (after Tesla fee)
     # P_TMNET = Total MRRG Net Revenue (Passenger + Delivery)
-    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI = [
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net",
         "pnl_delivery_gbv", "pnl_delivery_vat", "pnl_delivery_net_rev", "pnl_delivery_tesla_fee", "pnl_delivery_mrrg_net", "pnl_total_mrrg_net",
         "pnl_energy", "pnl_wear", "pnl_clean", "pnl_lease", "pnl_db1", "pnl_ins", "pnl_park",
         "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg",
-        "pnl_ebitda", "pnl_ebitda_hgb", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_ebt", "pnl_tax", "pnl_ni"
+        "pnl_ebitda", "pnl_ebitda_hgb", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_int_exp_sh", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
     C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END = [
@@ -1443,7 +1464,7 @@ def _execute_financial_simulation_uncached(
     delivery_gbv_per_day_per_car_full = delivery_trips_per_day_full * delivery_rev_per_trip
     delivery_ramp_by_year = {1: delivery_ramp_y1, 2: delivery_ramp_y2, 3: delivery_ramp_y3, 4: delivery_ramp_y4, 5: delivery_ramp_y5}
 
-    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_EBT, P_TX, P_NI]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
@@ -1554,6 +1575,14 @@ def _execute_financial_simulation_uncached(
         # Without this, when the overdraft draws and resets current_cash to 0.0,
         # the CF statement records beg_cash = 0 instead of the actual prior period balance. ===
         beg_cash = current_cash
+        # === L32 M2 fix: capture beginning-of-period overdraft balance for interest offset
+        # In real treasury management, a bank with both positive deposits and an open
+        # Kontokorrent line would automatically offset (positive cash sweeps reduce the
+        # drawn overdraft). The model previously earned full interest income on beg_cash
+        # while simultaneously paying 9.5% overdraft interest on beg_overdraft — a non-
+        # realistic frictional cost. Computing interest only on the NET positive balance
+        # eliminates this. Used downstream in the int_inc_mo formula.
+        beg_overdraft = overdraft_facility_bal
         
         month_col_names.append(f"{m_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
         days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
@@ -1847,13 +1876,20 @@ def _execute_financial_simulation_uncached(
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
-                # Interest income accrues on Beginning-of-Period cash balance.
-        # Rationale: previous projected_mid hack used only capex/financing flows,
-        # excluding operating CF, which materially under-estimated interest
-        # in profitable years (Y4-5 with €3M+ cash). BoP basis is conservative,
-        # standard treasury practice, free of circularity, and rigorously
-        # defensible to bank credit committees.
-        int_inc_mo = beg_cash * (interest_income_rate / 12.0) if beg_cash > 0 else 0.0
+                # Interest income accrues on Beginning-of-Period NET cash position
+        # (i.e., cash minus outstanding overdraft) — see L32 M2 fix above where
+        # beg_overdraft is captured. Rationale: in real-world German treasury
+        # arrangements (Kontokorrentlinie + Geschäftskonto with the same bank),
+        # any positive deposit balance automatically offsets drawn overdraft via
+        # daily Zinsstaffel netting. The bank pays interest only on the NET
+        # positive position; charging full overdraft interest on beg_overdraft
+        # while simultaneously paying full deposit interest on beg_cash is a
+        # frictional cost that does not exist in practice. Floor at zero — if
+        # net position is negative (cash < overdraft), no interest income.
+        # Previous projected_mid approach was abandoned in favor of BoP basis;
+        # this fix refines BoP to NET BoP per CFO/treasury best practice.
+        _net_beg = beg_cash - beg_overdraft
+        int_inc_mo = _net_beg * (interest_income_rate / 12.0) if _net_beg > 0 else 0.0
         sh_int_mo = shareholder_loan * (sh_loan_rate / 12.0)
         int_exp += sh_int_mo
         
@@ -1870,6 +1906,23 @@ def _execute_financial_simulation_uncached(
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
         vat_refund_inflow = vat_repay_schedule[current_month]
+        # === L32 M3 fix: Post-horizon VAT refund pickup at month 60 ====
+        # The vat_repay_schedule[current_month + vat_lag_months] writes for months 58-60
+        # land in indices 61-63 — outside the 60-month display horizon. Without this
+        # pickup, the month-60 cash balance includes outstanding vat_loan_bal that the
+        # Finanzamt WOULD refund within 3 months of horizon end but isn't shown.
+        # Effect: typically €15-40K cash under-statement at horizon end depending on
+        # late-Y5 capex cadence. Economic reality is that those refunds are receivable
+        # at month 60+lag — pulling them forward to month 60 as a single settlement
+        # preserves the cash identity end_cash = beg_cash + net_change without distorting
+        # any prior month's mechanics. Also drains vat_loan_bal so BS doesn't end with
+        # a phantom liability that has no matching receivable.
+        if current_month == 60:
+            _post_horizon_refunds = sum(vat_repay_schedule[61:])
+            vat_refund_inflow += _post_horizon_refunds
+            # Mark these as consumed to avoid any future-state confusion
+            for _i in range(61, len(vat_repay_schedule)):
+                vat_repay_schedule[_i] = 0.0
         # Defensive cap — vat_repay cannot exceed outstanding bridge loan.
         # Excess refund still flows through inv_cf_mo as a real cash inflow.
         vat_repay_mo = min(vat_refund_inflow, vat_loan_bal)
@@ -2113,6 +2166,15 @@ def _execute_financial_simulation_uncached(
         pnl_m[P_EBIT].append(ebit_mo)
         pnl_m[P_I_IN].append(int_inc_mo)
         pnl_m[P_I_EX].append(-int_exp)
+        # === L32 M5 fix: SH-loan interest memo line for senior DSCR computation ===
+        # Banks compute DSCR using SENIOR debt service only (KfW/commercial Kfz loan
+        # + Kontokorrent), excluding subordinated shareholder loans which function
+        # as economic equity for credit purposes. Tracking sh_int_mo as a separate
+        # P&L disclosure row lets the downstream KPI engine subtract it from total
+        # int_exp to derive senior int exp. SH int is INCLUDED in P_I_EX (total)
+        # so total HGB Finanzergebnis presentation is unaffected — this is purely
+        # a disclosure row to enable the bank-relevant subset calculation.
+        pnl_m[P_I_EX_SH].append(-sh_int_mo)
         pnl_m[P_EBT].append(ebt_mo)
         pnl_m[P_TX].append(-tax_exp_mo)
         pnl_m[P_NI].append(net_inc_mo)
@@ -2318,6 +2380,26 @@ hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_c
 # Vehicle insurance, APCOA parking, telemetry, TÜV, charging subscription do NOT qualify as
 # Materialaufwand — they are operating overhead and belong under § 275 Abs. 2 Nr. 8.
 # Reclassified per audit Finding 1 (Critical) to satisfy bank-grade Jahresabschluss filing.
+#
+# === L32 M1: Accounting Policy Disclosure — Operating Lease Classification ===
+# Operating lease payments (`pnl_lease`) are classified as Materialaufwand pos3 under
+# "bezogene Leistungen" per § 275 Abs. 2 Nr. 5 HGB. This is DEFENSIBLE but represents
+# a deliberate accounting policy choice — common alternative German practice for
+# Mietleasing of operational assets classifies it under Sonstige betriebliche
+# Aufwendungen pos8. Two arguments support keeping pos3:
+#   (1) Tesla's platform take-rate is also a "bezogene Leistung" enabling the same
+#       revenue stream — co-locating both in pos3 keeps the operating expense
+#       structure internally consistent.
+#   (2) For a TaaS fleet operator, the vehicle IS the production asset; the lease
+#       fee is functionally the input cost of accessing that production capacity
+#       (Materialaufwand-like) rather than discretionary overhead (sonstige).
+# Counter-argument: § 275 historically reserves Nr. 5 "bezogene Leistungen" for
+# subcontractor/service inputs that pass through to the customer (e.g., a logistics
+# company paying a subcontractor to fulfill its own client contract).
+# **Decision: keep in pos3 to preserve L28 architecture; document choice for the
+# Steuerberater/Wirtschaftsprüfer to confirm before the first Jahresabschluss filing.
+# If the WP requires reclassification, only the HGB pos3/pos6 mapping below changes —
+# engine numbers, P&L, BS, and KPIs remain identical.**
 hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_lease"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
 # Personalaufwand: zero — GF holds Verkehrsleiter mandate without separate compensation
 hgb_structure[loc["hgb_pos4"]] = np.zeros(len(df_pnl_combined.columns))
@@ -2354,10 +2436,35 @@ nfa = df_bs_combined.loc[loc["bs_nfa"]]
 # Operational pass-through accounts purged from debt metrics evaluation
 fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
+# === L32 M6 fix: Rangrücktritt KPI reclassification ===
+# When the SH loan toggle is on (notarized Rangrücktritt), banks treat it as
+# wirtschaftliches Eigenkapital for Equity Ratio + Net LTV. We compute KPI-only
+# adjusted figures: subtract SH balance from fin_debt; add to teq. The BS
+# presentation itself remains unchanged — bs_sh_loan still sits under
+# Verbindlichkeiten as required by HGB § 266 III C — this is purely a bank-
+# style economic recharacterization for credit-relevant ratios.
+sh_loan_bs_series = df_bs_combined.loc[loc["bs_sh_loan"]]
+if sh_loan_rangruecktritt:
+    fin_debt_kpi = fin_debt - sh_loan_bs_series  # remove from debt
+    teq_kpi = teq + sh_loan_bs_series             # add to economic equity
+else:
+    fin_debt_kpi = fin_debt
+    teq_kpi = teq
+
 var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
+# === L32 M5 fix: Senior DSCR (bank debt only) ===
+# `debt_service` above is the TOTAL fixed-charge denominator (principal + ALL interest
+# including SH loan, VAT bridge, Kontokorrent). Banks compute DSCR using SENIOR debt
+# service only — they treat subordinated shareholder loans as economic equity for credit
+# purposes. Backing out SH-loan interest from the total int_exp gives the bank-relevant
+# senior DSCR denominator. P_I_EX_SH is signed negative in the P&L (it's an expense),
+# so we ADD it (i.e., subtract its magnitude) to remove it from debt_service.
+# Result: senior_debt_service = (principal + total_int_exp - SH_int) flipped sign.
+sh_int_exp_pos = -df_pnl_combined.loc[loc["pnl_int_exp_sh"]]  # P_I_EX_SH is negative, so this is positive
+senior_debt_service = debt_service - sh_int_exp_pos          # remove SH from senior denominator
 # === FCCR per audit Finding 3 ===
 # Operating lease expense is a fixed contractual cash obligation economically
 # equivalent to senior debt service. Banks compute lease-adjusted coverage as:
@@ -2378,8 +2485,9 @@ kpi_dict[loc["kpi_tot_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(tot_costs, r
 kpi_dict[loc["kpi_other_inc_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(other_inc, rev_top)]
 kpi_dict[loc["kpi_ebitda_m"]] = [f"{x*100:.1f}%" for x in safe_div(ebitda, rev_top)]
 kpi_dict[loc["kpi_dscr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, debt_service)]
+kpi_dict[loc["kpi_dscr_senior"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitda, senior_debt_service)]
 kpi_dict[loc["kpi_fccr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitdar, fixed_charges)]
-kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq, ta)]
+kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq_kpi, ta)]
 
 runway_arr = []
 for col in df_pnl_combined.columns:
@@ -2389,7 +2497,7 @@ for col in df_pnl_combined.columns:
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
 
-net_debt = fin_debt - cash
+net_debt = fin_debt_kpi - cash
 kpi_dict[loc["kpi_net_ltv"]] = [f"{x*100:.1f}%" for x in safe_div(net_debt, nfa)]
 
 df_kpi_combined = pd.DataFrame(kpi_dict, index=df_pnl_combined.columns).T
