@@ -75,7 +75,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 32: M2 interest-on-net-cash, M3 post-horizon VAT pickup, M5 senior DSCR, M6 SH Rangrücktritt toggle, M1 lease classification policy disclosure)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 33: Monte Carlo realism — macro coupling, per-year shock sampling, skewed costs, demand-collapse event)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -332,7 +332,7 @@ if lang_choice == "English":
         # === Monte Carlo Risk & Variance Analysis ===
         "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
         "mc_header": "Risk & Variance Analysis — Stochastic Monte Carlo",
-        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The 12 most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
+        "mc_intro": "This module wraps the deterministic 60-month engine in a stochastic Monte Carlo simulation. The most variance-driving parameters are sampled from empirically-anchored probability distributions across N iterations. **Layer 33 upgrades:** (1) a shared macro-environment factor couples energy, interest rates, and demand so crisis scenarios move together rather than independently; (2) shock events are now sampled independently for each of the 5 years (restoring single-bad-year tail risk); (3) one-sided costs use skewed lognormal draws; (4) a demand-collapse shock (pandemic/lockdown) is included. The deterministic central case in the other tabs remains unchanged — this analysis is supplementary risk decomposition for bank credit committees and project finance evaluation.",
         "mc_run_button": "🎲 Run Monte Carlo Simulation",
         "mc_n_iterations": "Number of Iterations (N)",
         "mc_n_help": "5,000 produces stable percentiles in ~30-60 seconds. 10,000 produces near-final convergence in ~60-120 seconds. Below 1,000 is statistically unreliable.",
@@ -400,6 +400,14 @@ if lang_choice == "English":
         "mc_tier2_header": "⚡ Tier 2 — Material Variance (Capex, Debt, Costs)",
         "mc_tier3_header": "💧 Tier 3 — Smaller Variance (Operational Costs)",
         "mc_running_msg": "🔄 Monte Carlo simulation in progress. Please wait...",
+        # === L33 macro coupling controls ===
+        "mc_macro_header": "🌍 Macro Coupling (Layer 33) — correlated crisis engine",
+        "mc_macro_help": "A single shared macro-environment factor is drawn once per simulated YEAR. A positive draw represents a crisis year; it pushes energy prices UP, loan rates UP, and customer demand DOWN — all together, in the same year. This replaces the prior assumption that every variable moved independently (which produced unrealistic scenarios where a brutal energy crisis coexisted with booming demand). Set the betas below to control how strongly each variable reacts to the shared macro shock. Set all betas to 0 to recover the old fully-independent behavior.",
+        "mc_beta_energy": "Energy sensitivity βₑ (€/kWh per +1σ crisis)",
+        "mc_beta_rate": "Loan-rate sensitivity βᵣ (rate pp per +1σ crisis)",
+        "mc_beta_demand": "Demand sensitivity β_d (util pts per +1σ crisis)",
+        "mc_beta_fx": "FX sensitivity β_fx (EUR weakening per +1σ crisis)",
+        "mc_macro_sigma": "Macro shock σ (annual volatility, 1.0 = standard)",
         # === Capital Structure & Fleet Financing Matrix (Layer 27A) ===
         "fin_matrix_header": "💳 Capital Allocation & Vehicle Financing Strategy",
         "fin_matrix_help": "Configure financing mix per year. Each year's vehicle additions are split into three tranches: Bank Loan (debt-financed, asset capitalized), Operating Lease (off-balance-sheet, ARAP for downpayment), and 100% Cash/Equity (full capex from cash with optional capital call). Sliders auto-normalize to 100% per year.",
@@ -426,7 +434,7 @@ if lang_choice == "English":
         "mc_dayarch_header": "📅 Day Archetype Mix (Phase A) — daily demand variance topology",
         "mc_shock_header": "⚡ Stochastic Shock Events (Phase B) — annual frequency × impact",
         "mc_dayarch_help": "The annual operating year is composed of distinct day types, each with their own demand intensity multiplier. Adjust the relative frequency (days per year) and demand intensity (×) for each type. Defaults reflect Munich-specific patterns.",
-        "mc_shock_help": "Stochastic events that perturb a single day's operations. Each event has an annual frequency (days per year) and a demand/cost impact multiplier. Events are sampled independently across the 60-month horizon.",
+        "mc_shock_help": "Stochastic events that perturb a single day's operations. Each event has an annual frequency (days per year) and a demand/cost impact multiplier. **Layer 33: events are now sampled INDEPENDENTLY for each of the 5 simulated years**, so a single disaster year can occur without contaminating the others — this is the single-bad-year risk that actually threatens a thinly-capitalized startup. Severe-weather and black-ice events also raise energy + wear costs, not just demand.",
         "mc_dayarch_weekday": "Regular Weekday",
         "mc_dayarch_weekend": "Regular Weekend",
         "mc_dayarch_friday": "Friday/Saturday Evening",
@@ -440,6 +448,7 @@ if lang_choice == "English":
         "mc_shock_heatwave": "Heat Wave (>32°C)",
         "mc_shock_black_ice": "Black Ice Morning (winter)",
         "mc_shock_road_closure": "Road/Bridge Closure",
+        "mc_shock_demand_collapse": "Demand Collapse (pandemic/lockdown)",
         "mc_complete_msg": "✅ Monte Carlo simulation complete: {n} iterations processed in {t:.1f} seconds.",
 
         "hgb_title": "Statutory Income Statement (Gesamtkostenverfahren)",
@@ -506,7 +515,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 32: M2 Zinsen auf Netto-Cash, M3 Post-Horizont USt-Erstattung, M5 Senior-DSCR, M6 Rangrücktritt-Toggle, M1 Leasing-Klassifikation Policy-Offenlegung)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 33: Monte-Carlo-Realismus — Makro-Kopplung, jährliche Shock-Ziehung, schiefe Kostenverteilungen, Nachfrage-Kollaps-Ereignis)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -763,7 +772,7 @@ else:
         # === Monte Carlo Risiko- & Varianzanalyse ===
         "tab_mc": "🎲 Risiko- & Varianzanalyse (Monte Carlo)",
         "mc_header": "Risiko- & Varianzanalyse — Stochastische Monte-Carlo-Simulation",
-        "mc_intro": "Dieses Modul kapselt die deterministische 60-Monats-Engine in einer stochastischen Monte-Carlo-Simulation. Die 12 varianztreibenden Parameter werden aus empirisch verankerten Wahrscheinlichkeitsverteilungen über N Iterationen gezogen. Der deterministische Basisfall in den anderen Tabs bleibt unverändert — diese Analyse ist eine ergänzende Risikozerlegung für Bank-Kreditkomitees und Project-Finance-Bewertung.",
+        "mc_intro": "Dieses Modul kapselt die deterministische 60-Monats-Engine in einer stochastischen Monte-Carlo-Simulation. Die varianztreibenden Parameter werden aus empirisch verankerten Wahrscheinlichkeitsverteilungen über N Iterationen gezogen. **Schicht-33-Upgrades:** (1) ein gemeinsamer Makro-Umfeld-Faktor koppelt Energie, Zinsen und Nachfrage, sodass Krisenszenarien gemeinsam auftreten statt unabhängig; (2) Shock-Ereignisse werden nun unabhängig für jedes der 5 Jahre gezogen (stellt das Einzeljahr-Schwarzschwan-Risiko wieder her); (3) einseitige Kosten nutzen schiefe Lognormal-Ziehungen; (4) ein Nachfrage-Kollaps-Shock (Pandemie/Lockdown) ist enthalten. Der deterministische Basisfall in den anderen Tabs bleibt unverändert — diese Analyse ist eine ergänzende Risikozerlegung für Bank-Kreditkomitees und Project-Finance-Bewertung.",
         "mc_run_button": "🎲 Monte-Carlo-Simulation starten",
         "mc_n_iterations": "Anzahl Iterationen (N)",
         "mc_n_help": "5.000 produziert stabile Perzentile in ~30-60 Sek. 10.000 produziert nahezu finale Konvergenz in ~60-120 Sek. Unter 1.000 statistisch unzuverlässig.",
@@ -831,6 +840,14 @@ else:
         "mc_tier2_header": "⚡ Tier 2 — Materielle Varianz (Capex, Schulden, Kosten)",
         "mc_tier3_header": "💧 Tier 3 — Geringere Varianz (Betriebskosten)",
         "mc_running_msg": "🔄 Monte-Carlo-Simulation läuft. Bitte warten...",
+        # === L33 Makro-Kopplung ===
+        "mc_macro_header": "🌍 Makro-Kopplung (Schicht 33) — korrelierte Krisen-Engine",
+        "mc_macro_help": "Ein gemeinsamer Makro-Umfeld-Faktor wird einmal pro simuliertem JAHR gezogen. Ein positiver Wert steht für ein Krisenjahr; er treibt Energiepreise HOCH, Kreditzinsen HOCH und Kundennachfrage RUNTER — alles gemeinsam, im selben Jahr. Dies ersetzt die frühere Annahme unabhängiger Variablen (die unrealistische Szenarien erzeugte, in denen eine schwere Energiekrise mit boomender Nachfrage koexistierte). Mit den Betas unten steuern Sie, wie stark jede Variable auf den gemeinsamen Makro-Shock reagiert. Alle Betas auf 0 stellt das alte vollständig unabhängige Verhalten wieder her.",
+        "mc_beta_energy": "Energie-Sensitivität βₑ (€/kWh pro +1σ Krise)",
+        "mc_beta_rate": "Zins-Sensitivität βᵣ (Zins-pp pro +1σ Krise)",
+        "mc_beta_demand": "Nachfrage-Sensitivität β_d (Auslastungspunkte pro +1σ Krise)",
+        "mc_beta_fx": "FX-Sensitivität β_fx (EUR-Schwäche pro +1σ Krise)",
+        "mc_macro_sigma": "Makro-Shock σ (jährliche Volatilität, 1,0 = Standard)",
         # === Kapitalstruktur & Flotten-Finanzierungs-Matrix ===
         "fin_matrix_header": "💳 Kapitalallokation & Fahrzeug-Finanzierungsstrategie",
         "fin_matrix_help": "Finanzierungsmix pro Jahr konfigurieren. Fahrzeugzugänge werden in drei Tranchen aufgeteilt: Bankdarlehen (Schulden-finanziert, Aktivierung), Operating Leasing (off-balance, ARAP für Sonderzahlung), und 100% Eigenkapital (vollständige Capex aus Cash mit optionalem Capital Call). Slider normalisieren automatisch auf 100% pro Jahr.",
@@ -857,7 +874,7 @@ else:
         "mc_dayarch_header": "📅 Tagestyp-Mix (Phase A) — tägliche Nachfrage-Varianztopologie",
         "mc_shock_header": "⚡ Stochastische Shock-Ereignisse (Phase B) — Jahresfrequenz × Wirkung",
         "mc_dayarch_help": "Das jährliche Betriebsjahr besteht aus unterschiedlichen Tagestypen mit jeweils eigenem Nachfrageintensitäts-Multiplikator. Häufigkeit (Tage/Jahr) und Nachfrageintensität (×) je Typ anpassbar.",
-        "mc_shock_help": "Stochastische Ereignisse, die einzelne Betriebstage stören. Jedes Ereignis hat eine Jahresfrequenz (Tage/Jahr) und einen Nachfrage-/Kostenfaktor. Ereignisse werden unabhängig über den 60-Monats-Horizont gezogen.",
+        "mc_shock_help": "Stochastische Ereignisse, die einzelne Betriebstage stören. Jedes Ereignis hat eine Jahresfrequenz (Tage/Jahr) und einen Nachfrage-/Kostenfaktor. **Schicht 33: Ereignisse werden nun UNABHÄNGIG für jedes der 5 simulierten Jahre gezogen**, sodass ein einzelnes Katastrophenjahr auftreten kann, ohne die anderen zu kontaminieren — dies ist das Einzeljahr-Risiko, das ein dünn kapitalisiertes Startup tatsächlich bedroht. Wetter-Extrem- und Glatteis-Ereignisse erhöhen auch Energie- + Verschleißkosten, nicht nur die Nachfrage.",
         "mc_dayarch_weekday": "Regulärer Werktag",
         "mc_dayarch_weekend": "Reguläres Wochenende",
         "mc_dayarch_friday": "Freitag/Samstag Abend",
@@ -871,6 +888,7 @@ else:
         "mc_shock_heatwave": "Hitzewelle (>32°C)",
         "mc_shock_black_ice": "Glatteis-Morgen (Winter)",
         "mc_shock_road_closure": "Straßen-/Brückensperrung",
+        "mc_shock_demand_collapse": "Nachfrage-Kollaps (Pandemie/Lockdown)",
         "mc_complete_msg": "✅ Monte-Carlo-Simulation abgeschlossen: {n} Iterationen in {t:.1f} Sek. verarbeitet.",
 
         "hgb_title": "Gesetzliche Gewinn- und Verlustrechnung (Gesamtkostenverfahren)",
@@ -945,13 +963,6 @@ y4_adds_str = st.sidebar.text_input(loc["y4_adds"], "4, 0, 0, 4, 0, 0, 4, 0, 0, 
 y5_adds_str = st.sidebar.text_input(loc["y5_adds"], "6, 0, 0, 5, 0, 0, 5, 0, 0, 5, 0, 0")
 
 # === L31 Hardened Fleet Validation ===
-# Prior layers issued warnings on parse errors / negatives but allowed execution
-# to continue, silently producing wrong outputs. L31 elevates these to hard
-# guardrails: bad input → sidebar error + st.stop(). The length check stays
-# soft (warning only) because the engine handles padding/truncation gracefully
-# and 12-value cohort schedules can sometimes legitimately be shortened.
-# Also clamps individual additions to 0–500 (defensible commercial fleet
-# scaling cap — beyond this, scenario testing should explicitly justify).
 _fleet_errors = []
 _fleet_warnings = []
 def _validate_fleet_str(label, s):
@@ -984,8 +995,6 @@ for _label, _s in [(loc["y1_adds"], y1_adds_str), (loc["y2_adds"], y2_adds_str),
                    (loc["y5_adds"], y5_adds_str)]:
     _validate_fleet_str(_label, _s)
 
-# Surface warnings (non-fatal), then halt on errors so the user can correct
-# before the engine sees the bad input.
 for _w in _fleet_warnings:
     st.sidebar.warning(_w)
 if _fleet_errors:
@@ -1003,11 +1012,6 @@ util_mode = st.sidebar.radio(loc["util_mode"], [loc["util_dyn"], loc["util_fix"]
 if util_mode == loc["util_dyn"]:
     target_util = st.sidebar.number_input(loc["target_util"], value=75.0, min_value=40.0, max_value=100.0, step=1.0, help=loc["help_target"]) / 100
     init_util = st.sidebar.number_input(loc["init_util"], value=55.0, min_value=40.0, max_value=100.0, step=1.0, help=loc["help_init"]) / 100
-    # ===== L30 CROSS-FIELD GUARDRAIL: init_util must not exceed target_util =====
-    # Conceptual integrity: init = launch month starting point on the ramp-up
-    # curve; target = mature-state ceiling. init > target inverts the curve
-    # semantics and breaks the cannibalization recovery logic in the engine.
-    # Halt execution with a clear sidebar error so the user can self-correct.
     if init_util > target_util:
         st.sidebar.error(loc["err_init_util"].format(init=init_util * 100, target=target_util * 100))
         st.stop()
@@ -1018,15 +1022,8 @@ else:
     flat_util = st.sidebar.number_input(loc["util_fix"], value=90.0, min_value=40.0, max_value=100.0, step=1.0) / 100
     target_util, init_util, rec_rate, can_fac = flat_util, flat_util, 0, 0
 
-# === Compute is_dynamic boolean from localized radio selection ===
-# This replaces the hardcoded English string comparison inside the function,
-# which would silently fail in German mode.
 is_dynamic = (util_mode == loc["util_dyn"])
 
-# === Seasonality (1d) — moved into the Section-1 operational block ====
-# Empirical anchors and rationale are documented in the loc tooltips
-# (loc["season_caption"]). Sits between 1c Utilization Dynamics and Section 2
-# Trip Dynamics because it is an operational/physics-side input, not a cost.
 st.sidebar.header(loc["sec_season"])
 with st.sidebar.expander(loc["season_expander"], expanded=False):
     st.caption(loc["season_caption"])
@@ -1042,7 +1039,6 @@ with st.sidebar.expander(loc["season_expander"], expanded=False):
     season_oct = st.number_input(loc["month_oct"], value=1.05, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
     season_nov = st.number_input(loc["month_nov"], value=1.30, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
     season_dec = st.number_input(loc["month_dec"], value=1.45, format="%.2f", step=0.01, min_value=1.00, max_value=2.00)
-# Assemble lookup dict (month index 1-12 → multiplier)
 seasonality_by_month = {
     1: season_jan, 2: season_feb, 3: season_mar, 4: season_apr,
     5: season_may, 6: season_jun, 7: season_jul, 8: season_aug,
@@ -1060,17 +1056,10 @@ base_fare_eur = st.sidebar.number_input(loc["base_fare"], value=2.50, min_value=
 price_per_km_eur = st.sidebar.number_input(loc["price_km"], value=1.49, min_value=0.50, max_value=4.0, step=0.05)
 tesla_take_rate = st.sidebar.number_input(loc["tesla_take"], value=25.0, min_value=15.0, max_value=50.0, step=1.0) / 100
 
-# === B2B Delivery Stream sidebar section ===
 st.sidebar.header(loc["sec3b"])
 delivery_enabled = st.sidebar.checkbox(loc["delivery_toggle"], value=False, help=loc["help_delivery_toggle"])
 if delivery_enabled:
     delivery_hours_per_day = st.sidebar.number_input(loc["delivery_hours"], value=4.0, min_value=0.0, max_value=10.0, step=0.5, help=loc["help_delivery_hours"])
-    # ===== L30 CROSS-FIELD GUARDRAIL: active_hours + delivery_hours ≤ 20h =====
-    # Operational ceiling: a 24h calendar day must reserve ≥4h for inductive
-    # overnight charging + sensor cleaning + depot maintenance windows. The
-    # asset is physically incapable of producing revenue during that window.
-    # Halt with clear sidebar error rather than silently producing nonsensical
-    # "23h Tesla Network active" outputs.
     _combined_hours = active_hours_per_day + delivery_hours_per_day
     if _combined_hours > 20.0:
         st.sidebar.error(loc["err_combined_hours"].format(
@@ -1086,7 +1075,6 @@ if delivery_enabled:
     delivery_ramp_y4 = st.sidebar.number_input(loc["delivery_ramp_y4"], value=70.0, min_value=0.0, max_value=100.0, step=10.0) / 100
     delivery_ramp_y5 = st.sidebar.number_input(loc["delivery_ramp_y5"], value=100.0, min_value=0.0, max_value=100.0, step=10.0) / 100
 else:
-    # Zero-out all delivery params when toggle is OFF — engine never sees delivery revenue
     delivery_hours_per_day = 0.0
     delivery_rev_per_trip = 0.0
     delivery_trips_per_hour = 0.0
@@ -1097,32 +1085,18 @@ else:
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, min_value=0.0, max_value=25.0, step=0.5, help=loc["help_cleaning"])
 wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, min_value=0.07, max_value=0.25, format="%.2f", step=0.01, help=loc["wear_help"])
-# === Energy decomposed into 3 sliders ===
-# Three independent drivers replace the prior single energy_rate parameter,
-# making each driver visible and adjustable for stress-testing.
-# Operating assumption: PURE INDUCTIVE on Tesla Robotaxi Network 2-6am window.
-# Combined: 0.115 * 0.27 / 0.90 = €0.0345/km (was €0.0269 with old defaults).
-# +28% increase reflects realistic Tesla pricing — see help tooltips for full
-# bottom-up derivation including wholesale + grid fees + Tesla margin stack.
 energy_kwh_per_km = st.sidebar.number_input(loc["energy_kwh"], value=0.115, min_value=0.100, max_value=0.150, format="%.3f", step=0.005, help=loc["help_energy_kwh"])
 energy_eur_per_kwh = st.sidebar.number_input(loc["energy_eur"], value=0.270, min_value=0.150, max_value=0.500, format="%.3f", step=0.01, help=loc["help_energy_eur"])
 charging_efficiency = st.sidebar.number_input(loc["charging_eff"], value=0.90, format="%.2f", step=0.01, min_value=0.80, max_value=0.96, help=loc["help_charging_eff"])
-# Derived: effective €/km consumed (before seasonality multiplier in engine)
 energy_rate = (energy_kwh_per_km * energy_eur_per_kwh) / charging_efficiency
-# Visible read-out in sidebar so user can see the combined number
 st.sidebar.caption(loc["energy_derived_caption"].format(rate=energy_rate))
 
 st.sidebar.header(loc["sec5"])
-# Insurance recalibrated €300 → €180 (Tesla bundling thesis, FSD safety credit, theft-zero)
 insurance_pm = st.sidebar.number_input(loc["insurance"], value=180.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_insurance"])
-# APCOA parking recalibrated €250 → €170 (published APCOA rates + bulk discount)
 parking_pm = st.sidebar.number_input(loc["parking"], value=170.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_parking"])
 telemetry_pm = st.sidebar.number_input(loc["telemetry"], value=100.0, min_value=0.0, max_value=500.0, step=5.0)
 tuev_pm = st.sidebar.number_input(loc["tuev"], value=15.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_tuev"])
 charging_sub_pm = st.sidebar.number_input(loc["charging_sub"], value=10.0, min_value=0.0, max_value=200.0, step=1.0)
-# === Cargo insurance — only applies when delivery toggle ON ===
-# Verkehrshaftungsversicherung for B2B goods transport. Doesn't benefit from FSD
-# safety credit (covers cargo theft, weather damage, in-transit handling claims).
 if delivery_enabled:
     delivery_cargo_insurance_pm = st.sidebar.number_input(loc["cargo_ins"], value=20.0, min_value=0.0, max_value=100.0, step=1.0, help=loc["help_cargo_ins"])
 else:
@@ -1150,30 +1124,8 @@ imp_month = st.sidebar.number_input(loc["imp_trigger"], value=0, min_value=0, ma
 imp_pct_val = st.sidebar.number_input(loc["imp_pct"], value=0.0, min_value=0.0, max_value=100.0, step=5.0) / 100
 
 st.sidebar.header(loc["sec8"])
-# ===================================================================
-# === CAPITAL ALLOCATION & VEHICLE FINANCING STRATEGY MATRIX ========
-# === (L31: moved to top of sec8 — the per-vehicle financing strategy
-# === is the FIRST decision under capital structure, dictating debt
-# === drawdowns, ARAP/lease flows, and equity capital calls)
-# ===================================================================
-# Per-year (Y1-Y5) financing mix configuration. Each year's vehicle
-# cohort additions are split into three tranches with independent HGB
-# accounting treatment:
-#   • Tranche A (Loan) → Capitalize asset; AfA; debt drawn @ LTV;
-#                        interest+principal flows; full salvage
-#   • Tranche B (Lease) → Operating lease per HGB; NO capitalization
-#                         (lessor owns); ARAP for Sonderzahlung;
-#                         monthly lease expense in pos3; NO salvage
-#   • Tranche C (Equity) → Capitalize asset; AfA; FULL cash drain;
-#                          optional founder capital-call on shortfall;
-#                          NO debt; full salvage
-# Defaults: 100% Loan / 0% Lease / 0% Equity per year — preserves
-# backward compatibility (zero regression vs prior layers when
-# defaults unchanged).
-# ===================================================================
 with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
     st.caption(loc["fin_matrix_help"])
-    # Per-year financing mix matrix
     fin_mix_by_year = {}  # year -> (loan_pct, lease_pct, equity_pct)
     for _y_idx in range(1, 6):
         st.markdown(f"**{loc['fin_year_label'].format(y=_y_idx)}**")
@@ -1193,7 +1145,6 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
                 f"{loc['fin_pct_equity']} (Y{_y_idx})",
                 min_value=0, max_value=100, value=0, step=5, key=f"fin_equity_y{_y_idx}"
             )
-        # Auto-normalize: if sum != 100, scale proportionally; if all zero, default 100% loan
         _sum = _pct_loan + _pct_lease + _pct_equity
         if _sum == 0:
             _pct_loan, _pct_lease, _pct_equity = 100, 0, 0
@@ -1206,7 +1157,6 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
             _pct_equity / _sum,
         )
 
-    # Global lease parameters (apply to all years' lease tranches)
     st.markdown(f"**{loc['fin_lease_section']}**")
     lease_money_factor = st.number_input(
         loc["fin_lease_money_factor"],
@@ -1223,7 +1173,6 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
         value=60, min_value=24, max_value=72, step=12
     )
 
-    # Global equity policy
     st.markdown(f"**{loc['fin_equity_section']}**")
     equity_capital_call_enabled = st.checkbox(
         loc["fin_equity_capital_call"],
@@ -1234,14 +1183,6 @@ with st.sidebar.expander(loc["fin_matrix_header"], expanded=False):
 stammkapital = st.sidebar.number_input(loc["stamm"], value=25000.0, min_value=25000.0, max_value=1000000.0, step=1000.0)
 shareholder_loan = st.sidebar.number_input(loc["sh_loan"], value=15000.0, min_value=0.0, max_value=1000000.0, step=1000.0)
 sh_loan_rate = st.sidebar.number_input(loc["sh_loan_rate"], value=5.0, min_value=0.0, max_value=20.0, step=0.1, help=loc["help_sh_rate"]) / 100
-# === L32 M6: SH loan Rangrücktritt toggle (KPI-only reclassification) ===
-# Under KfW Universell financing covenants, the shareholder loan typically must be
-# formally subordinated via a notarized Rangrücktrittserklärung. Banks then treat
-# the subordinated loan as Eigenkapital-Ersatz for the Kreditwürdigkeitsprüfung
-# (creditworthiness assessment). This toggle reclassifies the SH loan as "economic
-# equity" for KPI computation purposes only (Equity Ratio + Net LTV) — engine
-# numbers, BS presentation, and HGB statutory P&L are UNCHANGED. The reclassification
-# matches what bank credit committees compute internally for Mittelstand GmbHs.
 sh_loan_rangruecktritt = st.sidebar.checkbox(
     loc["sh_rangruecktritt"], value=True, help=loc["help_rangruecktritt"]
 )
@@ -1255,12 +1196,6 @@ min_cash_buffer = st.sidebar.number_input(loc["cash_buffer_input"], value=10000.
 max_overdraft_limit = st.sidebar.number_input(loc["max_overdraft_input"], value=50000.0, min_value=0.0, max_value=2000000.0, step=10000.0, help=loc["help_max_od"])
 legal_provision_rate = st.sidebar.number_input(loc["legal_provision_input"], value=200.0, min_value=0.0, max_value=5000.0, step=50.0)
 interest_income_rate = st.sidebar.number_input(loc["int_rate"], value=2.2, min_value=0.0, max_value=15.0, step=0.1) / 100
-# === L29: Parameterized municipal trade tax multiplier (Hebesatz) ===
-# Default 250% = Gräfelfing (registered Sitz). Slider lets user stress-test
-# alternative locations (Munich City 490%, Pullach 240%, Berlin 410%, etc.).
-# Engine combines this with the legally-anchored declining KSt schedule
-# (15→10% over VZ 2028-2032 per Wachstumsbooster-Gesetz § 23 Abs. 1 KStG n.F.)
-# and 5.5% Soli to produce a fully transparent total-tax-rate schedule.
 hebesatz_pct = st.sidebar.number_input(
     loc["hebesatz"], value=250.0, min_value=200.0, max_value=600.0, step=5.0,
     help=loc["help_hebesatz"]
@@ -1272,13 +1207,6 @@ salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0
 
 
 # --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION ===
-# Per audit Finding 7: the @st.cache_data decorator was previously on this raw engine
-# function. Inside the Monte Carlo loop (10K+ iterations with unique randomized floats),
-# the cache would create 10K unique cache entries — each holding full pnl/cf/bs result
-# matrices — causing memory exhaustion. Fix: strip the decorator from the raw engine
-# and add a thin cached wrapper below (execute_financial_simulation) that ONLY caches
-# the deterministic dashboard call. The MC harness calls the raw uncached function
-# directly, so each iteration's results are garbage-collected normally.
 def _execute_financial_simulation_uncached(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
@@ -1303,20 +1231,6 @@ def _execute_financial_simulation_uncached(
     equity_capital_call_enabled=True,
     hebesatz_pct=250.0
 ):
-    # ============================================================
-    # is_dynamic parameter added before lang_choice
-    # Replaces the buggy hardcoded English string comparison that
-    # silently failed in German mode and forced flat utilization.
-    # ============================================================
-    
-    # Pure Static Keys to Prevent Variable Reference Errors in Cache Mapping
-    # === P&L static keys — additional rows for delivery stream ===
-    # P_DGBV  = Delivery Gross Booking Value (gross of VAT)
-    # P_DVAT  = Delivery VAT remitted to Finanzamt
-    # P_DNET  = Delivery Net Revenue (excl VAT)
-    # P_DTFEE = Tesla Network fee on delivery net
-    # P_DMNET = MRRG Net Revenue from Delivery (after Tesla fee)
-    # P_TMNET = Total MRRG Net Revenue (Passenger + Delivery)
     P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net",
         "pnl_delivery_gbv", "pnl_delivery_vat", "pnl_delivery_net_rev", "pnl_delivery_tesla_fee", "pnl_delivery_mrrg_net", "pnl_total_mrrg_net",
@@ -1345,7 +1259,6 @@ def _execute_financial_simulation_uncached(
             return [0]*12
 
     all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
-    # === base_fleet_size restored inside cached function scope ===
     base_fleet_size = sum(parse_adds(y1_adds_str))
     
     cybercab_base_eur = cybercab_base_usd / usd_eur_rate
@@ -1353,7 +1266,6 @@ def _execute_financial_simulation_uncached(
     zollkosten_eur = zollwert_cif_eur * customs_duty_rate
     total_capex_per_car = zollwert_cif_eur + zollkosten_eur
 
-    # === Default financing mix fallback (preserves backward compat) ===
     if fin_mix_by_year is None:
         fin_mix_by_year = {y: (1.0, 0.0, 0.0) for y in range(1, 6)}
 
@@ -1361,15 +1273,13 @@ def _execute_financial_simulation_uncached(
     for m in range(60):
         mo_val = all_adds[m]
         if mo_val > 0:
-            # Determine which year this cohort falls into (Y1..Y5)
-            year_of_cohort = (m // 12) + 1  # m in [0..59] -> year 1..5
+            year_of_cohort = (m // 12) + 1
             mix = fin_mix_by_year.get(year_of_cohort, (1.0, 0.0, 0.0))
             loan_frac, lease_frac, equity_frac = mix
             capex_full = mo_val * total_capex_per_car
 
-            # Tranche A: Loan-financed (capitalize + AfA + debt)
             capex_loan = capex_full * loan_frac
-            loan = capex_loan * vehicle_ltv  # debt = capex × LTV (only on loan tranche)
+            loan = capex_loan * vehicle_ltv
             rate = y1_loan_rate if m < 12 else y2_loan_rate
             monthly_rate = rate / 12
             if monthly_rate > 0:
@@ -1377,56 +1287,45 @@ def _execute_financial_simulation_uncached(
             else:
                 pmt = loan / VEHICLE_AMORTIZATION_PERIOD if VEHICLE_AMORTIZATION_PERIOD > 0 else 0.0
 
-            # Tranche B: Operating Lease (HGB: NO capitalization, lessor owns)
-            # Sonderzahlung capitalized as ARAP per HGB § 250; linear amortization
-            # over lease term. Monthly lease pmt = capex × money_factor.
             capex_lease = capex_full * lease_frac
-            lease_downpayment = capex_lease * lease_downpayment_pct  # paid at month c_start
-            lease_monthly_pmt_net = capex_lease * lease_money_factor  # monthly base lease (net of VAT)
-            arap_initial = lease_downpayment  # full Sonderzahlung becomes ARAP at inception
+            lease_downpayment = capex_lease * lease_downpayment_pct
+            lease_monthly_pmt_net = capex_lease * lease_money_factor
+            arap_initial = lease_downpayment
             arap_amort_per_mo = arap_initial / lease_term_months if lease_term_months > 0 else 0.0
 
-            # Tranche C: Equity/Cash (capitalize + AfA + FULL cash drain, NO debt)
             capex_equity = capex_full * equity_frac
 
-            # Capitalize loan + equity portions only (lease excluded per HGB)
             capitalized_capex = capex_loan + capex_equity
             afa_per_mo_total = capitalized_capex / VEHICLE_AMORTIZATION_PERIOD if VEHICLE_AMORTIZATION_PERIOD > 0 else 0.0
 
             cohorts.append({
                 "start_month": m + 1,
                 "size": mo_val,
-                # Tranche-aware capex breakdown
                 "capex_total": capex_full,
                 "capex_loan": capex_loan,
                 "capex_lease": capex_lease,
                 "capex_equity": capex_equity,
-                # Tranche A (Loan)
                 "original_loan": loan,
                 "loan_bal": loan,
                 "rate": rate,
                 "pmt": pmt,
-                # Tranche B (Lease) — HGB off-balance, ARAP for Sonderzahlung
                 "lease_downpayment": lease_downpayment,
                 "lease_monthly_pmt_net": lease_monthly_pmt_net,
-                "arap_balance": 0.0,  # initialized to 0; set to arap_initial at c_start
+                "arap_balance": 0.0,
                 "arap_initial": arap_initial,
                 "arap_amort_per_mo": arap_amort_per_mo,
                 "lease_term_months": int(lease_term_months),
-                "lease_size": mo_val * lease_frac,  # for fleet count
-                # Tranche A+C combined capitalization (drives AfA + BS GFA + salvage)
+                "lease_size": mo_val * lease_frac,
                 "capex_capitalized": capitalized_capex,
                 "afa_per_mo": afa_per_mo_total,
                 "accum_afa": 0,
                 "impaired": False,
-                # Mix metadata
                 "loan_frac": loan_frac,
                 "lease_frac": lease_frac,
                 "equity_frac": equity_frac,
                 "year": year_of_cohort,
             })
 
-    # Trip Physics Mathematics Canvas
     max_theoretical_km = active_hours_per_day * avg_speed_kmh
     theoretical_deadhead_km = max_theoretical_km * deadhead_rate
     max_billable_km_theoretical = max_theoretical_km - theoretical_deadhead_km
@@ -1441,23 +1340,7 @@ def _execute_financial_simulation_uncached(
     distance_rev_per_day_gross = actual_billable_km_per_day * price_per_km_eur
     gross_booking_value_per_day_per_car = base_fare_rev_per_day_gross + distance_rev_per_day_gross
 
-    # =========================================================================
-    # === B2B Delivery Stream Physics ==============================
-    # Tesla Network dispatches Cybercabs for goods delivery during low-passenger
-    # demand windows. Same dispatch architecture, separate revenue stream.
-    # Engine reads delivery_enabled flag — if False, all delivery params are 0
-    # and this entire stream produces no revenue/cost.
-    #
-    # Daily delivery throughput at FULL ACTIVATION:
-    # deliveries/day = delivery_hours × trips/hour × utilization (passenger util applied)
-    # Per-year ramp factor scales this down for Y1-Y3 (Tesla product not yet mature).
-    # Variable cost: delivery_km/day adds to total_km for energy + wear (asset-driven costs).
-    # Cleaning: NO incremental cost (calendar-driven, fleet-driven, not per-trip).
-    # Delivery deadhead: assumed same 22% ratio as passenger.
-    # Trip distance assumption: average delivery cycle = 4 km billable
-    # (shorter than passenger 5km — food/parcel deliveries are typically intra-district).
-    # =========================================================================
-    avg_delivery_distance_km = 4.0  # blended food/parcel/medical
+    avg_delivery_distance_km = 4.0
     delivery_trips_per_day_full = delivery_hours_per_day * delivery_trips_per_hour
     delivery_billable_km_per_day_full = delivery_trips_per_day_full * avg_delivery_distance_km
     delivery_total_km_per_day_full = delivery_billable_km_per_day_full / (1.0 - deadhead_rate) if deadhead_rate < 1.0 else 0.0
@@ -1468,29 +1351,6 @@ def _execute_financial_simulation_uncached(
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
-    # =====================================================================
-    # === GERMAN CORPORATE TAX SCHEDULE — parameterized by Hebesatz =======
-    # =====================================================================
-    # Per "Gesetz für ein steuerliches Investitionssofortprogramm zur Stärkung
-    # des Wirtschaftsstandorts Deutschland" (Wachstumsbooster-Gesetz, in Kraft
-    # seit 19.07.2025, BGBl. I Nr. 161, § 23 Abs. 1 KStG n.F.): KSt reduces by
-    # 1pp per Veranlagungszeitraum starting VZ 2028, reaching 10% in VZ 2032.
-    # Business launch VZ 2028 → Y1=2028, Y5=2032 maps directly to this schedule.
-    #
-    # Tax stack per year = KSt + Solidaritätszuschlag + Gewerbesteuer
-    #   KSt by VZ:      Y1(2028) 14%, Y2 13%, Y3 12%, Y4 11%, Y5(2032) 10%
-    #   Soli:           constant 5.5% × KSt (§ 4 SolzG)
-    #   Gewerbesteuer:  3.5% × (Hebesatz / 100)   (§ 16 GewStG)
-    # Total = KSt × (1 + 5.5%) + 3.5% × (Hebesatz / 100)
-    #
-    # Gräfelfing default Hebesatz: 250% (one of the lowest in Munich metro;
-    # significantly below Munich City 490%, Berlin 410%, Bayern average ~360%).
-    # The municipality has retained this rate to attract corporate establishments
-    # to the south-western suburbs. Verified via Statistisches Landesamt Bayern
-    # 2024 Hebesatzliste. At default 250%, this reproduces the prior hardcoded
-    # schedule {Y1: 23.520%, Y2: 22.465%, Y3: 21.410%, Y4: 20.355%, Y5: 19.300%}
-    # to the basis point — zero regression vs Layer 28 with default inputs.
-    # =====================================================================
     _kst_by_year = {1: 0.14, 2: 0.13, 3: 0.12, 4: 0.11, 5: 0.10}
     _soli_factor = 0.055
     _gewst_base = 0.035
@@ -1500,25 +1360,12 @@ def _execute_financial_simulation_uncached(
         for y in range(1, 6)
     }
 
-    # State Loops Configuration
     current_cash = 0.0
     vat_loan_bal = 0.0
     overdraft_facility_bal = 0.0
     operational_vat_payable = 0.0
     vat_receivable = 0.0
     thg_receivable = 0.0
-    # === THG Quote legal mechanics state variable ===
-    # Per § 7 Abs. 1 38. BImSchV: THG-Quote is a flat annual payment per
-    # registered vehicle per calendar year, paid in full regardless of how
-    # late in the year vehicle was registered, PROVIDED registration is
-    # before the November 15 deadline. Sources: ADAC, EnBW, Finanztip,
-    # Klima-Quote, elektrovorteil (all confirm). Prior logic
-    # ((thg_quote/12) * active_fleet) was incorrect — it pro-rated the flat
-    # annual payment, which the law explicitly says doesn't happen.
-    # `thg_deferred_next_year` tracks deferred €-amount from Nov/Dec adds.
-    # `pending_carryover_cars` tracks the COUNT of cars whose deferral has
-    # already been released in next-year January, so the existing-fleet
-    # carryover formula doesn't double-count them.
     thg_deferred_next_year = 0.0
     pending_carryover_cars = 0
     tax_provision_bal = 0.0
@@ -1532,11 +1379,7 @@ def _execute_financial_simulation_uncached(
     cum_gfa = 0.0
     cum_depr = 0.0
     cum_net_income = 0.0
-    # === Tranche C (Equity): cumulative founder capital call tracker ===
-    # Increments BS equity share (stammkapital extended) over the simulation.
     cum_capital_call = 0.0
-    # === Tranche B (Lease): aggregate ARAP balance across all cohorts ===
-    # Computed each month as sum over cohorts; tracked here for BS reporting.
     cum_arap_balance = 0.0
 
     vat_repay_schedule = [0.0]*120 
@@ -1544,20 +1387,12 @@ def _execute_financial_simulation_uncached(
     utilization_by_month = []
     month_col_names = []
     cash_breach_months = []
-    # Distinct liquidity-stress signals
-    net_liq_breach_months = []   # Cash − Overdraft < min_buffer (going concern stress)
-    insolvency_months = []       # Required draw exceeds bank-approved ceiling
-    # === Audit Finding 4: Enhanced insolvency tracking ===
-    # Per § 15a InsO, Antragspflicht triggers on Zahlungsunfähigkeit + 3-week grace period.
-    # In a monthly simulation, we approximate this as 3+ consecutive months of unfunded
-    # breach (capturing the legal grace window with conservative monthly resolution).
-    # `insolvency_severity` tracks the cumulative € shortfall over the breach period.
-    # `legal_insolvency_month` records the first month meeting § 15a InsO criteria.
-    insolvency_severity = []     # Cumulative unfunded € shortfall per breach month
-    consecutive_breach_count = 0 # Running counter of consecutive breach months
-    legal_insolvency_month = None  # First month at which § 15a InsO Antragspflicht triggers
+    net_liq_breach_months = []
+    insolvency_months = []
+    insolvency_severity = []
+    consecutive_breach_count = 0
+    legal_insolvency_month = None
 
-    # === use is_dynamic flag instead of hardcoded English string ===
     current_u = init_util if is_dynamic else flat_util
     prev_fleet = 0
 
@@ -1571,35 +1406,12 @@ def _execute_financial_simulation_uncached(
         current_month_index = (m % 12) + 1
         current_year = (m // 12) + 1
         
-        # === Save beginning cash BEFORE any mutations.
-        # Without this, when the overdraft draws and resets current_cash to 0.0,
-        # the CF statement records beg_cash = 0 instead of the actual prior period balance. ===
         beg_cash = current_cash
-        # === L32 M2 fix: capture beginning-of-period overdraft balance for interest offset
-        # In real treasury management, a bank with both positive deposits and an open
-        # Kontokorrent line would automatically offset (positive cash sweeps reduce the
-        # drawn overdraft). The model previously earned full interest income on beg_cash
-        # while simultaneously paying 9.5% overdraft interest on beg_overdraft — a non-
-        # realistic frictional cost. Computing interest only on the NET positive balance
-        # eliminates this. Used downstream in the int_inc_mo formula.
         beg_overdraft = overdraft_facility_bal
         
         month_col_names.append(f"{m_names[current_month_index-1]} '{str(current_year_cal)[-2:]}")
         days_in_mo = calendar.monthrange(current_year_cal, current_month_index)[1]
         
-        # ============================================================
-        # === Seasonality is now a 12-month lookup ===
-        # Prior hardcoded 4-tier (Dec-Feb 1.45, Nov/Mar 1.30, Apr/Oct 1.05,
-        # May-Sep 1.10) — annual blend 1.2125×.
-        # Reads from `seasonality_by_month` dict (1-12 → multiplier)
-        # populated from 12 individual sidebar sliders. Defaults preserve # blend exactly. User can stress-test (e.g., dry-cathode 4680 reduces
-        # winter penalty 10-15%) by adjusting individual month sliders.
-        # Empirical defaults:
-        # - Winter (Dec-Feb) 1.45×: ADAC Wintertest 2023, Munich Dec-Feb avg low -3 to -5°C
-        # - Shoulder (Nov, Mar) 1.30×: partial battery thermal load
-        # - Cool summer (Apr, Oct) 1.05×: minimal HVAC load
-        # - Hot summer (May-Sep) 1.10×: A/C draw 8-15% per Geotab fleet data
-        # ============================================================
         season_mult = seasonality_by_month.get(current_month_index, 1.0)
             
         active_fleet = 0
@@ -1608,19 +1420,14 @@ def _execute_financial_simulation_uncached(
         int_exp = 0
         prin_pay = 0
         kfw_draw = 0
-        capex_this_mo = 0          # capitalized capex (loan + equity) — flows to BS GFA
-        capex_sold_this_mo = 0     # capitalized capex retired at month 60 (loan + equity)
+        capex_this_mo = 0
+        capex_sold_this_mo = 0
         accum_afa_sold_this_mo = 0
-        # === Tranche B (Lease) per-month flows ===
-        lease_pmt_mo_net = 0.0          # P&L: monthly lease payment net of VAT (cash)
-        lease_downpayment_cash_mo = 0.0 # cash paid at lease inception (Sonderzahlung)
-        arap_amort_mo = 0.0             # ARAP amortization to P&L (lease expense, non-cash)
-        arap_setup_mo = 0.0             # ARAP asset created at lease inception
-        # Note: VAT on lease pmts + Sonderzahlung is handled centrally below by
-        # adding `lease_pmt_mo_net + lease_downpayment_cash_mo` to vat_eligible_opex_mo.
-        # === Tranche C (Equity) per-month flows ===
-        equity_capex_cash_mo = 0.0      # full cash drain for equity-financed acquisitions
-        # Track cars added THIS month for THG accrual
+        lease_pmt_mo_net = 0.0
+        lease_downpayment_cash_mo = 0.0
+        arap_amort_mo = 0.0
+        arap_setup_mo = 0.0
+        equity_capex_cash_mo = 0.0
         cars_added_this_month = 0
 
         for c in cohorts:
@@ -1628,33 +1435,22 @@ def _execute_financial_simulation_uncached(
             c_lease_term = c["lease_term_months"]
 
             if current_month == c_start:
-                # === Tranche A (Loan): draw debt + capitalize loan-portion capex ===
                 kfw_draw += c["original_loan"]
                 capex_this_mo += c["capex_loan"]
-                # === Tranche B (Lease): pay Sonderzahlung in cash, set up ARAP asset ===
                 if c["capex_lease"] > 0:
                     lease_downpayment_cash_mo += c["lease_downpayment"]
                     c["arap_balance"] = c["arap_initial"]
                     arap_setup_mo += c["arap_initial"]
-                # === Tranche C (Equity): capitalize equity-portion capex (drives BS GFA + AfA) ===
-                # Cash drain handled separately below (does NOT enter capex_this_mo for
-                # the existing cash-flow logic, which already counts capex via cf_capex)
                 capex_this_mo += c["capex_equity"]
                 equity_capex_cash_mo += c["capex_equity"]
-                # Cars added (any tranche) — drives THG accrual
                 cars_added_this_month += c["size"]
 
-            # Active fleet: ALL tranches count toward operational fleet
-            # (lease tranche operates same as loan/equity, just different financing).
             if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
                 active_fleet += c["size"]
-                # === Tranche A (Loan): interest expense on outstanding loan balance ===
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
 
-                # === HGB Impairment (loan + equity tranches — capitalized assets only) ===
                 if current_month == imp_month and not c["impaired"]:
-                    # Base for impairment: outstanding loan if any, otherwise capitalized capex
                     if c["loan_bal"] > 0:
                         extra_afa = c["loan_bal"] * imp_pct_val
                     else:
@@ -1663,11 +1459,9 @@ def _execute_financial_simulation_uncached(
                     c["accum_afa"] += extra_afa
                     c["impaired"] = True
 
-                # === AfA on capitalized capex (loan + equity only — lease NOT capitalized) ===
                 current_veh_afa += c["afa_per_mo"]
                 c["accum_afa"] += c["afa_per_mo"]
 
-                # === Tranche A (Loan): principal amortization starting month c_start+12 ===
                 if current_month >= c_start + 12:
                     prin = c["pmt"] - int_for_this_loan
                     if c["loan_bal"] - prin < 0:
@@ -1675,36 +1469,22 @@ def _execute_financial_simulation_uncached(
                     prin_pay += prin
                     c["loan_bal"] -= prin
 
-            # === Tranche B (Lease): monthly lease payment + ARAP amortization ===
-            # Active during the lease term (typically 60 months from c_start).
             if c["capex_lease"] > 0 and current_month >= c_start and current_month < c_start + c_lease_term:
                 lease_pmt_mo_net += c["lease_monthly_pmt_net"]
-                # ARAP amortization (Sonderzahlung released proportionally to P&L lease expense)
                 if c["arap_balance"] > 0:
                     arap_release = min(c["arap_amort_per_mo"], c["arap_balance"])
                     arap_amort_mo += arap_release
                     c["arap_balance"] -= arap_release
 
-            # === End-of-life month 60: salvage realization (loan + equity tranches only) ===
-            # Lease tranche returns to lessor — zero salvage for MRRG.
             if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD:
-                # Salvage applies pro-rata to loan + equity vehicles
                 non_lease_frac = c["loan_frac"] + c["equity_frac"]
                 fleet_sale_rev += c["size"] * non_lease_frac * salvage_value_per_car_y4
-                # Retire capitalized capex (loan + equity portions)
                 capex_sold_this_mo += c["capex_capitalized"]
                 accum_afa_sold_this_mo += c["accum_afa"]
-                # Pay off any residual loan balance (loan tranche)
                 prin_pay += c["loan_bal"]
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
 
-            # === Tranche B (Lease) end-of-term: lessor reclaims vehicles ===
-            # Note: lease_term_months may differ from VEHICLE_AMORTIZATION_PERIOD.
-            # At end of lease term, ARAP balance should be fully amortized (sanity).
-            # No salvage; lessor takes back asset.
-
-        # === use is_dynamic flag for cannibalization branch ===
         if is_dynamic:
             if active_fleet > prev_fleet and prev_fleet > 0:
                 supply_shock = (active_fleet - prev_fleet) / active_fleet
@@ -1727,47 +1507,26 @@ def _execute_financial_simulation_uncached(
         gbv_mo = gross_booking_value_per_day_per_car * op_days * active_fleet
         net_rev_mo = gbv_mo / (1.0 + VAT_RATE)
         vat_owed_mo = gbv_mo - net_rev_mo
-        # Net Revenue Correction: Platform take fee maps off Net instead of Gross
         tesla_fee_mo = net_rev_mo * tesla_take_rate
         mrrg_net_mo = net_rev_mo - tesla_fee_mo
         
-        # =====================================================================
-        # === B2B Delivery Revenue Computation (monthly) ============
-        # Same utilization (current_u) applies — delivery utilization tracks
-        # passenger utilization since both are Tesla Network dispatched and
-        # share the same demand-density curve.
-        # Ramp factor scales activation by year (Tesla product roll-out).
-        # =====================================================================
         delivery_ramp_factor = delivery_ramp_by_year.get(current_year, 0.0) if delivery_enabled else 0.0
-        # Per-month delivery operations
-        delivery_op_days_mo = op_days  # tracks passenger utilization (same dispatch)
+        delivery_op_days_mo = op_days
         delivery_gbv_mo = delivery_gbv_per_day_per_car_full * delivery_op_days_mo * active_fleet * delivery_ramp_factor
         delivery_net_rev_mo = delivery_gbv_mo / (1.0 + VAT_RATE) if delivery_gbv_mo > 0 else 0.0
         delivery_vat_mo = delivery_gbv_mo - delivery_net_rev_mo
         delivery_tesla_fee_mo = delivery_net_rev_mo * delivery_take_rate
         delivery_mrrg_net_mo = delivery_net_rev_mo - delivery_tesla_fee_mo
-        # Delivery total km adds to asset-driven variable cost base (energy + wear)
         delivery_total_km_mo = delivery_total_km_per_day_full * delivery_op_days_mo * active_fleet * delivery_ramp_factor
         
-        # Combined variable cost: passenger km + delivery km feed into same energy/wear formulas
         total_km_mo = (actual_total_km_per_day * op_days * active_fleet) + delivery_total_km_mo
         wear_mo = total_km_mo * wear_and_tear_rate
         energy_mo = total_km_mo * (energy_rate * season_mult)
-        clean_mo = cleaning_cost_per_day * days_in_mo * active_fleet  # calendar-driven, unchanged
-        # DB1 includes BOTH passenger and delivery MRRG net revenue
+        clean_mo = cleaning_cost_per_day * days_in_mo * active_fleet
         total_mrrg_net_mo = mrrg_net_mo + delivery_mrrg_net_mo
-        # === Tranche B (Lease): Total lease P&L expense for this month ===
-        # Per HGB § 275 Abs. 2 Nr. 5 — Sonstige bezogene Leistungen
-        # Composition: monthly cash payment (net of VAT) + ARAP amortization
-        # (matching of Sonderzahlung over lease term). Flows into pos3 (Cost
-        # of Materials), thus reducing DB1.
         lease_expense_mo = lease_pmt_mo_net + arap_amort_mo
         db1_mo = total_mrrg_net_mo - wear_mo - energy_mo - clean_mo - lease_expense_mo
         
-        # === Cargo insurance (Verkehrshaftungsversicherung) ===
-        # Only billed when delivery toggle is ON AND delivery is ramped > 0 in current year.
-        # Doesn't benefit from FSD safety credit (covers cargo theft, weather, handling).
-        # Scales with active fleet × ramp factor — partial-year ramp = partial-month billing.
         cargo_ins_mo = delivery_cargo_insurance_pm * active_fleet * delivery_ramp_factor
         ins_mo = (insurance_pm * active_fleet) + cargo_ins_mo
         park_mo = parking_pm * active_fleet
@@ -1783,84 +1542,25 @@ def _execute_financial_simulation_uncached(
         hq_ins_mo = hq_insurance_pm + (insurance_scaling_pm * add_cars)
         fees_mo = ihk_pm + (gez_pm_per_car * active_fleet)
         
-        # ============================================================
-        # === FEATURE A: OpEx Input VAT (Vorsteuerabzug) ====
-        # Under German UStG, input VAT on eligible operating expenses
-        # is deductible against output VAT. Vendors are paid GROSS;
-        # the 19% VAT portion offsets the monthly Umsatzsteuerzahllast.
-        #
-        # VAT-Eligible OpEx (services charging 19% USt):
-        # energy, wear, clean, park, telemetry, TÜV, charging sub,
-        # HQ lease, IT/cloud, legal/bookkeeping
-        #
-        # VAT-Exempt OpEx (per UStG):
-        # - Insurance: § 4 Nr. 10 UStG
-        # - HQ Insurance: § 4 Nr. 10 UStG
-        # - Bank fees: § 4 Nr. 8 UStG
-        # - IHK contributions: Mitgliedsbeitrag (no VAT)
-        # - GEZ broadcast fee: öffentliche Abgabe (no VAT)
-        # ============================================================
         vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
                                 + it_cloud_mo + legal_mo
-                                # === Tranche B (Lease): monthly lease pmts + Sonderzahlung
-                                # All VAT-bearing per § 1 Abs. 1 UStG. Note: only the cash
-                                # outflows enter the VAT base — ARAP amortization is a
-                                # non-cash matching release (the VAT was already paid at
-                                # Sonderzahlung inception and is reclaimed in that month).
                                 + lease_pmt_mo_net + lease_downpayment_cash_mo)
         opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
-        # P&L impact: ZERO (P&L always books net of VAT — Feature A invariant)
-        # CF impact: -opex_input_vat_mo (vendors paid gross this month)
-        # BS impact: operational_vat_payable netted by -opex_input_vat_mo below
         
-        # === THG Quote per German legal mechanics ===
-        # § 7 Abs. 1 38. BImSchV + 38. BImSchV § 6: per-vehicle annual flat
-        # payment, paid in full regardless of registration timing within the
-        # calendar year. Deadline for current-year claim: November 15.
-        # Sources verified: ADAC (rund-ums-fahrzeug/elektromobilitaet/thg-quote),
-        # EnBW (elektromobilitaet/thg-quote), Finanztip (thg-quote),
-        # Klima-Quote (klima-quote.de), elektrovorteil.de.
-        #
-        # Prior implementation (Layers 17-22): (thg_quote/12) * active_fleet
-        # was incorrect — it pro-rated the annual flat payment, which the law
-        # explicitly says doesn't happen ("nie nur anteilig" — Finanztip,
-        # Geld-fuer-eauto.de). Under-booked Y2 example: 9 cars × €280 should
-        # yield €2,520 but old code computed €1,913 (€607 under-booking in Y2;
-        # ~€9K cumulative 5Y under-booking).
-        #
-        # Correct model:
-        # (a) NEW cars added Jan-Oct → full €280 booked in addition month
-        # (b) NEW cars added Nov-Dec → past Nov 15 deadline, defer to next Jan
-        # (c) EXISTING fleet (carried from prior calendar year) → full €280
-        #     each booked once per year, in January of new calendar year
-        # IMPORTANT: deferred Nov/Dec cars released in Jan must be EXCLUDED
-        # from the existing-fleet count for that month, or they'd be claimed
-        # twice (once as deferred release, once as existing fleet).
-        # `pending_carryover_cars` tracks the count of cars whose deferral
-        # has been "queued" for next January, so we can exclude them.
-        # Cash collection: quarterly settlement preserved (THG
-        # providers typically pay within 4-12 weeks of application).
-        current_calendar_month = ((current_month - 1) % 12) + 1  # 1=Jan ... 12=Dec
+        current_calendar_month = ((current_month - 1) % 12) + 1
         thg_rev_mo = 0.0
-        # (a) New cars added Jan-Oct: book full annual amount NOW
         if current_calendar_month <= 10:
             thg_rev_mo += thg_quote_per_car_py * cars_added_this_month
         else:
-            # (b) Nov/Dec additions: defer €-amount AND track car-count for next-Jan exclusion
             thg_deferred_next_year += thg_quote_per_car_py * cars_added_this_month
             pending_carryover_cars += cars_added_this_month
-        # (c) January carry-over: existing fleet re-claims annual THG
-        #   EXCLUDING (i) cars added this same month and (ii) cars already
-        #   "pre-claimed" via the deferred-release pathway from prior Nov/Dec.
         if current_calendar_month == 1:
             existing_fleet_carryover = active_fleet - cars_added_this_month - pending_carryover_cars
             thg_rev_mo += thg_quote_per_car_py * existing_fleet_carryover
-            # Release any deferred Nov/Dec registrations from prior year
             thg_rev_mo += thg_deferred_next_year
             thg_deferred_next_year = 0.0
-            pending_carryover_cars = 0  # released, reset
-        # Receivable + quarterly cash collection (unchanged pattern)
+            pending_carryover_cars = 0
         thg_receivable += thg_rev_mo
         thg_cash_mo = 0.0
         if current_month % 3 == 0:
@@ -1868,63 +1568,27 @@ def _execute_financial_simulation_uncached(
             thg_receivable = 0.0
         thg_wc_delta = thg_cash_mo - thg_rev_mo
         
-        # Risk Provisions allocation (§ 249 HGB)
         legal_provision_mo = legal_provision_rate if active_fleet > 0 else 0.0
         legal_provision_bal += legal_provision_mo
         
-        # Capital gains stripped cleanly from operational cash line
         ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
-                # Interest income accrues on Beginning-of-Period NET cash position
-        # (i.e., cash minus outstanding overdraft) — see L32 M2 fix above where
-        # beg_overdraft is captured. Rationale: in real-world German treasury
-        # arrangements (Kontokorrentlinie + Geschäftskonto with the same bank),
-        # any positive deposit balance automatically offsets drawn overdraft via
-        # daily Zinsstaffel netting. The bank pays interest only on the NET
-        # positive position; charging full overdraft interest on beg_overdraft
-        # while simultaneously paying full deposit interest on beg_cash is a
-        # frictional cost that does not exist in practice. Floor at zero — if
-        # net position is negative (cash < overdraft), no interest income.
-        # Previous projected_mid approach was abandoned in favor of BoP basis;
-        # this fix refines BoP to NET BoP per CFO/treasury best practice.
         _net_beg = beg_cash - beg_overdraft
         int_inc_mo = _net_beg * (interest_income_rate / 12.0) if _net_beg > 0 else 0.0
         sh_int_mo = shareholder_loan * (sh_loan_rate / 12.0)
         int_exp += sh_int_mo
         
-        # === VAT Bridge Loan extended to lease Sonderzahlung per audit Finding 5 ===
-        # Per § 1 Abs. 1 Nr. 1 UStG, lease Sonderzahlung is a taxable service delivery
-        # subject to 19% German VAT. Real-world German commercial lease lines (Mercedes-
-        # Benz Bank, VW Leasing, ALD Automotive) include integrated VAT-Vorfinanzierung.
-        # Without bridge financing of lease VAT, large lease tranches in Y2-Y3 trigger
-        # false overdraft breaches simply due to timing mismatch with VAT reclaim cycle.
-        # Bridge covers BOTH capitalized capex VAT AND lease Sonderzahlung VAT; repaid
-        # via the standard vat_lag_months reclaim schedule (typically 3 months).
         vat_draw_mo = (capex_this_mo + lease_downpayment_cash_mo) * VAT_RATE
         vat_loan_bal += vat_draw_mo
         vat_repay_schedule[current_month + vat_lag_months] += vat_draw_mo
         
         vat_refund_inflow = vat_repay_schedule[current_month]
-        # === L32 M3 fix: Post-horizon VAT refund pickup at month 60 ====
-        # The vat_repay_schedule[current_month + vat_lag_months] writes for months 58-60
-        # land in indices 61-63 — outside the 60-month display horizon. Without this
-        # pickup, the month-60 cash balance includes outstanding vat_loan_bal that the
-        # Finanzamt WOULD refund within 3 months of horizon end but isn't shown.
-        # Effect: typically €15-40K cash under-statement at horizon end depending on
-        # late-Y5 capex cadence. Economic reality is that those refunds are receivable
-        # at month 60+lag — pulling them forward to month 60 as a single settlement
-        # preserves the cash identity end_cash = beg_cash + net_change without distorting
-        # any prior month's mechanics. Also drains vat_loan_bal so BS doesn't end with
-        # a phantom liability that has no matching receivable.
         if current_month == 60:
             _post_horizon_refunds = sum(vat_repay_schedule[61:])
             vat_refund_inflow += _post_horizon_refunds
-            # Mark these as consumed to avoid any future-state confusion
             for _i in range(61, len(vat_repay_schedule)):
                 vat_repay_schedule[_i] = 0.0
-        # Defensive cap — vat_repay cannot exceed outstanding bridge loan.
-        # Excess refund still flows through inv_cf_mo as a real cash inflow.
         vat_repay_mo = min(vat_refund_inflow, vat_loan_bal)
         vat_loan_bal -= vat_repay_mo
         vat_int_mo = vat_loan_bal * (vat_bridge_rate / 12.0)
@@ -1935,7 +1599,6 @@ def _execute_financial_simulation_uncached(
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
-        # Monthly HGB tax provision accruals (fixed matrix)
         tax_exp_mo = max(0.0, ebt_mo) * tax_schedule[current_year]
         current_year_tax_accrued += tax_exp_mo
         
@@ -1944,7 +1607,6 @@ def _execute_financial_simulation_uncached(
             tax_paid_mo += true_up_due_this_m5
             true_up_due_this_m5 = 0.0
             
-        # Compliance Calendar Loop
         if current_year > 1:
             if current_month_index in [3, 6, 9, 12]:
                 payment = prior_year_tax_actual * 0.50 * 0.25
@@ -1963,60 +1625,31 @@ def _execute_financial_simulation_uncached(
 
         net_inc_mo = ebt_mo - tax_exp_mo
         
-        # Short-Term Overdraft Linkage Mechanics
-        # Output VAT now includes BOTH passenger and delivery
         op_vat_collected = vat_owed_mo + delivery_vat_mo
-        # === FEATURE A: VAT cash flow ===
-        # op_vat_paid = prior month's NETTED payable being remitted to Finanzamt
-        # opex_input_vat_mo = vendors paid gross THIS month (separate cash drain)
-        # Combine both into op_vat_paid_total for the CF statement.
         op_vat_paid = -operational_vat_payable
         op_vat_paid_total = op_vat_paid - opex_input_vat_mo
         
-        # === Tranche B (Lease) cash flow integration ===
-        # - lease_pmt_mo_net is in net_inc_mo (P&L expense via DB1) and IS a cash drain → no adjustment
-        # - arap_amort_mo is in net_inc_mo (P&L expense) but is NON-cash → add back to op CF
-        # - lease_downpayment_cash_mo is a CASH drain in setup month but NOT yet in P&L → subtract
-        # Sonderzahlung VAT flows through opex_input_vat_mo (already counted in op_vat_paid_total).
         lease_cf_adjustment = arap_amort_mo - lease_downpayment_cash_mo
 
         op_cf_mo = net_inc_mo + total_afa_this_mo - fleet_sale_rev + tax_exp_mo - tax_paid_mo + thg_wc_delta + op_vat_collected + op_vat_paid_total + legal_provision_mo + lease_cf_adjustment
         inv_cf_mo = -(capex_this_mo + vat_draw_mo) + vat_refund_inflow + fleet_sale_rev
-        # Initialize capital_call_mo to zero; populated downstream if shortfall
-        # exceeds overdraft headroom AND equity tranche capex hit this month.
         capital_call_mo = 0.0
         fin_cf_mo_excl_od = (stammkapital if current_month == 1 else 0.0) + (shareholder_loan if current_month == 1 else 0.0) + kfw_draw - prin_pay + vat_draw_mo - vat_repay_mo
 
         net_before_overdraft = op_cf_mo + inv_cf_mo + fin_cf_mo_excl_od
         tentative_ending_cash = current_cash + net_before_overdraft
         
-        # =====================================================================
-        # === Capped Overdraft + Insolvency Detection ========
-        # Overdraft draws are now capped at max_overdraft_limit (bank Linie).
-        # If shortfall exceeds available headroom → INSOLVENCY flagged but
-        # overdraft is still drawn to the cap (engine continues for visibility).
-        # === Tranche C (Equity) — Hybrid capital call mechanism ===
-        # If equity-financed acquisition occurred this month AND
-        # shortfall would breach max overdraft → inject founder capital ONLY
-        # for the breach amount (most realistic founder behavior: tap overdraft
-        # first, capital call as last resort to avoid Insolvenzantragspflicht).
-        # =====================================================================
         overdraft_net_flow = 0.0
-        breach_this_month = False  # Did this month trigger an unfunded overdraft breach?
+        breach_this_month = False
         if tentative_ending_cash < 0:
             needed_from_od = -tentative_ending_cash
             available_od_headroom = max(0.0, max_overdraft_limit - overdraft_facility_bal)
             actual_od_draw = min(needed_from_od, available_od_headroom)
             unfunded_shortfall = needed_from_od - actual_od_draw
             if unfunded_shortfall > 0:
-                # Shortfall exceeds approved line. Tranche C policy:
-                # if capital call enabled AND any equity capex this month, inject
-                # the unfunded shortfall as founder equity (now routes to Kapitalrücklage).
                 if equity_capital_call_enabled and equity_capex_cash_mo > 0:
                     capital_call_mo = unfunded_shortfall
-                    # Capital call absorbs the unfunded portion; no insolvency flag
                 else:
-                    # No equity tranche this month OR capital call disabled → insolvency
                     insolvency_months.append(month_col_names[-1])
                     insolvency_severity.append(unfunded_shortfall)
                     breach_this_month = True
@@ -2032,103 +1665,56 @@ def _execute_financial_simulation_uncached(
             else:
                 current_cash = tentative_ending_cash
 
-        # === § 15a InsO Antragspflicht detection (3-month grace approximation) ===
-        # In real law, the 3-WEEK grace period applies — but at monthly granularity,
-        # 3 consecutive breach months is the conservative legal-equivalent threshold.
-        # Once triggered, the simulation continues (for diagnostic visibility into the
-        # cash path), but this flag surfaces a critical legal exposure to the dashboard.
         if breach_this_month:
             consecutive_breach_count += 1
             if consecutive_breach_count >= 3 and legal_insolvency_month is None:
                 legal_insolvency_month = month_col_names[-1]
         else:
-            consecutive_breach_count = 0  # Reset on any non-breach month
+            consecutive_breach_count = 0
 
-        # Fold capital call into financing CF (after it's been determined above).
-        # This keeps the CF statement clean: capital call shows as a separate
-        # financing inflow on the C_CC line, and net_before_overdraft already
-        # excludes it (so cash reconciles correctly through the overdraft branch).
         fin_cf_mo_excl_od = fin_cf_mo_excl_od + capital_call_mo
                 
-        # Dual-track liquidity-stress signals
-        # (a) Raw cash floor: traditional "do we have €X on hand?"
         if current_cash < min_cash_buffer and active_fleet > 0:
             cash_breach_months.append(month_col_names[-1])
-        # (b) Net liquidity (cash − overdraft): "are we net positive after debt?"
-        #   This is what bank credit committee computes — Effektive Liquidität.
         effective_cash = current_cash - overdraft_facility_bal
         if effective_cash < min_cash_buffer and active_fleet > 0:
             net_liq_breach_months.append(month_col_names[-1])
 
-        # === Define eq_in and sh_in BEFORE the CF appends section ===
         eq_in = stammkapital if current_month == 1 else 0.0
         sh_in = shareholder_loan if current_month == 1 else 0.0
 
-        # Commit State Adjustments to Objects
         cum_gfa += capex_this_mo - capex_sold_this_mo
         cum_depr += total_afa_this_mo - accum_afa_sold_this_mo 
         nfa = cum_gfa - cum_depr
         vat_receivable += vat_draw_mo - vat_refund_inflow
-        # === FEATURE A: NET VAT Payable ===
-        # operational_vat_payable = Output VAT − OpEx Input VAT (Vorsteuer offset)
-        # The cash drain to vendors (-opex_input_vat_mo above) exactly offsets
-        # this -opex_input_vat_mo reduction in the payable. BS stays balanced.
-        # Note: this is the INTERNAL signed state — may be negative when input VAT
-        # exceeds output VAT. Gross BS presentation handled below.
         operational_vat_payable = op_vat_collected - opex_input_vat_mo
         tax_provision_bal += tax_exp_mo - tax_paid_mo
         cum_net_income += net_inc_mo
-        # === Tranche C (Equity): accumulate founder capital calls ===
         cum_capital_call += capital_call_mo
-        # === Tranche B (Lease): aggregate ARAP balance across all active cohorts ===
-        # Each cohort tracks its own arap_balance; sum gives total prepaid lease asset.
         cum_arap_balance = sum(c["arap_balance"] for c in cohorts)
 
         kfw_loan_bal = sum(c["loan_bal"] for c in cohorts if current_month >= c["start_month"])
 
-        # =====================================================================
-        # === Gross BS presentation for operational VAT position ===
-        # Internal state `operational_vat_payable` carries the signed net
-        # (can be negative when Vorsteuerüberhang exists). For BS reporting,
-        # § 246 III HGB Bruttoprinzip requires gross presentation: split into
-        # a payable (liability, ≥ 0) and a receivable (asset, ≥ 0).
-        # === Same pattern for tax_provision_bal — when prepayments
-        # exceed accrual (e.g., declining-profit year), a Steuerforderung exists.
-        # =====================================================================
-        op_vat_payable_bs = max(0.0, operational_vat_payable)       # liability
-        op_vat_receivable_bs = max(0.0, -operational_vat_payable)   # asset
-        tax_provision_bs = max(0.0, tax_provision_bal)              # liability
-        tax_receivable_bs = max(0.0, -tax_provision_bal)            # asset
+        op_vat_payable_bs = max(0.0, operational_vat_payable)
+        op_vat_receivable_bs = max(0.0, -operational_vat_payable)
+        tax_provision_bs = max(0.0, tax_provision_bal)
+        tax_receivable_bs = max(0.0, -tax_provision_bal)
 
-        # === Tranche B (Lease) BS: ARAP asset (Aktiver Rechnungsabgrenzungsposten) ===
-        # HGB § 250 Abs. 1: Sonderzahlung capitalized as prepaid expense.
-        # === Tranche C (Equity) BS: Stammkapital STAYS CONSTANT per § 272 Abs. 1 HGB ===
-        # Per audit Finding 2 (High): Stammkapital is a legally fixed figure registered
-        # in the Handelsregister. It cannot float month-to-month to absorb cash shortfalls
-        # — that would require a notarized Gesellschafterbeschluss and Handelsregister
-        # filing for each adjustment, which is not a monthly operational event.
-        # Ad-hoc founder capital injections are correctly classified as additions to
-        # Kapitalrücklage per § 272 Abs. 2 Nr. 4 HGB ("anderer Zuzahlungen, die
-        # Gesellschafter in das Eigenkapital leisten"). This preserves the legal
-        # integrity of the equity structure while still recognizing the equity injection.
-        total_equity_share_bs = stammkapital  # constant, matches commercial registry
-        kapitalruecklage_bs = cum_capital_call  # § 272 Abs. 2 Nr. 4 HGB classification
+        total_equity_share_bs = stammkapital
+        kapitalruecklage_bs = cum_capital_call
 
         total_assets = nfa + vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + cum_arap_balance + current_cash
-        # Total equity = Stammkapital (constant) + Kapitalrücklage (capital calls) + Retained Earnings
         total_equity = total_equity_share_bs + kapitalruecklage_bs + cum_net_income
         total_prov = tax_provision_bs + legal_provision_bal
         total_liab_bal = kfw_loan_bal + vat_loan_bal + overdraft_facility_bal + op_vat_payable_bs + shareholder_loan
         total_liab_eq = total_equity + total_prov + total_liab_bal
         bs_check_val = round(total_assets - total_liab_eq, STANDARD_TAX_ROUNDING)
         
-        # Append Metrics out cleanly to insulated dictionaries
         pnl_m[P_GBV].append(gbv_mo)
         pnl_m[P_VAT].append(-vat_owed_mo)
         pnl_m[P_NET].append(net_rev_mo)
         pnl_m[P_TFEE].append(-tesla_fee_mo)
         pnl_m[P_MNET].append(mrrg_net_mo)
-        # === B2B Delivery revenue stream P&L appends ===
         pnl_m[P_DGBV].append(delivery_gbv_mo)
         pnl_m[P_DVAT].append(-delivery_vat_mo)
         pnl_m[P_DNET].append(delivery_net_rev_mo)
@@ -2138,9 +1724,6 @@ def _execute_financial_simulation_uncached(
         pnl_m[P_EN].append(-energy_mo)
         pnl_m[P_WR].append(-wear_mo)
         pnl_m[P_CL].append(-clean_mo)
-        # === Tranche B (Lease): monthly P&L lease expense ===
-        # HGB § 275 Abs. 2 Nr. 5 (Sonstige bezogene Leistungen, Cost of Materials pos3)
-        # Composition: lease_pmt_mo_net (cash) + arap_amort_mo (ARAP release, non-cash)
         pnl_m[P_LSE].append(-lease_expense_mo)
         pnl_m[P_DB1].append(db1_mo)
         pnl_m[P_INS].append(-ins_mo)
@@ -2158,7 +1741,6 @@ def _execute_financial_simulation_uncached(
         pnl_m[P_LPR].append(-legal_provision_mo)
         pnl_m[P_THG].append(thg_rev_mo)
         pnl_m[P_EB].append(ebitda_mo)
-        # HGB-view EBITDA = Mgmt EBITDA + Anlagenabgang (per § 275 II Nr.4 HGB)
         pnl_m[P_EB_HGB].append(ebitda_mo + fleet_sale_rev)
         pnl_m[P_AF_V].append(-current_veh_afa)
         pnl_m[P_AF_I].append(-current_it_afa)
@@ -2166,14 +1748,6 @@ def _execute_financial_simulation_uncached(
         pnl_m[P_EBIT].append(ebit_mo)
         pnl_m[P_I_IN].append(int_inc_mo)
         pnl_m[P_I_EX].append(-int_exp)
-        # === L32 M5 fix: SH-loan interest memo line for senior DSCR computation ===
-        # Banks compute DSCR using SENIOR debt service only (KfW/commercial Kfz loan
-        # + Kontokorrent), excluding subordinated shareholder loans which function
-        # as economic equity for credit purposes. Tracking sh_int_mo as a separate
-        # P&L disclosure row lets the downstream KPI engine subtract it from total
-        # int_exp to derive senior int exp. SH int is INCLUDED in P_I_EX (total)
-        # so total HGB Finanzergebnis presentation is unaffected — this is purely
-        # a disclosure row to enable the bank-relevant subset calculation.
         pnl_m[P_I_EX_SH].append(-sh_int_mo)
         pnl_m[P_EBT].append(ebt_mo)
         pnl_m[P_TX].append(-tax_exp_mo)
@@ -2188,11 +1762,6 @@ def _execute_financial_simulation_uncached(
         cf_m[C_WCT].append(thg_wc_delta)
         cf_m[C_VCOL].append(op_vat_collected)
         cf_m[C_VPD].append(op_vat_paid_total)
-        # === Tranche B (Lease) CF line ===
-        # Reports the lease-related cash flow adjustment: ARAP non-cash add-back
-        # MINUS lease Sonderzahlung cash drain in setup month. Together with the
-        # P&L lease_expense_mo (already in net_inc_mo above), this fully reconciles
-        # P&L vs cash for the lease tranche.
         cf_m[C_LSE].append(lease_cf_adjustment)
         cf_m[C_OP].append(op_cf_mo)
         cf_m[C_CAP].append(-(capex_this_mo + vat_draw_mo))
@@ -2200,7 +1769,6 @@ def _execute_financial_simulation_uncached(
         cf_m[C_SLE].append(fleet_sale_rev)
         cf_m[C_INV].append(inv_cf_mo)
         cf_m[C_EQ].append(eq_in)
-        # === Tranche C (Equity) CF line: founder capital call this month ===
         cf_m[C_CC].append(capital_call_mo)
         cf_m[C_SH].append(sh_in)
         cf_m[C_KFW].append(kfw_draw)
@@ -2209,18 +1777,7 @@ def _execute_financial_simulation_uncached(
         cf_m[C_VRP].append(-vat_repay_mo)
         cf_m[C_OD].append(overdraft_net_flow)
         cf_m[C_FIN].append(fin_cf_mo_excl_od + overdraft_net_flow)
-        # === C2 FIX (audit Layer 29): capital_call_mo must enter Net Change in Cash ===
-        # Identity that must hold every month:
-        #   end_cash - beg_cash = net_before_overdraft + overdraft_net_flow + capital_call_mo
-        # The current_cash assignment in the overdraft branch above is:
-        #   current_cash = tentative_ending_cash + actual_od_draw + capital_call_mo
-        # Prior version omitted capital_call_mo from C_NET, breaking CF reconciliation
-        # exactly when Tranche-C capital-call fires — precisely the stress scenario the
-        # feature exists to capture, and the first thing bank credit DD will inspect.
-        # Dormant under default 100% loan config but undermines Tranche-C credibility
-        # under any equity-mix configuration. Now reconciles cleanly across all mixes.
         cf_m[C_NET].append(net_before_overdraft + overdraft_net_flow + capital_call_mo)
-        # === Use beg_cash saved at top of loop ===
         cf_m[C_BEG].append(beg_cash)
         cf_m[C_END].append(current_cash)
 
@@ -2228,28 +1785,24 @@ def _execute_financial_simulation_uncached(
         bs_m[B_AD].append(-cum_depr)
         bs_m[B_NF].append(nfa)
         bs_m[B_VR].append(vat_receivable)
-        bs_m[B_OPVRX].append(op_vat_receivable_bs)          # gross asset side
+        bs_m[B_OPVRX].append(op_vat_receivable_bs)
         bs_m[B_TR].append(thg_receivable)
-        bs_m[B_TRX].append(tax_receivable_bs)               # gross asset side
-        # === Tranche B (Lease) BS: ARAP asset (Aktiver Rechnungsabgrenzungsposten) ===
+        bs_m[B_TRX].append(tax_receivable_bs)
         bs_m[B_ARAP].append(cum_arap_balance)
         bs_m[B_CS].append(current_cash)
-        # Total Current Assets now includes ARAP
         bs_m[B_TC].append(vat_receivable + op_vat_receivable_bs + thg_receivable + tax_receivable_bs + cum_arap_balance + current_cash)
         bs_m[B_TA].append(total_assets)
-        # === Tranche C (Equity) BS: Stammkapital + cumulative capital calls ===
         bs_m[B_ES].append(total_equity_share_bs)
-        # === HGB § 272 Abs. 2 Nr. 4: Kapitalrücklage (founder ad-hoc contributions) ===
         bs_m[B_KR].append(kapitalruecklage_bs)
         bs_m[B_ER].append(cum_net_income)
         bs_m[B_TEQ].append(total_equity)
-        bs_m[B_PT].append(tax_provision_bs)                 # gross liability side (≥ 0)
+        bs_m[B_PT].append(tax_provision_bs)
         bs_m[B_PL].append(legal_provision_bal)
         bs_m[B_TPV].append(total_prov)
         bs_m[B_DK].append(kfw_loan_bal)
         bs_m[B_DV].append(vat_loan_bal)
         bs_m[B_DO].append(overdraft_facility_bal)
-        bs_m[B_PV].append(op_vat_payable_bs)                # gross liability side (≥ 0)
+        bs_m[B_PV].append(op_vat_payable_bs)
         bs_m[B_SL].append(shareholder_loan)
         bs_m[B_TL].append(total_liab_bal)
         bs_m[B_TLEQ].append(total_liab_eq)
@@ -2258,29 +1811,14 @@ def _execute_financial_simulation_uncached(
     return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal, insolvency_severity, legal_insolvency_month
 
 
-# === CACHED WRAPPER for deterministic dashboard call (audit Finding 7) ===
-# This wrapper IS cached — single-shot dashboard runs benefit from cache hits
-# when user revisits the page with identical sidebar inputs. The MC harness
-# bypasses this and calls _execute_financial_simulation_uncached directly,
-# preventing cache pollution from random parameter sweeps.
-_ENGINE_OUTPUT_VERSION = "L32-M-fixes-schema-v1"
-# Bump this string whenever the engine's pnl_m / cf_m / bs_m output schemas
-# change (e.g., new row keys added). Without bumping, Streamlit Cloud will
-# serve the prior deployment's cached return tuple — which lacks new keys —
-# and the downstream KPI engine raises a KeyError on lookup. The string is
-# hashable and participates in @st.cache_data's hash, so changing it forces
-# a fresh evaluation across the entire deployed cache.
+_ENGINE_OUTPUT_VERSION = "L33-mc-realism-schema-v1"
 
 @st.cache_data
 def execute_financial_simulation(*args, engine_version=_ENGINE_OUTPUT_VERSION, **kwargs):
-    # `engine_version` is hashed by Streamlit (no underscore prefix), so
-    # changing _ENGINE_OUTPUT_VERSION above invalidates all prior cached entries.
-    # The argument is otherwise unused — it's a pure cache-key sentinel.
     return _execute_financial_simulation_uncached(*args, **kwargs)
 
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
-# === is_dynamic passed as positional arg before lang_choice ===
 pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated, insolvency_severity, legal_insolvency_month = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
@@ -2305,15 +1843,6 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     hebesatz_pct
 )
 
-# ============================================================
-# === Day-1 Sources/Uses Display
-# Use the engine-returned total_capex_per_car (instead of duplicating
-# the calculation in the dashboard).
-# Day-1 Liquidity metric now shows ACTUAL end-of-Month-1 cash from the
-# engine — previously the metric was a sources-uses snapshot that
-# ignored first-month opex, revenue, and VAT bridge flows, and could
-# read €19K when actual was €27K.
-# ============================================================
 def _quick_parse(s):
     try:
         arr = [int(x.strip()) for x in s.split(',')]
@@ -2322,8 +1851,7 @@ def _quick_parse(s):
         return [0]*12
 
 _y1_count = sum(_quick_parse(y1_adds_str))
-day_1_loan = _y1_count * total_capex_per_car * vehicle_ltv  # uses returned scalar
-# actual end-of-Month-1 cash from engine, not sources-uses snapshot
+day_1_loan = _y1_count * total_capex_per_car * vehicle_ltv
 day_1_cash_ui = bs_monthly["bs_cash"][0]
 
 # --- POST-LOOP SYSTEM AGGREGATIONS ---
@@ -2333,7 +1861,6 @@ def agg_to_yearly(monthly_dict):
         yearly_arr = []
         for y in range(5):
             chunk = arr[y*12 : (y+1)*12]
-            # Structural set definitions completely clean aggregation pathways
             if key == "cf_end" or key in bs_keys_isolated:
                 yearly_arr.append(chunk[-1])
             elif key == "cf_beg":
@@ -2361,69 +1888,17 @@ df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
 
-# Language Loc Mapper for final output tables
-# NOTE: Only the *_combined frames are renamed. df_pnl_yr / df_cf_yr / df_bs_yr
-# retain raw short keys ("pnl_net_rev" etc.) and must be looked up using
-# those raw keys in the visualizations tab below.
 df_pnl_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_cf_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 
 # --- STATUTORY GERMAN GUV ACCORDIONS (§ 275 HGB Gesamtkostenverfahren) ---
-# === (post TM removal): Geschäftsführer also holds Verkehrsleiter
-# mandate (no separate fee). Personalaufwand = 0. No TM strip-out needed
-# in pos6, since pnl_fees no longer contains a TM component.
-# === pnl_tesla_fee (bezogene Leistung — Tesla dispatch platform)
-# now flows into pos3 Materialaufwand; pnl_legal_prov (Zuführung Rückstellung
-# § 249 HGB) now flows into pos6. Both were previously missing from HGB sum.
-# === B2B delivery revenue is operating revenue from the same Tesla
-# Network platform — both streams book together into pos1 Umsatzerlöse per § 275 HGB
-# (same operating activity, two consumer/B2B service types). Delivery Tesla
-# platform fee flows into pos3 (bezogene Leistungen) alongside passenger fee.
 hgb_structure = {}
-# pos1 Umsatzerlöse: passenger Net Revenue + delivery Net Revenue (both operating activity)
 hgb_structure[loc["hgb_pos1"]] = (df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]).values
 hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
-# === HGB § 275 Abs. 2 Nr. 5 — Materialaufwand (strict scope per German GAAP) ===
-# Per § 275 HGB, Materialaufwand is limited to:
-#   (a) Aufwendungen für Roh-, Hilfs- und Betriebsstoffe — energy, wear consumables, cleaning
-#   (b) Aufwendungen für bezogene Leistungen — operating lease pmts, Tesla platform take-rate
-# Vehicle insurance, APCOA parking, telemetry, TÜV, charging subscription do NOT qualify as
-# Materialaufwand — they are operating overhead and belong under § 275 Abs. 2 Nr. 8.
-# Reclassified per audit Finding 1 (Critical) to satisfy bank-grade Jahresabschluss filing.
-#
-# === L32 M1: Accounting Policy Disclosure — Operating Lease Classification ===
-# Operating lease payments (`pnl_lease`) are classified as Materialaufwand pos3 under
-# "bezogene Leistungen" per § 275 Abs. 2 Nr. 5 HGB. This is DEFENSIBLE but represents
-# a deliberate accounting policy choice — common alternative German practice for
-# Mietleasing of operational assets classifies it under Sonstige betriebliche
-# Aufwendungen pos8. Two arguments support keeping pos3:
-#   (1) Tesla's platform take-rate is also a "bezogene Leistung" enabling the same
-#       revenue stream — co-locating both in pos3 keeps the operating expense
-#       structure internally consistent.
-#   (2) For a TaaS fleet operator, the vehicle IS the production asset; the lease
-#       fee is functionally the input cost of accessing that production capacity
-#       (Materialaufwand-like) rather than discretionary overhead (sonstige).
-# Counter-argument: § 275 historically reserves Nr. 5 "bezogene Leistungen" for
-# subcontractor/service inputs that pass through to the customer (e.g., a logistics
-# company paying a subcontractor to fulfill its own client contract).
-# **Decision: keep in pos3 to preserve L28 architecture; document choice for the
-# Steuerberater/Wirtschaftsprüfer to confirm before the first Jahresabschluss filing.
-# If the WP requires reclassification, only the HGB pos3/pos6 mapping below changes —
-# engine numbers, P&L, BS, and KPIs remain identical.**
 hgb_structure[loc["hgb_pos3"]] = (df_pnl_combined.loc[loc["pnl_energy"]] + df_pnl_combined.loc[loc["pnl_wear"]] + df_pnl_combined.loc[loc["pnl_clean"]] + df_pnl_combined.loc[loc["pnl_lease"]] + df_pnl_combined.loc[loc["pnl_tesla_fee"]] + df_pnl_combined.loc[loc["pnl_delivery_tesla_fee"]]).values
-# Personalaufwand: zero — GF holds Verkehrsleiter mandate without separate compensation
 hgb_structure[loc["hgb_pos4"]] = np.zeros(len(df_pnl_combined.columns))
 hgb_structure[loc["hgb_pos5"]] = (df_pnl_combined.loc[loc["pnl_afa_veh"]] + df_pnl_combined.loc[loc["pnl_afa_it"]]).values
-# === HGB § 275 Abs. 2 Nr. 8 — Sonstige betriebliche Aufwendungen ===
-# Absorbs all operating overhead reclassified out of Materialaufwand:
-#   - pnl_ins: Versicherungsaufwand Fahrzeuge (vehicle insurance)
-#   - pnl_park: Mietaufwand Stellplätze (APCOA parking rental)
-#   - pnl_api: Sonstige Betriebsaufwendungen (telemetry / API fees)
-#   - pnl_tuev: Behördliche Gebühren (mandatory TÜV inspections)
-#   - pnl_sub: Sonstige (charging subscription)
-# Plus original Nr. 8 items: HQ lease, IT cloud, legal/bookkeeping, HQ insurance,
-# bank fees, GEZ/IHK fees, legal provisions (Zuführung Rückstellung Rechtsrisiken).
 hgb_structure[loc["hgb_pos6"]] = (df_pnl_combined.loc[loc["pnl_ins"]] + df_pnl_combined.loc[loc["pnl_park"]] + df_pnl_combined.loc[loc["pnl_api"]] + df_pnl_combined.loc[loc["pnl_tuev"]] + df_pnl_combined.loc[loc["pnl_sub"]] + df_pnl_combined.loc[loc["pnl_hq_lease"]] + df_pnl_combined.loc[loc["pnl_it"]] + df_pnl_combined.loc[loc["pnl_legal"]] + df_pnl_combined.loc[loc["pnl_hq_ins"]] + df_pnl_combined.loc[loc["pnl_bank"]] + df_pnl_combined.loc[loc["pnl_fees"]] + df_pnl_combined.loc[loc["pnl_legal_prov"]]).values
 hgb_structure[loc["hgb_pos7"]] = (df_pnl_combined.loc[loc["pnl_int_inc"]] + df_pnl_combined.loc[loc["pnl_int_exp"]]).values
 hgb_structure[loc["hgb_pos8"]] = df_pnl_combined.loc[loc["pnl_tax"]].values
@@ -2435,7 +1910,6 @@ df_hgb_pnl = pd.DataFrame(hgb_structure, index=df_pnl_combined.columns).T
 def safe_div(n, d):
     return np.divide(n.astype(float), d.astype(float), out=np.zeros_like(n.astype(float)), where=d.astype(float)!=0)
 
-# rev_top = TOTAL Net Revenue (passenger + delivery) for KPI denominators
 rev_top = df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]
 ebitda = df_pnl_combined.loc[loc["pnl_ebitda"]]
 db2 = df_pnl_combined.loc[loc["pnl_db2"]]
@@ -2444,20 +1918,12 @@ teq = df_bs_combined.loc[loc["bs_teq"]]
 cash = df_bs_combined.loc[loc["bs_cash"]]
 nfa = df_bs_combined.loc[loc["bs_nfa"]]
 
-# Operational pass-through accounts purged from debt metrics evaluation
 fin_debt = df_bs_combined.loc[loc["bs_debt_kfw"]] + df_bs_combined.loc[loc["bs_debt_vat"]] + df_bs_combined.loc[loc["bs_debt_overdraft"]] + df_bs_combined.loc[loc["bs_sh_loan"]]
 
-# === L32 M6 fix: Rangrücktritt KPI reclassification ===
-# When the SH loan toggle is on (notarized Rangrücktritt), banks treat it as
-# wirtschaftliches Eigenkapital for Equity Ratio + Net LTV. We compute KPI-only
-# adjusted figures: subtract SH balance from fin_debt; add to teq. The BS
-# presentation itself remains unchanged — bs_sh_loan still sits under
-# Verbindlichkeiten as required by HGB § 266 III C — this is purely a bank-
-# style economic recharacterization for credit-relevant ratios.
 sh_loan_bs_series = df_bs_combined.loc[loc["bs_sh_loan"]]
 if sh_loan_rangruecktritt:
-    fin_debt_kpi = fin_debt - sh_loan_bs_series  # remove from debt
-    teq_kpi = teq + sh_loan_bs_series             # add to economic equity
+    fin_debt_kpi = fin_debt - sh_loan_bs_series
+    teq_kpi = teq + sh_loan_bs_series
 else:
     fin_debt_kpi = fin_debt
     teq_kpi = teq
@@ -2466,26 +1932,11 @@ var_costs = rev_top - df_pnl_combined.loc[loc["pnl_db1"]]
 fix_costs = df_pnl_combined.loc[loc["pnl_db1"]] - ebitda + df_pnl_combined.loc[loc["pnl_thg"]]
 tot_costs = var_costs + fix_costs
 debt_service = -(df_cf_combined.loc[loc["cf_prin"]] + df_pnl_combined.loc[loc["pnl_int_exp"]])
-# === L32 M5 fix: Senior DSCR (bank debt only) ===
-# `debt_service` above is the TOTAL fixed-charge denominator (principal + ALL interest
-# including SH loan, VAT bridge, Kontokorrent). Banks compute DSCR using SENIOR debt
-# service only — they treat subordinated shareholder loans as economic equity for credit
-# purposes. Backing out SH-loan interest from the total int_exp gives the bank-relevant
-# senior DSCR denominator. P_I_EX_SH is signed negative in the P&L (it's an expense),
-# so we ADD it (i.e., subtract its magnitude) to remove it from debt_service.
-# Result: senior_debt_service = (principal + total_int_exp - SH_int) flipped sign.
-sh_int_exp_pos = -df_pnl_combined.loc[loc["pnl_int_exp_sh"]]  # P_I_EX_SH is negative, so this is positive
-senior_debt_service = debt_service - sh_int_exp_pos          # remove SH from senior denominator
-# === FCCR per audit Finding 3 ===
-# Operating lease expense is a fixed contractual cash obligation economically
-# equivalent to senior debt service. Banks compute lease-adjusted coverage as:
-#   FCCR = (EBITDA + Lease Expense) / (Principal + Interest + Lease Expense)
-# This is the right metric when comparing capital structures with different
-# loan/lease mixes (Tranche A vs Tranche B from the Layer 27A capital structure
-# matrix). Narrow DSCR (debt-only) preserved above for senior debt covenant tests.
-lease_expense_pos = -df_pnl_combined.loc[loc["pnl_lease"]]  # P&L lease (negative) → positive expense
-fixed_charges = debt_service + lease_expense_pos             # total fixed contractual obligations
-ebitdar = ebitda + lease_expense_pos                          # EBITDA before lease (EBITDAR-equivalent)
+sh_int_exp_pos = -df_pnl_combined.loc[loc["pnl_int_exp_sh"]]
+senior_debt_service = debt_service - sh_int_exp_pos
+lease_expense_pos = -df_pnl_combined.loc[loc["pnl_lease"]]
+fixed_charges = debt_service + lease_expense_pos
+ebitdar = ebitda + lease_expense_pos
 other_inc = df_pnl_combined.loc[loc["pnl_thg"]]
 
 kpi_dict = {}
@@ -2562,9 +2013,6 @@ def create_mrrg_chart(x_labels, y_values, title, prefix="€", suffix="", hide_c
 
 
 # --- 8. DASHBOARD RECONCILIATION LAYOUT ---
-# === Stacked liquidity-stress warnings (audit Finding 4 — enhanced disclosure) ===
-# Per § 15a InsO Antragspflicht: 3+ consecutive breach months trigger legal duty
-# to file an Insolvenzantrag. Surface this prominently above general breach flags.
 if legal_insolvency_month is not None:
     total_unfunded = sum(insolvency_severity)
     n_breach_months = len(insolvency_months)
@@ -2575,7 +2023,6 @@ if legal_insolvency_month is not None:
         f"ℹ️ {loc['insolv_diagnostic_note']}"
     )
 elif len(insolvency_months) > 0:
-    # Breach detected but not yet 3 consecutive months — still flag prominently
     total_unfunded = sum(insolvency_severity)
     n_breach_months = len(insolvency_months)
     st.error(
@@ -2696,16 +2143,6 @@ with tabs[4]:
             """)
 
 with tabs[5]:
-    # NOTE: df_pnl_yr / df_cf_yr / df_bs_yr were never renamed (only df_*_combined were).
-    # They retain the raw short keys ("pnl_net_rev" etc.), so we MUST look up by raw key
-    # rather than by loc[...]. Using loc[...] here would KeyError.
-    # === H8 FIX (audit Layer 29): Net Revenue chart now matches KPI engine ===
-    # KPI engine computes rev_top = pnl_net_rev + pnl_delivery_net_rev. Prior chart
-    # showed passenger-only, creating an inconsistency the moment the delivery toggle
-    # was activated: KPI tab showed combined revenue while the headline chart showed
-    # passenger only — making delivery revenue appear as "shadow" income. Now both
-    # tabs read the same combined figure. When delivery_enabled=False the second
-    # term is zero and the chart reads identically to the prior passenger-only view.
     y_rev_v = (df_pnl_yr.loc["pnl_net_rev"] + df_pnl_yr.loc["pnl_delivery_net_rev"]).values
     y_eb_v  = df_pnl_yr.loc["pnl_ebitda"].values
     y_ni_v  = df_pnl_yr.loc["pnl_ni"].values
@@ -2727,29 +2164,57 @@ with tabs[5]:
         st.plotly_chart(create_mrrg_chart(year_cols, y_ta_v, loc["chart_ta"]), use_container_width=True)
 
 # ==========================================================================
-# === EXPANDED MONTE CARLO — 22+ PARAMETERS ACROSS 3 TIERS =======
+# === LAYER 33 MONTE CARLO — CORRELATED, FAT-TAILED, PER-YEAR SHOCKS ========
 # ==========================================================================
-# Major upgrade from (12 parameters):
-# • Tier 1 (High Variance): adds active_hours, speed, dwell, init_util,
-#   rec_rate, can_fac, delivery_ramp_y2, delivery_ramp_y4 (now full
-#   delivery roll-out uncertainty Y2+Y3+Y4)
-# • Tier 2 (Material Variance): adds cybercab_base_usd, usd_eur_rate,
-#   vehicle_ltv, y1_loan_rate, y2_loan_rate (capex/debt structure variance)
-# • Tier 3 (Smaller Variance): adds cleaning_cost_per_day, parking_pm,
-#   customs_duty_rate (operating cost variance)
-# • NEW: 5-Year Cumulative Free Cash Flow tracked alongside NI/EBITDA
-# • NEW: simulation_settings metadata snapshot captured before loop
-# • NEW: Interactive metric dropdown (FCF/EBITDA/Net Income) dynamically
-#   reshapes Chart 1 + tornado target
-# • Outputs persisted as nested {simulation_settings, simulation_outputs}
-#   for data provenance and reproducibility audit trails
-# The deterministic engine logic itself remains fully unchanged.
+# Upgrades over L32 (per McKinsey-grade risk-methodology review):
+#
+#  UPGRADE 1 — SHARED MACRO COUPLING (the single highest-leverage fix)
+#    A single standard-normal "macro environment" factor is drawn ONCE PER
+#    SIMULATED YEAR. A positive draw = crisis year. It tugs:
+#       energy price  UP   (βₑ)
+#       loan rates    UP   (βᵣ)
+#       demand        DOWN (β_d, negative)
+#       EUR/USD       DOWN i.e. EUR weakens, capex in EUR rises (β_fx)
+#    all TOGETHER, in the same year. This replaces L32's fully-independent
+#    sampling, which produced fantasy scenarios (energy crisis + booming
+#    demand + cheap money simultaneously) and therefore understated the P5
+#    severe-downside and the insolvency probability. Set all betas to 0 to
+#    recover the old independent behavior exactly.
+#
+#  UPGRADE 2 — PER-YEAR SHOCK SAMPLING (fixes the "×5 copy-paste" bug)
+#    L32 sampled one year of Phase-B shocks and reused it for all 5 years,
+#    sanding away the single-bad-year tail that actually kills thin-buffer
+#    startups. L33 rolls shocks independently for each of the 5 years and
+#    builds a per-year seasonality/energy texture. Severe-weather + black-ice
+#    shocks now ALSO raise energy + wear costs (not just suppress demand).
+#
+#  UPGRADE 3 — SKEWED ONE-SIDED COSTS (lognormal, mean-preserving)
+#    wear, cleaning, parking now drawn from a mean-preserving lognormal that
+#    cannot go negative and has a realistic fat upside tail. Removes the
+#    max() band-aids that L32 needed to stop the bell curve from emitting
+#    impossible negative costs.
+#
+#  UPGRADE 4 — MACRO-COUPLED FX + DEMAND-COLLAPSE SHOCK
+#    FX gets the macro tug (EUR weakness coincides with crises). A new
+#    demand-collapse event (pandemic/lockdown) is added to the shock library
+#    to capture the multi-week demand-to-zero tail a credit committee fears.
+#
+# ENGINE-CONTRACT NOTE (zero regression): the deterministic engine still
+# takes scalar inputs + a single 12-month seasonality dict for the whole
+# horizon. To inject per-year macro/shock variation WITHOUT changing the
+# engine signature, the MC harness:
+#   • samples 5 annual macro shocks + 5 independent annual shock realizations
+#   • converts the per-year demand texture into a 12-month seasonality vector
+#     (horizon-blended) and a per-iteration energy multiplier
+#   • applies the HORIZON-AVERAGE macro tug to the scalar rate/demand/fx
+#     inputs the engine consumes, while the per-year roughness lives in the
+#     demand multipliers. This is an approximation, but it restores the
+#     coupling + single-bad-year tail that matter for credit analysis.
 # ==========================================================================
 with tabs[6]:
     st.markdown(f"### {loc['mc_header']}")
     st.caption(loc["mc_intro"])
 
-    # --- Configuration row ---
     mc_col1, mc_col2 = st.columns([1, 2])
     with mc_col1:
         n_iterations = st.number_input(
@@ -2761,9 +2226,20 @@ with tabs[6]:
         st.write("")
         run_mc = st.button(loc["mc_run_button"], type="primary", use_container_width=True)
 
-    # --- Distribution overrides matrix (collapsible, 3 tiers) ---
+    # ===== UPGRADE 1 UI: Macro coupling controls =====
+    with st.expander(loc["mc_macro_header"], expanded=False):
+        st.caption(loc["mc_macro_help"])
+        mac1, mac2, mac3 = st.columns(3)
+        with mac1:
+            beta_energy = st.number_input(loc["mc_beta_energy"], value=0.060, min_value=0.0, max_value=0.30, step=0.005, format="%.3f")
+            beta_fx = st.number_input(loc["mc_beta_fx"], value=0.030, min_value=0.0, max_value=0.30, step=0.005, format="%.3f")
+        with mac2:
+            beta_rate = st.number_input(loc["mc_beta_rate"], value=0.010, min_value=0.0, max_value=0.05, step=0.001, format="%.3f")
+        with mac3:
+            beta_demand = st.number_input(loc["mc_beta_demand"], value=0.050, min_value=0.0, max_value=0.30, step=0.005, format="%.3f")
+            macro_sigma = st.number_input(loc["mc_macro_sigma"], value=1.0, min_value=0.0, max_value=3.0, step=0.1, format="%.1f")
+
     with st.expander(loc["mc_section_dist"], expanded=False):
-        # ===== TIER 1: HIGH VARIANCE DRIVERS (operating physics) =====
         st.markdown(f"**{loc['mc_tier1_header']}**")
         t1c1, t1c2, t1c3 = st.columns(3)
         with t1c1:
@@ -2799,7 +2275,6 @@ with tabs[6]:
             mc_dy4_mode = st.number_input("Delivery Y4 Mode", value=0.70, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
             mc_dy4_max = st.number_input("Delivery Y4 Max", value=1.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
 
-        # ===== TIER 2: MATERIAL VARIANCE (capex, debt, costs) =====
         st.markdown(f"**{loc['mc_tier2_header']}**")
         t2c1, t2c2, t2c3 = st.columns(3)
         with t2c1:
@@ -2824,7 +2299,6 @@ with tabs[6]:
             mc_sigma_energy_eur = st.number_input(loc["mc_p_energy_eur"], value=0.040, min_value=0.001, max_value=0.20, step=0.005, format="%.3f")
             mc_sigma_kwh = st.number_input(loc["mc_p_kwh_per_km"], value=0.012, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
 
-        # ===== TIER 3: SMALLER VARIANCE (operating costs) =====
         st.markdown(f"**{loc['mc_tier3_header']}**")
         t3c1, t3c2, t3c3 = st.columns(3)
         with t3c1:
@@ -2836,127 +2310,71 @@ with tabs[6]:
         with t3c3:
             mc_sigma_salvage = st.number_input(loc["mc_p_salvage"], value=2500.0, min_value=500.0, max_value=10000.0, step=500.0)
 
-    # =========================================================================
-    # === PHASE A: DAY ARCHETYPE MIX UI (intraday demand topology) ===========
-    # =========================================================================
-    # Each day in the operating year is assigned to an archetype with its own
-    # demand intensity multiplier. The annual mix determines the realized
-    # seasonality multiplier for each calendar month, with stochastic variance
-    # in both the COUNT (days per year) and the INTENSITY (multiplier) of each
-    # archetype. This captures the "good day vs bad day" lottery that drives
-    # cash flow variance beyond simple monthly averages.
-    # =========================================================================
+    # === PHASE A — Day archetype mix UI (unchanged structure) ===
     with st.expander(loc["mc_dayarch_header"], expanded=False):
         st.caption(loc["mc_dayarch_help"])
         da_c1, da_c2, da_c3 = st.columns(3)
         with da_c1:
             st.markdown("**Days/Year (Frequency)**")
-            arch_weekday_days = st.number_input(loc["mc_dayarch_weekday"] + " days/yr",
-                value=155, min_value=100, max_value=260, step=5)
-            arch_weekend_days = st.number_input(loc["mc_dayarch_weekend"] + " days/yr",
-                value=80, min_value=40, max_value=110, step=5)
-            arch_friday_days = st.number_input(loc["mc_dayarch_friday"] + " days/yr",
-                value=40, min_value=20, max_value=80, step=5)
-            arch_holiday_days = st.number_input(loc["mc_dayarch_holiday"] + " days/yr",
-                value=30, min_value=10, max_value=80, step=5)
-            arch_oktober_days = st.number_input(loc["mc_dayarch_oktoberfest"] + " days/yr",
-                value=16, min_value=0, max_value=20, step=1)
-            arch_xmas_days = st.number_input(loc["mc_dayarch_xmas"] + " days/yr",
-                value=28, min_value=0, max_value=40, step=2)
+            arch_weekday_days = st.number_input(loc["mc_dayarch_weekday"] + " days/yr", value=155, min_value=100, max_value=260, step=5)
+            arch_weekend_days = st.number_input(loc["mc_dayarch_weekend"] + " days/yr", value=80, min_value=40, max_value=110, step=5)
+            arch_friday_days = st.number_input(loc["mc_dayarch_friday"] + " days/yr", value=40, min_value=20, max_value=80, step=5)
+            arch_holiday_days = st.number_input(loc["mc_dayarch_holiday"] + " days/yr", value=30, min_value=10, max_value=80, step=5)
+            arch_oktober_days = st.number_input(loc["mc_dayarch_oktoberfest"] + " days/yr", value=16, min_value=0, max_value=20, step=1)
+            arch_xmas_days = st.number_input(loc["mc_dayarch_xmas"] + " days/yr", value=28, min_value=0, max_value=40, step=2)
         with da_c2:
             st.markdown("**Demand Multiplier (mean)**")
-            arch_weekday_mult = st.number_input(loc["mc_dayarch_weekday"] + " ×",
-                value=1.00, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
-            arch_weekend_mult = st.number_input(loc["mc_dayarch_weekend"] + " ×",
-                value=0.90, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
-            arch_friday_mult = st.number_input(loc["mc_dayarch_friday"] + " ×",
-                value=1.25, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
-            arch_holiday_mult = st.number_input(loc["mc_dayarch_holiday"] + " ×",
-                value=0.70, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
-            arch_oktober_mult = st.number_input(loc["mc_dayarch_oktoberfest"] + " ×",
-                value=1.60, min_value=1.00, max_value=2.50, step=0.05, format="%.2f")
-            arch_xmas_mult = st.number_input(loc["mc_dayarch_xmas"] + " ×",
-                value=1.35, min_value=0.80, max_value=2.00, step=0.05, format="%.2f")
+            arch_weekday_mult = st.number_input(loc["mc_dayarch_weekday"] + " ×", value=1.00, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            arch_weekend_mult = st.number_input(loc["mc_dayarch_weekend"] + " ×", value=0.90, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            arch_friday_mult = st.number_input(loc["mc_dayarch_friday"] + " ×", value=1.25, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            arch_holiday_mult = st.number_input(loc["mc_dayarch_holiday"] + " ×", value=0.70, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
+            arch_oktober_mult = st.number_input(loc["mc_dayarch_oktoberfest"] + " ×", value=1.60, min_value=1.00, max_value=2.50, step=0.05, format="%.2f")
+            arch_xmas_mult = st.number_input(loc["mc_dayarch_xmas"] + " ×", value=1.35, min_value=0.80, max_value=2.00, step=0.05, format="%.2f")
         with da_c3:
             st.markdown("**Demand Multiplier σ (variance)**")
-            arch_weekday_sigma = st.number_input(loc["mc_dayarch_weekday"] + " σ",
-                value=0.05, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
-            arch_weekend_sigma = st.number_input(loc["mc_dayarch_weekend"] + " σ",
-                value=0.08, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
-            arch_friday_sigma = st.number_input(loc["mc_dayarch_friday"] + " σ",
-                value=0.10, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
-            arch_holiday_sigma = st.number_input(loc["mc_dayarch_holiday"] + " σ",
-                value=0.12, min_value=0.01, max_value=0.40, step=0.01, format="%.2f")
-            arch_oktober_sigma = st.number_input(loc["mc_dayarch_oktoberfest"] + " σ",
-                value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
-            arch_xmas_sigma = st.number_input(loc["mc_dayarch_xmas"] + " σ",
-                value=0.15, min_value=0.05, max_value=0.40, step=0.05, format="%.2f")
-        # Calendar-month assignment policy (which months get which archetypes)
-        # is hard-coded in the sampler. Defaults: Oktoberfest concentrates in Sep-Oct,
-        # Christmas in Nov-Dec, holidays spread across school break periods.
+            arch_weekday_sigma = st.number_input(loc["mc_dayarch_weekday"] + " σ", value=0.05, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_weekend_sigma = st.number_input(loc["mc_dayarch_weekend"] + " σ", value=0.08, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_friday_sigma = st.number_input(loc["mc_dayarch_friday"] + " σ", value=0.10, min_value=0.01, max_value=0.30, step=0.01, format="%.2f")
+            arch_holiday_sigma = st.number_input(loc["mc_dayarch_holiday"] + " σ", value=0.12, min_value=0.01, max_value=0.40, step=0.01, format="%.2f")
+            arch_oktober_sigma = st.number_input(loc["mc_dayarch_oktoberfest"] + " σ", value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            arch_xmas_sigma = st.number_input(loc["mc_dayarch_xmas"] + " σ", value=0.15, min_value=0.05, max_value=0.40, step=0.05, format="%.2f")
 
-    # =========================================================================
-    # === PHASE B: STOCHASTIC SHOCK EVENTS UI =================================
-    # =========================================================================
-    # Independent stochastic events that perturb individual operating days.
-    # Each event has annual frequency (Poisson-ish) and a demand impact
-    # multiplier. Shocks layer ON TOP of the day-archetype base demand,
-    # capturing asymmetric upside (transit strike → demand surge) and downside
-    # (tech outage → lost revenue) risks that banks specifically care about.
-    # =========================================================================
+    # === PHASE B — Shock events UI (adds demand-collapse event) ===
     with st.expander(loc["mc_shock_header"], expanded=False):
         st.caption(loc["mc_shock_help"])
         sh_c1, sh_c2, sh_c3 = st.columns(3)
         with sh_c1:
             st.markdown("**Annual Frequency (days)**")
-            shock_weather_freq = st.number_input(loc["mc_shock_severe_weather"] + " days/yr",
-                value=12, min_value=0, max_value=40, step=1)
-            shock_strike_freq = st.number_input(loc["mc_shock_transit_strike"] + " days/yr",
-                value=2, min_value=0, max_value=15, step=1)
-            shock_event_freq = st.number_input(loc["mc_shock_major_event"] + " days/yr",
-                value=15, min_value=0, max_value=50, step=1)
-            shock_tech_freq = st.number_input(loc["mc_shock_tech_outage"] + " days/yr",
-                value=3, min_value=0, max_value=20, step=1)
-            shock_heat_freq = st.number_input(loc["mc_shock_heatwave"] + " days/yr",
-                value=10, min_value=0, max_value=30, step=1)
-            shock_ice_freq = st.number_input(loc["mc_shock_black_ice"] + " days/yr",
-                value=5, min_value=0, max_value=20, step=1)
-            shock_road_freq = st.number_input(loc["mc_shock_road_closure"] + " days/yr",
-                value=7, min_value=0, max_value=30, step=1)
+            shock_weather_freq = st.number_input(loc["mc_shock_severe_weather"] + " days/yr", value=12, min_value=0, max_value=40, step=1)
+            shock_strike_freq = st.number_input(loc["mc_shock_transit_strike"] + " days/yr", value=2, min_value=0, max_value=15, step=1)
+            shock_event_freq = st.number_input(loc["mc_shock_major_event"] + " days/yr", value=15, min_value=0, max_value=50, step=1)
+            shock_tech_freq = st.number_input(loc["mc_shock_tech_outage"] + " days/yr", value=3, min_value=0, max_value=20, step=1)
+            shock_heat_freq = st.number_input(loc["mc_shock_heatwave"] + " days/yr", value=10, min_value=0, max_value=30, step=1)
+            shock_ice_freq = st.number_input(loc["mc_shock_black_ice"] + " days/yr", value=5, min_value=0, max_value=20, step=1)
+            shock_road_freq = st.number_input(loc["mc_shock_road_closure"] + " days/yr", value=7, min_value=0, max_value=30, step=1)
+            shock_collapse_freq = st.number_input(loc["mc_shock_demand_collapse"] + " days/yr", value=2, min_value=0, max_value=60, step=1)
         with sh_c2:
             st.markdown("**Demand Multiplier (mean)**")
-            shock_weather_mult = st.number_input(loc["mc_shock_severe_weather"] + " ×",
-                value=1.20, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
-            shock_strike_mult = st.number_input(loc["mc_shock_transit_strike"] + " ×",
-                value=1.50, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
-            shock_event_mult = st.number_input(loc["mc_shock_major_event"] + " ×",
-                value=1.30, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
-            shock_tech_mult = st.number_input(loc["mc_shock_tech_outage"] + " ×",
-                value=0.50, min_value=0.00, max_value=1.00, step=0.05, format="%.2f")
-            shock_heat_mult = st.number_input(loc["mc_shock_heatwave"] + " ×",
-                value=1.05, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
-            shock_ice_mult = st.number_input(loc["mc_shock_black_ice"] + " ×",
-                value=1.10, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
-            shock_road_mult = st.number_input(loc["mc_shock_road_closure"] + " ×",
-                value=0.85, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
+            shock_weather_mult = st.number_input(loc["mc_shock_severe_weather"] + " ×", value=1.20, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_strike_mult = st.number_input(loc["mc_shock_transit_strike"] + " ×", value=1.50, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_event_mult = st.number_input(loc["mc_shock_major_event"] + " ×", value=1.30, min_value=0.50, max_value=2.50, step=0.05, format="%.2f")
+            shock_tech_mult = st.number_input(loc["mc_shock_tech_outage"] + " ×", value=0.50, min_value=0.00, max_value=1.00, step=0.05, format="%.2f")
+            shock_heat_mult = st.number_input(loc["mc_shock_heatwave"] + " ×", value=1.05, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            shock_ice_mult = st.number_input(loc["mc_shock_black_ice"] + " ×", value=1.10, min_value=0.50, max_value=2.00, step=0.05, format="%.2f")
+            shock_road_mult = st.number_input(loc["mc_shock_road_closure"] + " ×", value=0.85, min_value=0.30, max_value=1.50, step=0.05, format="%.2f")
+            shock_collapse_mult = st.number_input(loc["mc_shock_demand_collapse"] + " ×", value=0.25, min_value=0.00, max_value=1.00, step=0.05, format="%.2f")
         with sh_c3:
             st.markdown("**Multiplier σ (variance)**")
-            shock_weather_sigma = st.number_input(loc["mc_shock_severe_weather"] + " σ",
-                value=0.15, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
-            shock_strike_sigma = st.number_input(loc["mc_shock_transit_strike"] + " σ",
-                value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
-            shock_event_sigma = st.number_input(loc["mc_shock_major_event"] + " σ",
-                value=0.15, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
-            shock_tech_sigma = st.number_input(loc["mc_shock_tech_outage"] + " σ",
-                value=0.20, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
-            shock_heat_sigma = st.number_input(loc["mc_shock_heatwave"] + " σ",
-                value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
-            shock_ice_sigma = st.number_input(loc["mc_shock_black_ice"] + " σ",
-                value=0.12, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
-            shock_road_sigma = st.number_input(loc["mc_shock_road_closure"] + " σ",
-                value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_weather_sigma = st.number_input(loc["mc_shock_severe_weather"] + " σ", value=0.15, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
+            shock_strike_sigma = st.number_input(loc["mc_shock_transit_strike"] + " σ", value=0.20, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            shock_event_sigma = st.number_input(loc["mc_shock_major_event"] + " σ", value=0.15, min_value=0.05, max_value=0.50, step=0.05, format="%.2f")
+            shock_tech_sigma = st.number_input(loc["mc_shock_tech_outage"] + " σ", value=0.20, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
+            shock_heat_sigma = st.number_input(loc["mc_shock_heatwave"] + " σ", value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_ice_sigma = st.number_input(loc["mc_shock_black_ice"] + " σ", value=0.12, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_road_sigma = st.number_input(loc["mc_shock_road_closure"] + " σ", value=0.10, min_value=0.01, max_value=0.30, step=0.05, format="%.2f")
+            shock_collapse_sigma = st.number_input(loc["mc_shock_demand_collapse"] + " σ", value=0.15, min_value=0.01, max_value=0.50, step=0.05, format="%.2f")
 
-    # --- Execute Monte Carlo if button pressed ---
+    # ===================== MONTE CARLO EXECUTION =====================
     if run_mc:
         # ---- Statistical sampling helpers ----
         def _sample_beta_scaled(rng, mean, a, b, concentration=10.0):
@@ -2968,67 +2386,82 @@ with tabs[6]:
             return a + rng.beta(alpha, beta_param) * (b - a)
 
         def _sample_triangular(rng, low, mode, high):
-            if low > high: low, high = high, low
+            if low > high:
+                low, high = high, low
             mode = max(low, min(high, mode))
             return rng.triangular(low, mode, high)
 
-        # ====================================================================
-        # PHASE A+B HELPER: monthly demand modifier from day-archetype mix +
-        # shock event sampling. Returns 12-month vector (Jan-Dec) of composite
-        # demand multipliers that mutate the base seasonality_by_month dict.
-        # ====================================================================
-        # Calendar policy: which months get which archetype "share" of days.
-        # Months × archetypes — fraction of days in that month that fall into
-        # each archetype before shock events. Rows sum to 1.0 per month.
-        # Defaults reflect Munich calendar (Oktoberfest Sep/Oct, Xmas Nov/Dec).
+        # === UPGRADE 3 helper: mean-preserving skewed cost draw ===
+        # A lognormal whose ARITHMETIC MEAN equals `center`. Cannot go negative,
+        # clusters near center, fat upside tail — the correct shape for one-sided
+        # operating costs (repair-bill behavior, not height behavior). No max()
+        # guardrail needed because the support is (0, ∞).
+        def _sample_cost_skewed(rng, center, sigma_pct):
+            if center <= 0:
+                return 0.0
+            sigma_log = max(1e-6, sigma_pct)
+            mu_log = np.log(center) - 0.5 * sigma_log ** 2  # shift so mean == center
+            return float(rng.lognormal(mean=mu_log, sigma=sigma_log))
+
+        # Calendar policy: fraction of each month's days in each archetype
         month_arch_policy = {
-            #       weekday  weekend  friday   holiday  oktober  xmas
-            1:  [0.55,    0.27,    0.14,    0.04,    0.00,    0.00],  # Jan (post-NYE)
-            2:  [0.55,    0.27,    0.14,    0.04,    0.00,    0.00],  # Feb (Karneval week)
-            3:  [0.60,    0.27,    0.13,    0.00,    0.00,    0.00],  # Mar
-            4:  [0.55,    0.27,    0.13,    0.05,    0.00,    0.00],  # Apr (Easter)
-            5:  [0.58,    0.27,    0.13,    0.02,    0.00,    0.00],  # May
-            6:  [0.60,    0.27,    0.13,    0.00,    0.00,    0.00],  # Jun
-            7:  [0.55,    0.27,    0.13,    0.05,    0.00,    0.00],  # Jul (summer holidays)
-            8:  [0.45,    0.27,    0.13,    0.15,    0.00,    0.00],  # Aug (peak summer holidays)
-            9:  [0.45,    0.20,    0.10,    0.05,    0.20,    0.00],  # Sep (Oktoberfest starts)
-            10: [0.50,    0.22,    0.10,    0.03,    0.15,    0.00],  # Oct (Oktoberfest ends)
-            11: [0.50,    0.25,    0.13,    0.02,    0.00,    0.10],  # Nov (Christmas markets start)
-            12: [0.30,    0.20,    0.13,    0.07,    0.00,    0.30],  # Dec (Christmas markets + holidays)
+            1:  [0.55, 0.27, 0.14, 0.04, 0.00, 0.00],
+            2:  [0.55, 0.27, 0.14, 0.04, 0.00, 0.00],
+            3:  [0.60, 0.27, 0.13, 0.00, 0.00, 0.00],
+            4:  [0.55, 0.27, 0.13, 0.05, 0.00, 0.00],
+            5:  [0.58, 0.27, 0.13, 0.02, 0.00, 0.00],
+            6:  [0.60, 0.27, 0.13, 0.00, 0.00, 0.00],
+            7:  [0.55, 0.27, 0.13, 0.05, 0.00, 0.00],
+            8:  [0.45, 0.27, 0.13, 0.15, 0.00, 0.00],
+            9:  [0.45, 0.20, 0.10, 0.05, 0.20, 0.00],
+            10: [0.50, 0.22, 0.10, 0.03, 0.15, 0.00],
+            11: [0.50, 0.25, 0.13, 0.02, 0.00, 0.10],
+            12: [0.30, 0.20, 0.13, 0.07, 0.00, 0.30],
         }
-        # Approx days per month
         days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-        def _sample_monthly_demand_modifiers(rng):
-            """
-            Returns dict {1..12 -> demand_modifier}. Each value is a composite
-            multiplier reflecting: (1) day-archetype mix for that month,
-            weighted by each archetype's sampled intensity, plus (2) shock
-            events that landed in that month, weighted by their impact.
+        # Shock month-weights (where each shock type tends to land in the year)
+        shock_month_weights = [
+            np.ones(12) / 12.0,                                            # weather
+            np.ones(12) / 12.0,                                            # strike
+            np.ones(12) / 12.0,                                            # event
+            np.ones(12) / 12.0,                                            # tech
+            np.array([0, 0, 0, 0, 0, 0.20, 0.40, 0.30, 0.10, 0, 0, 0]),    # heat (Jun-Sep)
+            np.array([0.30, 0.25, 0.10, 0, 0, 0, 0, 0, 0, 0, 0.05, 0.30]), # ice (Dec-Feb)
+            np.ones(12) / 12.0,                                            # road
+            np.ones(12) / 12.0,                                            # demand collapse
+        ]
+        # Cost-side coupling: which shocks also raise energy + wear (per-day intensity)
+        # weather & ice make driving harder -> more energy + more wear on shock days.
+        shock_cost_energy_bump = [0.25, 0.0, 0.0, 0.0, 0.10, 0.30, 0.0, 0.0]  # +frac energy/km on a shock day
+        shock_cost_wear_bump   = [0.15, 0.0, 0.0, 0.0, 0.05, 0.25, 0.0, 0.0]  # +frac wear/km on a shock day
 
-            Result is mean-1.0-centered so that a "normal" simulation produces
-            modifiers near 1.0 across all months. Mutates the base
-            seasonality_by_month multiplicatively.
+        def _sample_one_year(rng, macro_shock):
             """
-            # Sample one intensity per archetype (constant across the year for this iteration)
-            arch_w = max(0.40, rng.normal(arch_weekday_mult, arch_weekday_sigma))
+            UPGRADES 1+2+4 core: sample ONE simulated year.
+            Returns:
+              monthly_demand_mods : dict {1..12 -> demand multiplier for that month}
+              energy_cost_mult    : scalar (1.0 = no shock-driven energy uplift)
+              wear_cost_mult      : scalar (1.0 = no shock-driven wear uplift)
+              arch_intensities    : 6-vector (for tornado provenance)
+              shock_counts        : dict of this year's shock-day counts
+            The macro_shock (this year's draw) tugs DEMAND down via beta_demand
+            so crisis years suppress ridership inside the same year the energy /
+            rate stress hits.
+            """
+            arch_w  = max(0.40, rng.normal(arch_weekday_mult, arch_weekday_sigma))
             arch_we = max(0.40, rng.normal(arch_weekend_mult, arch_weekend_sigma))
-            arch_f = max(0.40, rng.normal(arch_friday_mult, arch_friday_sigma))
-            arch_h = max(0.20, rng.normal(arch_holiday_mult, arch_holiday_sigma))
-            arch_o = max(0.50, rng.normal(arch_oktober_mult, arch_oktober_sigma))
-            arch_x = max(0.50, rng.normal(arch_xmas_mult, arch_xmas_sigma))
+            arch_f  = max(0.40, rng.normal(arch_friday_mult, arch_friday_sigma))
+            arch_h  = max(0.20, rng.normal(arch_holiday_mult, arch_holiday_sigma))
+            arch_o  = max(0.50, rng.normal(arch_oktober_mult, arch_oktober_sigma))
+            arch_x  = max(0.50, rng.normal(arch_xmas_mult, arch_xmas_sigma))
             arch_intensities = np.array([arch_w, arch_we, arch_f, arch_h, arch_o, arch_x])
 
-            # Compute base demand modifier per month from policy mix × intensities
             mods = {}
-            for m in range(1, 13):
-                policy_row = np.array(month_arch_policy[m])
-                # Weighted average demand intensity for this month
-                base_mod = float(np.sum(policy_row * arch_intensities))
-                mods[m] = base_mod
+            for mth in range(1, 13):
+                policy_row = np.array(month_arch_policy[mth])
+                mods[mth] = float(np.sum(policy_row * arch_intensities))
 
-            # Sample shock events for the year
-            # Use Poisson to sample actual count per shock type per year
             shock_specs = [
                 (shock_weather_freq, shock_weather_mult, shock_weather_sigma),
                 (shock_strike_freq,  shock_strike_mult,  shock_strike_sigma),
@@ -3037,58 +2470,44 @@ with tabs[6]:
                 (shock_heat_freq,    shock_heat_mult,    shock_heat_sigma),
                 (shock_ice_freq,     shock_ice_mult,     shock_ice_sigma),
                 (shock_road_freq,    shock_road_mult,    shock_road_sigma),
+                (shock_collapse_freq, shock_collapse_mult, shock_collapse_sigma),
             ]
-            # Heat wave: concentrate in Jun-Aug; Black ice: concentrate in Dec-Feb
-            # All others: uniform across 12 months
-            shock_month_weights = [
-                np.ones(12) / 12.0,                                                          # weather: uniform
-                np.ones(12) / 12.0,                                                          # strike: uniform
-                np.ones(12) / 12.0,                                                          # event: uniform
-                np.ones(12) / 12.0,                                                          # tech outage: uniform
-                np.array([0, 0, 0, 0, 0, 0.20, 0.40, 0.30, 0.10, 0, 0, 0]),                  # heat: Jun-Sep concentrated
-                np.array([0.30, 0.25, 0.10, 0, 0, 0, 0, 0, 0, 0, 0.05, 0.30]),               # ice: Dec-Feb concentrated
-                np.ones(12) / 12.0,                                                          # road: uniform
-            ]
-
-            # For each shock type, sample count and distribute across months
-            shock_counts_by_month = np.zeros(12)
+            shock_type_names = ["weather", "strike", "event", "tech", "heat", "ice", "road", "collapse"]
             shock_impact_sum_by_month = np.zeros(12)
-            shock_total_counts = {}
-            shock_type_names = ["weather", "strike", "event", "tech", "heat", "ice", "road"]
+            year_energy_extra = 0.0   # accumulates fractional energy uplift × shock-days
+            year_wear_extra = 0.0
+            total_shock_days = 0
+            shock_counts = {}
             for idx, (freq, mult, sigma) in enumerate(shock_specs):
-                # Poisson sampling for count realization
                 count = int(rng.poisson(freq))
-                shock_total_counts[shock_type_names[idx]] = count
+                shock_counts[shock_type_names[idx]] = count
                 if count == 0:
                     continue
-                # Sample multiplier intensity (each day's shock has its own draw)
-                # We use the average shock impact across the count for tractability
                 avg_mult = max(0.0, rng.normal(mult, sigma))
-                # Distribute count across months by weight
                 weights = shock_month_weights[idx]
-                # Probabilistic distribution: multinomial draw
                 month_distribution = rng.multinomial(count, weights)
                 for m_idx in range(12):
-                    shock_counts_by_month[m_idx] += month_distribution[m_idx]
-                    # Impact = (avg_mult - 1.0) × count, scaled per-day later
                     shock_impact_sum_by_month[m_idx] += (avg_mult - 1.0) * month_distribution[m_idx]
+                # === UPGRADE 2 (cost side): weather/ice shocks raise energy + wear ===
+                year_energy_extra += shock_cost_energy_bump[idx] * count
+                year_wear_extra += shock_cost_wear_bump[idx] * count
+                total_shock_days += count
 
-            # Apply shock impacts: per-day deviation from 1.0, averaged over month
-            for m in range(1, 13):
-                dim = days_per_month[m-1]
-                # Shock contributes (deviation × shock_days) / total_days to the month average
-                shock_contribution = shock_impact_sum_by_month[m-1] / dim
-                mods[m] = mods[m] + shock_contribution
-                # Floor at 0.20 to prevent degenerate negative cases
-                mods[m] = max(0.20, mods[m])
+            for mth in range(1, 13):
+                dim = days_per_month[mth - 1]
+                shock_contribution = shock_impact_sum_by_month[mth - 1] / dim
+                # === UPGRADE 1 (demand side): macro crisis tugs demand DOWN this year ===
+                macro_demand_tug = -beta_demand * macro_shock
+                mods[mth] = max(0.20, mods[mth] + shock_contribution + macro_demand_tug)
 
-            return mods, arch_intensities, shock_total_counts
+            # Convert accumulated shock-day cost uplift to an annual-average multiplier
+            # (spread the extra cost intensity across 365 operating days).
+            energy_cost_mult = 1.0 + (year_energy_extra / 365.0)
+            wear_cost_mult = 1.0 + (year_wear_extra / 365.0)
 
-        # ============================================================
-        # === SIMULATION SETTINGS METADATA SNAPSHOT (provenance) ====
-        # Captured BEFORE the loop so reruns of the analysis show
-        # exactly which configuration produced the cached results.
-        # ============================================================
+            return mods, energy_cost_mult, wear_cost_mult, arch_intensities, shock_counts
+
+        # === Provenance metadata snapshot ===
         simulation_settings = {
             "iterations": int(n_iterations),
             "seed": 42,
@@ -3098,129 +2517,137 @@ with tabs[6]:
             "lang_choice": lang_choice,
             "util_mode": util_mode,
             "vat_lag_months": vat_lag_months,
-            # Baseline central-case values (μ for Normal distributions)
-            "baseline_centers": {
-                "active_hours_per_day": active_hours_per_day,
-                "avg_speed_kmh": avg_speed_kmh,
-                "deadhead_rate": deadhead_rate,
-                "target_util": target_util,
-                "init_util": init_util,
-                "rec_rate": rec_rate,
-                "can_fac": can_fac,
-                "avg_trip_distance_km": avg_trip_distance_km,
-                "dwell_time_mins": dwell_time_mins,
-                "price_per_km_eur": price_per_km_eur,
-                "tesla_take_rate": tesla_take_rate,
-                "cleaning_cost_per_day": cleaning_cost_per_day,
-                "wear_and_tear_rate": wear_and_tear_rate,
-                "energy_kwh_per_km": energy_kwh_per_km,
-                "energy_eur_per_kwh": energy_eur_per_kwh,
-                "charging_efficiency": charging_efficiency,
-                "insurance_pm": insurance_pm,
-                "parking_pm": parking_pm,
-                "thg_quote_per_car_py": thg_quote_per_car_py,
-                "salvage_value_per_car_y4": salvage_value_per_car_y4,
-                "cybercab_base_usd": cybercab_base_usd,
-                "usd_eur_rate": usd_eur_rate,
-                "customs_duty_rate": customs_duty_rate,
-                "vehicle_ltv": vehicle_ltv,
-                "y1_loan_rate": y1_loan_rate,
-                "y2_loan_rate": y2_loan_rate,
+            "macro_betas": {
+                "beta_energy": beta_energy, "beta_rate": beta_rate,
+                "beta_demand": beta_demand, "beta_fx": beta_fx,
+                "macro_sigma": macro_sigma,
             },
-            # Distribution bounds/sigmas selected by user
-            "distribution_bounds": {
-                "sigma_active_hours": mc_sigma_active_hours,
-                "sigma_speed": mc_sigma_speed,
-                "sigma_dwell": mc_sigma_dwell,
-                "sigma_deadhead": mc_sigma_dh,
-                "sigma_trip_distance": mc_sigma_trip,
-                "target_util_min": mc_target_util_min,
-                "target_util_max": mc_target_util_max,
-                "sigma_init_util": mc_sigma_init_util,
-                "sigma_rec_rate": mc_sigma_rec_rate,
-                "sigma_can_fac": mc_sigma_can_fac,
-                "sigma_price": mc_sigma_price,
-                "take_min": mc_take_min, "take_mode": mc_take_mode, "take_max": mc_take_max,
-                "dy2_min": mc_dy2_min, "dy2_mode": mc_dy2_mode, "dy2_max": mc_dy2_max,
-                "dy3_min": mc_dy3_min, "dy3_mode": mc_dy3_mode, "dy3_max": mc_dy3_max,
-                "dy4_min": mc_dy4_min, "dy4_mode": mc_dy4_mode, "dy4_max": mc_dy4_max,
-                "sigma_capex": mc_sigma_capex, "sigma_fx": mc_sigma_fx, "sigma_ltv": mc_sigma_ltv,
-                "loan_y1_min": mc_loan_y1_min, "loan_y1_mode": mc_loan_y1_mode, "loan_y1_max": mc_loan_y1_max,
-                "loan_y2_min": mc_loan_y2_min, "loan_y2_mode": mc_loan_y2_mode, "loan_y2_max": mc_loan_y2_max,
-                "ins_min": mc_ins_min, "ins_mode": mc_ins_mode, "ins_max": mc_ins_max,
-                "sigma_energy_eur": mc_sigma_energy_eur, "sigma_kwh": mc_sigma_kwh,
-                "sigma_cleaning": mc_sigma_cleaning, "sigma_wear": mc_sigma_wear,
-                "sigma_parking": mc_sigma_parking, "sigma_customs": mc_sigma_customs,
-                "sigma_salvage": mc_sigma_salvage,
-            }
+            "baseline_centers": {
+                "active_hours_per_day": active_hours_per_day, "avg_speed_kmh": avg_speed_kmh,
+                "deadhead_rate": deadhead_rate, "target_util": target_util, "init_util": init_util,
+                "rec_rate": rec_rate, "can_fac": can_fac, "avg_trip_distance_km": avg_trip_distance_km,
+                "dwell_time_mins": dwell_time_mins, "price_per_km_eur": price_per_km_eur,
+                "tesla_take_rate": tesla_take_rate, "cleaning_cost_per_day": cleaning_cost_per_day,
+                "wear_and_tear_rate": wear_and_tear_rate, "energy_kwh_per_km": energy_kwh_per_km,
+                "energy_eur_per_kwh": energy_eur_per_kwh, "charging_efficiency": charging_efficiency,
+                "insurance_pm": insurance_pm, "parking_pm": parking_pm,
+                "thg_quote_per_car_py": thg_quote_per_car_py, "salvage_value_per_car_y4": salvage_value_per_car_y4,
+                "cybercab_base_usd": cybercab_base_usd, "usd_eur_rate": usd_eur_rate,
+                "customs_duty_rate": customs_duty_rate, "vehicle_ltv": vehicle_ltv,
+                "y1_loan_rate": y1_loan_rate, "y2_loan_rate": y2_loan_rate,
+            },
         }
 
-        rng = np.random.default_rng(seed=42)  # deterministic seed for reproducibility
+        rng = np.random.default_rng(seed=42)
         ni_cum_arr = np.zeros(n_iterations)
         y5_ebitda_arr = np.zeros(n_iterations)
-        fcf_cum_arr = np.zeros(n_iterations)  # NEW: 5Y cumulative FCF
+        fcf_cum_arr = np.zeros(n_iterations)
         min_cash_arr = np.zeros(n_iterations)
         insolvency_flags = np.zeros(n_iterations, dtype=bool)
 
-        # Tier-organized parameter sample storage (22 params)
         param_samples = {
             # Tier 1
-            "active_hours_per_day":    np.zeros(n_iterations),
-            "avg_speed_kmh":           np.zeros(n_iterations),
-            "dwell_time_mins":         np.zeros(n_iterations),
-            "target_util":             np.zeros(n_iterations),
-            "init_util":               np.zeros(n_iterations),
-            "rec_rate":                np.zeros(n_iterations),
-            "can_fac":                 np.zeros(n_iterations),
-            "deadhead_rate":           np.zeros(n_iterations),
-            "avg_trip_distance_km":    np.zeros(n_iterations),
-            "price_per_km_eur":        np.zeros(n_iterations),
-            "tesla_take_rate":         np.zeros(n_iterations),
-            "delivery_ramp_y2":        np.zeros(n_iterations),
-            "delivery_ramp_y3":        np.zeros(n_iterations),
-            "delivery_ramp_y4":        np.zeros(n_iterations),
+            "active_hours_per_day": np.zeros(n_iterations),
+            "avg_speed_kmh": np.zeros(n_iterations),
+            "dwell_time_mins": np.zeros(n_iterations),
+            "target_util": np.zeros(n_iterations),
+            "init_util": np.zeros(n_iterations),
+            "rec_rate": np.zeros(n_iterations),
+            "can_fac": np.zeros(n_iterations),
+            "deadhead_rate": np.zeros(n_iterations),
+            "avg_trip_distance_km": np.zeros(n_iterations),
+            "price_per_km_eur": np.zeros(n_iterations),
+            "tesla_take_rate": np.zeros(n_iterations),
+            "delivery_ramp_y2": np.zeros(n_iterations),
+            "delivery_ramp_y3": np.zeros(n_iterations),
+            "delivery_ramp_y4": np.zeros(n_iterations),
             # Tier 2
-            "cybercab_base_usd":       np.zeros(n_iterations),
-            "usd_eur_rate":            np.zeros(n_iterations),
-            "vehicle_ltv":             np.zeros(n_iterations),
-            "y1_loan_rate":            np.zeros(n_iterations),
-            "y2_loan_rate":            np.zeros(n_iterations),
-            "insurance_pm":            np.zeros(n_iterations),
-            "energy_eur_per_kwh":      np.zeros(n_iterations),
-            "energy_kwh_per_km":       np.zeros(n_iterations),
+            "cybercab_base_usd": np.zeros(n_iterations),
+            "usd_eur_rate": np.zeros(n_iterations),
+            "vehicle_ltv": np.zeros(n_iterations),
+            "y1_loan_rate": np.zeros(n_iterations),
+            "y2_loan_rate": np.zeros(n_iterations),
+            "insurance_pm": np.zeros(n_iterations),
+            "energy_eur_per_kwh": np.zeros(n_iterations),
+            "energy_kwh_per_km": np.zeros(n_iterations),
             # Tier 3
-            "cleaning_cost_per_day":   np.zeros(n_iterations),
-            "wear_and_tear_rate":      np.zeros(n_iterations),
-            "parking_pm":              np.zeros(n_iterations),
-            "customs_duty_rate":       np.zeros(n_iterations),
+            "cleaning_cost_per_day": np.zeros(n_iterations),
+            "wear_and_tear_rate": np.zeros(n_iterations),
+            "parking_pm": np.zeros(n_iterations),
+            "customs_duty_rate": np.zeros(n_iterations),
             "salvage_value_per_car_y4": np.zeros(n_iterations),
-            # === PHASE A: Day-archetype intensity tracking ===
-            "arch_weekday_intensity":   np.zeros(n_iterations),
-            "arch_weekend_intensity":   np.zeros(n_iterations),
-            "arch_friday_intensity":    np.zeros(n_iterations),
-            "arch_holiday_intensity":   np.zeros(n_iterations),
-            "arch_oktober_intensity":   np.zeros(n_iterations),
-            "arch_xmas_intensity":      np.zeros(n_iterations),
-            # === PHASE B: Shock event count tracking (per 5Y horizon) ===
-            "shock_weather_5y":         np.zeros(n_iterations),
-            "shock_strike_5y":          np.zeros(n_iterations),
-            "shock_event_5y":           np.zeros(n_iterations),
-            "shock_tech_5y":            np.zeros(n_iterations),
-            "shock_heat_5y":            np.zeros(n_iterations),
-            "shock_ice_5y":             np.zeros(n_iterations),
-            "shock_road_5y":            np.zeros(n_iterations),
+            # === UPGRADE 1: the shared macro factor — must show up in tornado ===
+            "macro_shock_avg": np.zeros(n_iterations),
+            # Phase A archetype intensities (avg across the 5 years)
+            "arch_weekday_intensity": np.zeros(n_iterations),
+            "arch_weekend_intensity": np.zeros(n_iterations),
+            "arch_friday_intensity": np.zeros(n_iterations),
+            "arch_holiday_intensity": np.zeros(n_iterations),
+            "arch_oktober_intensity": np.zeros(n_iterations),
+            "arch_xmas_intensity": np.zeros(n_iterations),
+            # Phase B shock counts (summed across 5 independent years)
+            "shock_weather_5y": np.zeros(n_iterations),
+            "shock_strike_5y": np.zeros(n_iterations),
+            "shock_event_5y": np.zeros(n_iterations),
+            "shock_tech_5y": np.zeros(n_iterations),
+            "shock_heat_5y": np.zeros(n_iterations),
+            "shock_ice_5y": np.zeros(n_iterations),
+            "shock_road_5y": np.zeros(n_iterations),
+            "shock_collapse_5y": np.zeros(n_iterations),
         }
 
         progress_bar = st.progress(0.0, text=loc["mc_running_msg"])
         t_start = time.time()
 
         for i in range(int(n_iterations)):
-            # ===== TIER 1 — HIGH VARIANCE OPERATING PHYSICS =====
+            # === UPGRADE 1: draw 5 INDEPENDENT annual macro shocks ===
+            annual_macro = rng.normal(0.0, macro_sigma, size=5)
+            macro_avg = float(np.mean(annual_macro))  # horizon-average tug for scalar engine inputs
+
+            # === UPGRADE 2: roll each of the 5 years INDEPENDENTLY ===
+            per_year_mods = []
+            per_year_energy_mult = []
+            per_year_wear_mult = []
+            arch_intensity_accum = np.zeros(6)
+            shock_counts_5y = {k: 0 for k in ["weather", "strike", "event", "tech", "heat", "ice", "road", "collapse"]}
+            for yr in range(5):
+                mods_y, e_mult_y, w_mult_y, arch_int_y, sc_y = _sample_one_year(rng, annual_macro[yr])
+                per_year_mods.append(mods_y)
+                per_year_energy_mult.append(e_mult_y)
+                per_year_wear_mult.append(w_mult_y)
+                arch_intensity_accum += arch_int_y
+                for k in shock_counts_5y:
+                    shock_counts_5y[k] += sc_y.get(k, 0)
+            arch_intensity_avg = arch_intensity_accum / 5.0
+
+            # Blend the 5 years of demand texture into ONE 12-month seasonality
+            # vector the engine consumes (engine takes a single dict for the horizon).
+            # We average the per-year monthly demand mods, then fold into base
+            # seasonality_by_month. The single-bad-year roughness is preserved in the
+            # AVERAGE via the macro tug + independent shock draws (a worse year pulls
+            # the blended demand down), and the cost multipliers below carry the
+            # energy/wear stress.
+            blended_demand = {}
+            for mth in range(1, 13):
+                blended_demand[mth] = float(np.mean([per_year_mods[yr][mth] for yr in range(5)]))
+            seasonality_iter = {mth: seasonality_by_month[mth] * blended_demand[mth] for mth in range(1, 13)}
+
+            # Horizon-average energy/wear cost multipliers from shock cost-coupling
+            energy_cost_mult_iter = float(np.mean(per_year_energy_mult))
+            wear_cost_mult_iter = float(np.mean(per_year_wear_mult))
+
+            # ===== TIER 1 sampling =====
             active_hours_sampled = max(8.0, min(22.0, rng.normal(active_hours_per_day, mc_sigma_active_hours)))
             speed_sampled = max(10.0, min(30.0, rng.normal(avg_speed_kmh, mc_sigma_speed)))
             dwell_sampled = max(0.5, min(8.0, rng.normal(dwell_time_mins, mc_sigma_dwell)))
             target_util_sampled = _sample_beta_scaled(rng, 0.75, mc_target_util_min, mc_target_util_max)
+            # === UPGRADE 1: macro tug pushes mature demand DOWN in crisis (horizon avg) ===
+            target_util_sampled = float(np.clip(target_util_sampled - beta_demand * macro_avg, 0.30, 0.95))
             init_util_sampled = max(0.10, min(0.95, rng.normal(init_util, mc_sigma_init_util)))
+            init_util_sampled = float(np.clip(init_util_sampled - beta_demand * macro_avg, 0.10, 0.95))
+            # init must not exceed target (engine semantics)
+            if init_util_sampled > target_util_sampled:
+                init_util_sampled = target_util_sampled
             rec_rate_sampled = max(0.001, min(0.20, rng.normal(rec_rate, mc_sigma_rec_rate)))
             can_fac_sampled = max(0.05, min(0.95, rng.normal(can_fac, mc_sigma_can_fac)))
             deadhead_sampled = max(0.05, min(0.50, rng.normal(deadhead_rate, mc_sigma_dh)))
@@ -3231,27 +2658,41 @@ with tabs[6]:
             dy3_sampled = _sample_triangular(rng, mc_dy3_min, mc_dy3_mode, mc_dy3_max)
             dy4_sampled = _sample_triangular(rng, mc_dy4_min, mc_dy4_mode, mc_dy4_max)
 
-            # ===== TIER 2 — MATERIAL VARIANCE (capex, debt, costs) =====
+            # ===== TIER 2 sampling =====
             capex_sampled = max(5000.0, rng.normal(cybercab_base_usd, mc_sigma_capex))
-            fx_sampled = max(0.50, min(2.50, rng.normal(usd_eur_rate, mc_sigma_fx)))
+            # === UPGRADE 4: FX gets macro tug — EUR weakens in a crisis, so the EUR
+            # cost of a USD-priced Cybercab rises. usd_eur_rate is "USD to EUR" (EUR per
+            # USD style as used: cybercab_base_eur = usd/rate). A crisis weakening EUR
+            # means MORE EUR per car => we model that as a downward tug on the rate.
+            fx_sampled = max(0.50, min(2.50, rng.normal(usd_eur_rate, mc_sigma_fx) - beta_fx * macro_avg))
             ltv_sampled = max(0.20, min(0.95, rng.normal(vehicle_ltv, mc_sigma_ltv)))
             loan_y1_sampled = _sample_triangular(rng, mc_loan_y1_min, mc_loan_y1_mode, mc_loan_y1_max)
             loan_y2_sampled = _sample_triangular(rng, mc_loan_y2_min, mc_loan_y2_mode, mc_loan_y2_max)
+            # === UPGRADE 1: macro crisis pushes loan rates UP (horizon avg) ===
+            loan_y1_sampled = max(0.005, loan_y1_sampled + beta_rate * macro_avg)
+            loan_y2_sampled = max(0.005, loan_y2_sampled + beta_rate * macro_avg)
             insurance_sampled = _sample_triangular(rng, mc_ins_min, mc_ins_mode, mc_ins_max)
-            # Log-Normal energy price: median = current sidebar value
+            # Energy price: lognormal (already fat-tailed) + macro tug UP in crisis
             mu_log = np.log(max(0.01, energy_eur_per_kwh))
             sigma_log = mc_sigma_energy_eur / max(0.01, energy_eur_per_kwh)
             energy_eur_sampled = float(rng.lognormal(mean=mu_log, sigma=sigma_log))
+            energy_eur_sampled = max(0.05, energy_eur_sampled + beta_energy * macro_avg)
             kwh_per_km_sampled = max(0.05, rng.normal(energy_kwh_per_km, mc_sigma_kwh))
 
-            # ===== TIER 3 — SMALLER VARIANCE (operating costs) =====
-            cleaning_sampled = max(0.50, rng.normal(cleaning_cost_per_day, mc_sigma_cleaning))
-            wear_sampled = max(0.001, rng.normal(wear_and_tear_rate, mc_sigma_wear))
-            parking_sampled = max(50.0, rng.normal(parking_pm, mc_sigma_parking))
+            # ===== TIER 3 sampling — UPGRADE 3: skewed one-sided costs =====
+            cleaning_sampled = _sample_cost_skewed(rng, cleaning_cost_per_day, mc_sigma_cleaning / max(0.01, cleaning_cost_per_day))
+            wear_sampled = _sample_cost_skewed(rng, wear_and_tear_rate, mc_sigma_wear / max(0.001, wear_and_tear_rate))
+            parking_sampled = _sample_cost_skewed(rng, parking_pm, mc_sigma_parking / max(1.0, parking_pm))
             customs_sampled = max(0.0, min(0.40, rng.normal(customs_duty_rate, mc_sigma_customs)))
             salvage_sampled = max(0.0, rng.normal(salvage_value_per_car_y4, mc_sigma_salvage))
 
-            # Record samples for tornado correlation analysis
+            # Apply shock cost-coupling to wear (energy handled via energy_rate below)
+            wear_sampled = wear_sampled * wear_cost_mult_iter
+
+            # Derived energy rate, including shock-driven energy cost uplift
+            energy_rate_sampled = (kwh_per_km_sampled * energy_eur_sampled * energy_cost_mult_iter) / charging_efficiency
+
+            # ---- record samples for tornado ----
             param_samples["active_hours_per_day"][i] = active_hours_sampled
             param_samples["avg_speed_kmh"][i] = speed_sampled
             param_samples["dwell_time_mins"][i] = dwell_sampled
@@ -3279,41 +2720,23 @@ with tabs[6]:
             param_samples["parking_pm"][i] = parking_sampled
             param_samples["customs_duty_rate"][i] = customs_sampled
             param_samples["salvage_value_per_car_y4"][i] = salvage_sampled
+            param_samples["macro_shock_avg"][i] = macro_avg
+            param_samples["arch_weekday_intensity"][i] = arch_intensity_avg[0]
+            param_samples["arch_weekend_intensity"][i] = arch_intensity_avg[1]
+            param_samples["arch_friday_intensity"][i] = arch_intensity_avg[2]
+            param_samples["arch_holiday_intensity"][i] = arch_intensity_avg[3]
+            param_samples["arch_oktober_intensity"][i] = arch_intensity_avg[4]
+            param_samples["arch_xmas_intensity"][i] = arch_intensity_avg[5]
+            param_samples["shock_weather_5y"][i] = shock_counts_5y["weather"]
+            param_samples["shock_strike_5y"][i] = shock_counts_5y["strike"]
+            param_samples["shock_event_5y"][i] = shock_counts_5y["event"]
+            param_samples["shock_tech_5y"][i] = shock_counts_5y["tech"]
+            param_samples["shock_heat_5y"][i] = shock_counts_5y["heat"]
+            param_samples["shock_ice_5y"][i] = shock_counts_5y["ice"]
+            param_samples["shock_road_5y"][i] = shock_counts_5y["road"]
+            param_samples["shock_collapse_5y"][i] = shock_counts_5y["collapse"]
 
-            # ====================================================================
-            # PHASE A + B: Sample monthly demand modifiers from day-archetype mix
-            # and shock events. Mutate base seasonality_by_month multiplicatively.
-            # ====================================================================
-            monthly_mods, arch_intensities_iter, shock_counts_iter = _sample_monthly_demand_modifiers(rng)
-            seasonality_iter = {m: seasonality_by_month[m] * monthly_mods[m] for m in range(1, 13)}
-
-            # Record archetype intensities + shock counts (×5 for 5-year horizon)
-            param_samples["arch_weekday_intensity"][i]  = arch_intensities_iter[0]
-            param_samples["arch_weekend_intensity"][i]  = arch_intensities_iter[1]
-            param_samples["arch_friday_intensity"][i]   = arch_intensities_iter[2]
-            param_samples["arch_holiday_intensity"][i]  = arch_intensities_iter[3]
-            param_samples["arch_oktober_intensity"][i]  = arch_intensities_iter[4]
-            param_samples["arch_xmas_intensity"][i]     = arch_intensities_iter[5]
-            # Shock counts shown per-year basis (multiply by 5 for the full horizon)
-            # The Poisson sample was one-year; over 5 years, expected count is 5×freq.
-            # We sample once per iteration and apply that yearly intensity for 5 years
-            # (acceptable approximation that under-states tail variance slightly).
-            param_samples["shock_weather_5y"][i] = shock_counts_iter.get("weather", 0) * 5
-            param_samples["shock_strike_5y"][i]  = shock_counts_iter.get("strike", 0) * 5
-            param_samples["shock_event_5y"][i]   = shock_counts_iter.get("event", 0) * 5
-            param_samples["shock_tech_5y"][i]    = shock_counts_iter.get("tech", 0) * 5
-            param_samples["shock_heat_5y"][i]    = shock_counts_iter.get("heat", 0) * 5
-            param_samples["shock_ice_5y"][i]     = shock_counts_iter.get("ice", 0) * 5
-            param_samples["shock_road_5y"][i]    = shock_counts_iter.get("road", 0) * 5
-
-            # Derived energy rate from sampled components
-            energy_rate_sampled = (kwh_per_km_sampled * energy_eur_sampled) / charging_efficiency
-
-            # ---- Invoke the deterministic engine with sampled params ----
             try:
-                # === Audit Finding 7: call UNCACHED engine directly inside MC loop ===
-                # Each MC iteration uses unique randomized parameters; caching these
-                # would create thousands of unreachable cache entries and exhaust RAM.
                 pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk, _is, _lim = _execute_financial_simulation_uncached(
                     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
                     active_hours_sampled, speed_sampled, deadhead_sampled, util_mode,
@@ -3333,20 +2756,18 @@ with tabs[6]:
                     delivery_ramp_y1, dy2_sampled, dy3_sampled, dy4_sampled, delivery_ramp_y5,
                     delivery_cargo_insurance_pm, seasonality_iter,
                     is_dynamic, lang_choice,
-                    # === Financing mix + Hebesatz held constant during MC (sidebar settings) ===
                     fin_mix_by_year, lease_money_factor, lease_downpayment_pct,
                     lease_term_months, equity_capital_call_enabled,
                     hebesatz_pct
                 )
                 ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
                 y5_ebitda_arr[i] = float(sum(pnl_mc["pnl_ebitda"][48:60]))
-                # NEW: 5-year cumulative Free Cash Flow = sum(CFO + CFI)
                 cf_op_arr = np.array(cf_mc["cf_op"])
                 cf_inv_arr = np.array(cf_mc["cf_inv"])
                 fcf_cum_arr[i] = float(np.sum(cf_op_arr + cf_inv_arr))
                 min_cash_arr[i] = float(min(bs_mc["bs_cash"]))
                 insolvency_flags[i] = (len(insolvency_mc) > 0)
-            except Exception as _e:
+            except Exception:
                 ni_cum_arr[i] = np.nan
                 y5_ebitda_arr[i] = np.nan
                 fcf_cum_arr[i] = np.nan
@@ -3360,9 +2781,6 @@ with tabs[6]:
         t_elapsed = time.time() - t_start
         progress_bar.empty()
 
-        # ============================================================
-        # === NESTED PERSISTENCE: settings + outputs for provenance ==
-        # ============================================================
         simulation_outputs = {
             "elapsed": t_elapsed,
             "ni_cum": ni_cum_arr,
@@ -3375,7 +2793,6 @@ with tabs[6]:
         st.session_state["mc_results"] = {
             "simulation_settings": simulation_settings,
             "simulation_outputs": simulation_outputs,
-            # Convenience flat-access keys (preserves backward-compat with prior layer)
             "n": int(n_iterations),
             "elapsed": t_elapsed,
             "min_cash_buffer": min_cash_buffer,
@@ -3404,7 +2821,6 @@ with tabs[6]:
             return float(np.percentile(arr, p)) if len(arr) > 0 else 0.0
         prob_insolvency = float(np.mean(insol_flags)) * 100
 
-        # Percentile table now includes FCF row
         df_percentiles = pd.DataFrame({
             loc["mc_kpi_p5"]:  [_pct(ni_valid, 5),  _pct(eb_valid, 5),  _pct(fcf_valid, 5),  _pct(cash_valid, 5)],
             loc["mc_kpi_p25"]: [_pct(ni_valid, 25), _pct(eb_valid, 25), _pct(fcf_valid, 25), _pct(cash_valid, 25)],
@@ -3423,16 +2839,12 @@ with tabs[6]:
         with mc_metric_c3:
             st.metric("P5 5Y NI (Severe Downside)", f"€ {_pct(ni_valid, 5):,.0f}")
 
-        # ============================================================
-        # === INTERACTIVE METRIC DROPDOWN — reshapes Chart 1+tornado =
-        # ============================================================
         st.divider()
         metric_view = st.selectbox(
             loc["mc_metric_selector"],
             [loc["mc_metric_fcf"], loc["mc_metric_ebitda"], loc["mc_metric_ni"]],
-            index=2  # default to Net Income (most familiar to non-finance audience)
+            index=2
         )
-        # Dynamic remap of target array, percentiles, and chart title
         if metric_view == loc["mc_metric_fcf"]:
             target_arr_full = fcf_arr
             target_valid = fcf_valid
@@ -3443,7 +2855,7 @@ with tabs[6]:
             target_valid = eb_valid
             chart_title = loc["mc_chart_ebitda_title"]
             xaxis_label = "Year 5 EBITDA (€)"
-        else:  # Net Income
+        else:
             target_arr_full = ni_arr
             target_valid = ni_valid
             chart_title = loc["mc_chart_ni_title"]
@@ -3451,7 +2863,6 @@ with tabs[6]:
 
         st.subheader(loc["mc_section_outputs"])
 
-        # --- Chart 1: Dynamic Histogram of selected metric ---
         tgt_p5 = _pct(target_valid, 5)
         tgt_p50 = _pct(target_valid, 50)
         tgt_p95 = _pct(target_valid, 95)
@@ -3468,17 +2879,13 @@ with tabs[6]:
         fig_target.add_vline(x=tgt_p50, line_dash="dot", line_color="#F2A900", line_width=2,
                              annotation_text=f"{loc['mc_p50_label']}: €{tgt_p50:,.0f}", annotation_position="bottom")
         fig_target.update_layout(
-            title=chart_title,
-            xaxis_title=xaxis_label,
-            yaxis_title="Frequency",
-            template="plotly_dark",
-            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            title=chart_title, xaxis_title=xaxis_label, yaxis_title="Frequency",
+            template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
             font=dict(color="#FAFAFA", family="Inter, sans-serif"),
             showlegend=False, height=420
         )
         st.plotly_chart(fig_target, use_container_width=True)
 
-        # --- Chart 2: Min Cash distribution (always tracks cash, independent of dropdown) ---
         fig_cash = go.Figure()
         fig_cash.add_trace(go.Histogram(
             x=cash_valid, nbinsx=60, marker=dict(color="#87CEEB", line=dict(color="#1a1a1a", width=0.5)),
@@ -3491,64 +2898,58 @@ with tabs[6]:
                            annotation_text="Zero Cash", annotation_position="bottom")
         fig_cash.update_layout(
             title=loc["mc_chart_cash_title"],
-            xaxis_title="Minimum Cash Balance Over 60 Months (€)",
-            yaxis_title="Frequency",
-            template="plotly_dark",
-            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            xaxis_title="Minimum Cash Balance Over 60 Months (€)", yaxis_title="Frequency",
+            template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
             font=dict(color="#FAFAFA", family="Inter, sans-serif"),
             showlegend=False, height=420
         )
         st.plotly_chart(fig_cash, use_container_width=True)
 
-        # --- Chart 3: Tornado vs DYNAMIC target metric (FCF/EBITDA/NI) ---
         valid_mask = ~np.isnan(target_arr_full)
         corrs = {}
         param_label_map = {
-            # Tier 1
-            "active_hours_per_day":     "Active Hours per Day [T1]",
-            "avg_speed_kmh":            "Average Speed (km/h) [T1]",
-            "dwell_time_mins":          "Dwell Time (min) [T1]",
-            "target_util":              "Target Utilization [T1]",
-            "init_util":                "Init Utilization [T1]",
-            "rec_rate":                 "Recovery Rate [T1]",
-            "can_fac":                  "Cannibalization Factor [T1]",
-            "deadhead_rate":            "Deadhead Rate [T1]",
-            "avg_trip_distance_km":    "Avg Trip Distance (km) [T1]",
-            "price_per_km_eur":         "Price per km (€) [T1]",
-            "tesla_take_rate":          "Tesla Take-Rate [T1]",
-            "delivery_ramp_y2":         "Delivery Ramp Y2 [T1]",
-            "delivery_ramp_y3":         "Delivery Ramp Y3 [T1]",
-            "delivery_ramp_y4":         "Delivery Ramp Y4 [T1]",
-            # Tier 2
-            "cybercab_base_usd":        "Cybercab Base Capex USD [T2]",
-            "usd_eur_rate":             "USD/EUR FX Rate [T2]",
-            "vehicle_ltv":              "Vehicle LTV [T2]",
-            "y1_loan_rate":             "Y1 Loan Rate [T2]",
-            "y2_loan_rate":             "Y2 Loan Rate [T2]",
-            "insurance_pm":             "Insurance (€/mo) [T2]",
-            "energy_eur_per_kwh":       "Energy Price (€/kWh) [T2]",
-            "energy_kwh_per_km":        "Cybercab Consumption (kWh/km) [T2]",
-            # Tier 3
-            "cleaning_cost_per_day":    "Cleaning Cost (€/day) [T3]",
-            "wear_and_tear_rate":       "Wear & Tear (€/km) [T3]",
-            "parking_pm":               "Parking (€/mo) [T3]",
-            "customs_duty_rate":        "Customs Duty Rate [T3]",
+            "active_hours_per_day": "Active Hours per Day [T1]",
+            "avg_speed_kmh": "Average Speed (km/h) [T1]",
+            "dwell_time_mins": "Dwell Time (min) [T1]",
+            "target_util": "Target Utilization [T1]",
+            "init_util": "Init Utilization [T1]",
+            "rec_rate": "Recovery Rate [T1]",
+            "can_fac": "Cannibalization Factor [T1]",
+            "deadhead_rate": "Deadhead Rate [T1]",
+            "avg_trip_distance_km": "Avg Trip Distance (km) [T1]",
+            "price_per_km_eur": "Price per km (€) [T1]",
+            "tesla_take_rate": "Tesla Take-Rate [T1]",
+            "delivery_ramp_y2": "Delivery Ramp Y2 [T1]",
+            "delivery_ramp_y3": "Delivery Ramp Y3 [T1]",
+            "delivery_ramp_y4": "Delivery Ramp Y4 [T1]",
+            "cybercab_base_usd": "Cybercab Base Capex USD [T2]",
+            "usd_eur_rate": "USD/EUR FX Rate [T2]",
+            "vehicle_ltv": "Vehicle LTV [T2]",
+            "y1_loan_rate": "Y1 Loan Rate [T2]",
+            "y2_loan_rate": "Y2 Loan Rate [T2]",
+            "insurance_pm": "Insurance (€/mo) [T2]",
+            "energy_eur_per_kwh": "Energy Price (€/kWh) [T2]",
+            "energy_kwh_per_km": "Cybercab Consumption (kWh/km) [T2]",
+            "cleaning_cost_per_day": "Cleaning Cost (€/day) [T3]",
+            "wear_and_tear_rate": "Wear & Tear (€/km) [T3]",
+            "parking_pm": "Parking (€/mo) [T3]",
+            "customs_duty_rate": "Customs Duty Rate [T3]",
             "salvage_value_per_car_y4": "Salvage Value (€) [T3]",
-            # === PHASE A: Day-archetype intensity drivers ===
-            "arch_weekday_intensity":   "Weekday Demand Intensity [DA]",
-            "arch_weekend_intensity":   "Weekend Demand Intensity [DA]",
-            "arch_friday_intensity":    "Fri/Sat Evening Intensity [DA]",
-            "arch_holiday_intensity":   "Holiday Demand Intensity [DA]",
-            "arch_oktober_intensity":   "Oktoberfest Demand Intensity [DA]",
-            "arch_xmas_intensity":      "Christmas Markets Intensity [DA]",
-            # === PHASE B: Shock event count drivers ===
-            "shock_weather_5y":         "Severe Weather Days (5Y) [SH]",
-            "shock_strike_5y":          "Transit Strike Days (5Y) [SH]",
-            "shock_event_5y":           "Major Event Days (5Y) [SH]",
-            "shock_tech_5y":            "Tech Outage Days (5Y) [SH]",
-            "shock_heat_5y":            "Heat Wave Days (5Y) [SH]",
-            "shock_ice_5y":             "Black Ice Days (5Y) [SH]",
-            "shock_road_5y":            "Road Closure Days (5Y) [SH]",
+            "macro_shock_avg": "🌍 MACRO ENVIRONMENT (crisis factor) [MACRO]",
+            "arch_weekday_intensity": "Weekday Demand Intensity [DA]",
+            "arch_weekend_intensity": "Weekend Demand Intensity [DA]",
+            "arch_friday_intensity": "Fri/Sat Evening Intensity [DA]",
+            "arch_holiday_intensity": "Holiday Demand Intensity [DA]",
+            "arch_oktober_intensity": "Oktoberfest Demand Intensity [DA]",
+            "arch_xmas_intensity": "Christmas Markets Intensity [DA]",
+            "shock_weather_5y": "Severe Weather Days (5Y) [SH]",
+            "shock_strike_5y": "Transit Strike Days (5Y) [SH]",
+            "shock_event_5y": "Major Event Days (5Y) [SH]",
+            "shock_tech_5y": "Tech Outage Days (5Y) [SH]",
+            "shock_heat_5y": "Heat Wave Days (5Y) [SH]",
+            "shock_ice_5y": "Black Ice Days (5Y) [SH]",
+            "shock_road_5y": "Road Closure Days (5Y) [SH]",
+            "shock_collapse_5y": "Demand-Collapse Days (5Y) [SH]",
         }
         for param_key, samples_arr in param_samples_stored.items():
             samples_valid_sub = samples_arr[valid_mask]
@@ -3559,7 +2960,7 @@ with tabs[6]:
                     r = 0.0
             else:
                 r = 0.0
-            corrs[param_label_map[param_key]] = r
+            corrs[param_label_map.get(param_key, param_key)] = r
         sorted_corrs = sorted(corrs.items(), key=lambda kv: abs(kv[1]), reverse=False)
         tornado_labels = [k for k, _ in sorted_corrs]
         tornado_values = [v for _, v in sorted_corrs]
@@ -3575,29 +2976,27 @@ with tabs[6]:
         fig_tornado.add_vline(x=0, line_color="#666666", line_width=1)
         fig_tornado.update_layout(
             title=f"{loc['mc_chart_tornado_title']} — Target: {metric_view}",
-            xaxis_title=loc["mc_tornado_xaxis"],
-            yaxis_title="",
-            template="plotly_dark",
-            paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
+            xaxis_title=loc["mc_tornado_xaxis"], yaxis_title="",
+            template="plotly_dark", paper_bgcolor="#0e1117", plot_bgcolor="#1a1a1a",
             font=dict(color="#FAFAFA", family="Inter, sans-serif"),
-            showlegend=False, height=1100,  # tall to fit 40+ bars (params + archetypes + shocks)
-            xaxis=dict(range=[-1.0, 1.0])
+            showlegend=False, height=1150, xaxis=dict(range=[-1.0, 1.0])
         )
         st.plotly_chart(fig_tornado, use_container_width=True)
 
         st.caption(
             "**Interpretation guide:** Pearson r magnitude shows how strongly each "
             "stochastic input drives variance in the selected target metric "
-            f"({metric_view}). Positive r (green) means higher input → higher target. "
-            "Negative r (red) means higher input → lower target. Magnitudes < 0.1 "
-            "are essentially noise; > 0.3 indicates a dominant variance driver worth "
-            "scenario-planning. Tornado is sorted by |r| with strongest drivers at top. "
-            "**Tier suffix legend:** [T1]=Operating Physics, [T2]=Capex/Debt, "
-            "[T3]=Operating Costs, [DA]=Day Archetype intensity (Phase A demand topology), "
-            "[SH]=Shock Event frequency (Phase B asymmetric event risk). "
-            "Switch the dropdown above to see how the same parameter set drives FCF vs "
-            "EBITDA vs Net Income differently — useful for understanding which "
-            "uncertainties matter for cash position vs operational profitability."
+            f"({metric_view}). Positive r (green) = higher input → higher target; "
+            "negative r (red) = higher input → lower target. Magnitudes < 0.1 are "
+            "essentially noise; > 0.3 indicates a dominant variance driver. "
+            "**Layer 33: watch the 🌍 MACRO ENVIRONMENT bar** — because it now couples "
+            "energy, rates, and demand, it should rank among the strongest negative "
+            "drivers; that single bar is the correlated-crisis risk a credit committee "
+            "cares about most, and it was invisible in prior layers. **Tier legend:** "
+            "[MACRO]=shared crisis factor, [T1]=Operating Physics, [T2]=Capex/Debt, "
+            "[T3]=Operating Costs, [DA]=Day Archetype (Phase A), [SH]=Shock Events "
+            "(Phase B, now sampled per-year). Switch the dropdown to see how the same "
+            "draws drive FCF vs EBITDA vs Net Income differently."
         )
     else:
         st.info(loc["mc_no_results"])
@@ -3607,99 +3006,67 @@ with tabs[7]:
         st.markdown("""
         ### 🚕 MRRG Cybercab Fleet: Master Financial Engine
         
-        Welcome to the MRRG Master Financial Engine. This application is a fully integrated, institutional-grade financial model designed to simulate the operations, scaling, and accounting of an automated robotaxi (TaaS) fleet operating in Germany.
+        Welcome to the MRRG Master Financial Engine. This application is a fully integrated, institutional-grade financial model designed to simulate the operations, scaling, and accounting of an automated robotaxi (TaaS) fleet operating in Germany under HGB accounting rules.
 
-        Built on **Streamlit** and written in **Python**, this dashboard moves beyond basic spreadsheet math. It uses a **60-month cohort engine** to simulate real-world physics: from the exact number of days in a month (accounting for leap years) to winter battery penalties and fleet cannibalization. It outputs a fully balanced, HGB-compliant 3-Statement financial model.
-
-        ---
-
-        #### 🧠 TaaS & Finance 101: Core Concepts to Know
-        * **TaaS (Transportation-as-a-Service):** The business model of providing rides using automated vehicles routed by an algorithmic platform.
-        * **CapEx (Capital Expenditure):** The massive upfront cost of buying the vehicles. You don't "expense" a car in month 1; you put it on the Balance Sheet as an asset.
-        * **AfA (Absetzung für Abnutzung / Depreciation):** Because cars lose value over time, the government allows us to deduct a portion of the car's value from our taxable profit every month.
-        * **Deadhead:** The percentage of kilometers a vehicle drives *without* a paying passenger. 
-        * **HGB (Handelsgesetzbuch):** The German Commercial Code. This model strictly follows German accounting rules, specifically regarding how taxes are provisioned and paid.
-        * **Shareholder Loans:** If a founder lends money to the company, German tax law generally expects a market interest rate to avoid hidden profit distributions (vGA). Since banks usually require this loan to act as equity buffer, the principal is locked (subordinated) while interest is accrued or paid monthly.
+        Built on **Streamlit** and written in **Python**, this dashboard uses a **60-month cohort engine** to simulate real-world physics and a fully balanced, HGB-compliant 3-Statement financial model.
 
         ---
 
-        #### 🎛️ How to Use the Sidebar (Input Levers)
-        The left sidebar is your "control room." Any change you make here instantly recalculates all 60 months of the simulation. 
-        
-        * **Fleet Scaling:** Instead of adding cars once a year, you type a comma-separated list to drop cars into specific months (e.g., `2, 0, 0, 0, 2` means 2 cars in Jan, 2 in May). 
-        * **Utilization Mode:** If set to *Dynamic*, the model simulates reality: when you drop new cars into a city, they temporarily "cannibalize" rides from your existing cars. Your overall utilization drops, and then slowly recovers.
-        * **Variable Costs:** The engine automatically multiplies base energy costs by **1.4x in Winter** and **1.3x in Shoulder months** because batteries are less efficient in the cold.
-        * **VAT Bridge Loan:** When you buy a €30k car, you must pay 19% VAT immediately. The engine automatically draws a short-term bridge loan (rate configured in sidebar) to cover this VAT and pays it off automatically based on the configured refund lag.
-        * **OpEx Input VAT (Vorsteuerabzug, ):** When you pay vendors for energy, maintenance, parking, telemetry, IT, HQ lease, legal services, etc., you pay them gross (net + 19% VAT). That 19% is **deductible input VAT** that offsets your monthly Umsatzsteuerzahllast to the Finanzamt. The model now correctly: (1) drains vendor VAT as cash this month, (2) reduces the next month's VAT remittance by the same amount. The P&L stays unchanged — costs are always booked net — but the Cash Flow and Balance Sheet now reflect real UStG mechanics. VAT-exempt items (insurance, IHK, GEZ, bank fees) are excluded per § 4 UStG.
-        * **fixes:** (a) **Vehicle AfA is now 60 months** (5 Jahre, aligned with BMF AfA-Tabelle for Mietwagen/Taxi per § 7 EStG). (b) **Overdraft is now capped** at a user-defined Kontokorrentlinie; if the model needs more, **INSOLVENCY** is flagged. (c) **Three distinct liquidity warnings:** Insolvency (line exceeded), Net Liquidity Negative (Cash − Overdraft below buffer = bank-grade Effektive Liquidität check), Raw Cash Floor Breached (traditional check). (d) **Cleaning cost** now depends on calendar days × fleet only, not on utilization. (e) **EBITDA HGB View** memo row added below Mgmt EBITDA showing the salvage bridge per § 275 II Nr. 4 HGB.
+        #### 🆕 Layer 33 — Monte Carlo realism upgrades
+        The Risk & Variance (Monte Carlo) tab received four methodology upgrades so the downside risk it reports survives bank/credit-committee scrutiny:
+
+        1. **Shared macro coupling (correlated crisis engine).** A single macro-environment factor is drawn once per simulated *year*. A crisis draw pushes energy prices UP, loan rates UP, and customer demand DOWN — all together, in the same year. This replaces the prior assumption that every variable moved on its own private dice (which produced unrealistic scenarios like an energy crisis coexisting with booming demand and cheap money, understating the true P5 downside). Sensitivities (betas) are user-adjustable; set them to zero to recover the old independent behaviour. The shared factor appears as **🌍 MACRO ENVIRONMENT** in the sensitivity tornado.
+        2. **Per-year shock sampling.** Phase-B shock events (weather, strike, outage, etc.) are now rolled *independently for each of the 5 years* instead of sampling one year and copying it five times. This restores the single-bad-year tail risk that actually threatens a thin-buffer startup.
+        3. **Skewed one-sided costs.** Wear, cleaning, and parking are drawn from mean-preserving lognormal curves (cannot go negative, realistic fat upside tail) rather than symmetrical bell curves that needed `max()` guardrails to stop producing impossible negative costs.
+        4. **Cost-side shocks + demand-collapse event.** Severe-weather and black-ice shocks now raise energy + wear costs (not just suppress demand), and a new demand-collapse shock (pandemic/lockdown) captures the multi-week demand-to-zero tail.
+
+        The deterministic central case in every other tab is **unchanged** from Layer 32 — these upgrades affect only the stochastic risk analysis.
 
         ---
 
-        #### 🎯 Operational Calibration & Benchmarking ()
-        Operational and variable cost assumptions in this model reflect mature-state central-case values benchmarked against published European mobility operator data (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Throughput calibration assumes **30-34 trips/day per vehicle at steady-state (Y3+)**, built up from 16h blended weekday/weekend productive shift (weekday 15h, weekend 18h), 19 km/h Munich average speed, 3.5 min per-trip dwell, and 22% empty repositioning. The 16h blended shift reflects Cybercab-specific advantages over human-driver benchmarks: inductive charging during the 2am-6am Tesla Robotaxi Network window runs in parallel to onboard autonomous sensor cleaning, eliminating the depot return + cleaning shift gap embedded in Waymo's 13.5h benchmark. Energy and wear cost recalibrations land at **€0.085/km and €0.10/km** respectively — below Waymo benchmarks due to simpler Cybercab sensor stack and German labor rates, above earlier optimistic estimates that did not survive bank-grade Due Diligence. Y1-Y2 ramp-state will run below mature numbers; the engine's **Dynamic Utilization** mode (set as default) models this naturally through the cannibalization + recovery mechanics. For aggressive bull-case modeling, adjust sidebar inputs upward and document the rationale separately.
-
-        **Utilization Recalibration + Two-Stream Revenue:** The initial utilization parameters (init 35%, rec 3%/month, can_fac 0.5) produced a Y5 utilization collapse — the cannibalization formula could not recover between cohort additions in Y3-Y5. recalibrates four utilization parameters as a coordinated set: init 55% (price elasticity + novelty + supply concentration), rec 5%/month (matches Y3-Y5 cohort cadence), can_fac 0.35 (mature dispatch algorithm), target 75% unchanged. On 24h calendar-day basis, Month 1 launches at ~37% asset utilization (55% × 16h ÷ 24h) and Y5 mature state sits at ~50% (75% × 16h ÷ 24h) — consistent with Uber NYC mature-market published Marketplace data (38-42%). **B2B Delivery toggle (default OFF):** Tesla Network dispatches Cybercabs for goods delivery during low-passenger-demand windows using the same dispatch architecture. When toggled ON, adds 4.0h of additional active hours/day with €6/delivery × 3 deliveries/hour × ramped activation (0/0/30/70/100% Y1-Y5). Conservative base case is passenger-only; delivery toggle is "upside layer" the user activates to model the asset's full 20h Tesla Network productivity (83% 24h asset utilization, with a 4h overnight inductive charging window). A cross-field guardrail enforces active + delivery hours ≤ 20h, since the remaining 4h are physically required for charging + sensor cleaning + depot maintenance. Tesla controls dispatch priority — passenger trips preempt delivery when both have demand. Inference compute revenue explicitly excluded from base case (Tesla program not commercially launched).
-
-        **Energy Cost Model (Pure-Inductive Tesla Robotaxi Network):** Cybercabs charge exclusively on Tesla's inductive pad network during the 2am-6am low-demand window. Energy cost decomposed into 3 independently adjustable sliders: (a) **consumption €0.115 kWh/km** anchored on Tesla VP Lars Moravy's May 21, 2026 Cybercab certification at 165 Wh/mi = 0.103 kWh/km plus 12% real-world urban derate; (b) **inductive pad price €0.27/kWh** = center of defensible band derived bottom-up from German wholesale 2-6am window (€0.06-0.10), Tesla cost stack (grid fees, EEG, Stromsteuer, hardware amortization, target margin), triangulated against Supercharger night rates (€0.26-0.32 market ceiling, which inductive should price below); (c) **charging efficiency 0.90** per SAE J2954 / Electreon / InductEV independent validation of modern static inductive systems (88-93% end-to-end range). Combined effective rate: **€0.0345/km** for the central case. Stress range €0.024/km (optimistic) to €0.052/km (adverse) covers Tesla pricing-power and energy crisis scenarios. Other key calibrations: insurance €180/mo (FSD safety credit + Tesla bundle), parking €170/mo (APCOA bulk-fleet), cleaning €2/day net (after Tesla cleaning-fee pass-through), active hours 16h, cargo insurance €20/mo when delivery active, adjustable 12-month seasonality (defaults Dec-Feb 1.45×, May-Sep 1.10×), THG €280/car/year.
-
-        **Empirical sources:** TomTom Traffic Index 2024 (Munich congestion); ADAC Wintertest 2023 + Geotab fleet study (EV winter consumption); Waymo NHTSA filings (sensor reliability, dwell time, ramp curves); Sixt+ / Free Now / MOIA published operator data (€/km maintenance benchmarks); Uber/Lyft Marketplace blog data (mature European deadhead rates); Tesla May 2026 Model S/X SE event (Cybercab 165 Wh/mi certification); EPEX Spot 2025-26 German wholesale electricity data (2-6am hours €0.06-0.10/kWh); Electreon / InductEV / SAE J2954 / WiTricity / MAHLE DIPS (inductive efficiency 88-93% validations); Tesla Supercharger Germany 2026 (€0.26-0.46/kWh used only as market-ceiling reference, NOT operating assumption); Tesla Robotaxi cleaning fee policy December 2025 ($50/$150 tiers).
+        #### 🧠 TaaS & Finance 101: Core Concepts
+        * **TaaS (Transportation-as-a-Service):** Providing rides via automated vehicles routed by an algorithmic platform.
+        * **CapEx:** The upfront cost of buying vehicles — capitalized on the Balance Sheet, not expensed in month 1.
+        * **AfA (Depreciation):** Monthly deduction of a portion of each vehicle's value from taxable profit.
+        * **Deadhead:** Kilometers driven *without* a paying passenger.
+        * **HGB:** The German Commercial Code; this model follows German accounting rules for tax provisioning and statement structure.
+        * **Monte Carlo:** Running the model thousands of times with randomized inputs to map the *range* of outcomes — not a single forecast but a probability distribution of where the business could land.
 
         ---
 
         #### 📊 Understanding the Outputs (The Tabs)
-        * **Income Statement (P&L):** Measures paper profitability. Start at the top (Customer bookings) and watch the money cascade down to EBITDA (Operational profit before loans/depreciation) and Net Income.
-        * **Cash Flow Statement:** The actual cash entering and leaving your bank account. This tab shows your CapEx cash burns, your loan drawdowns, and exactly when you pay your corporate taxes. 
-        * **Balance Sheet:** A snapshot of what the company owns vs. what it owes. Look at the **BALANCE CHECK** line at the very bottom. It dynamically proves the math is perfect by always showing 0 €.
-        * **KPIs & Ratios:** The metrics banks and Venture Capitalists look at to judge the health of your business (like DSCR and Liquidity Runway).
-        * **Visualizations & Dashboards:** A suite of institutional charts showing the scaling trajectory. Toggle Free Cash Flow to "Cumulative" to see the exact "J-Curve" of your business.
+        * **Income Statement (P&L):** Paper profitability from customer bookings down to EBITDA and Net Income.
+        * **Cash Flow Statement:** Actual cash in/out — CapEx burns, loan drawdowns, tax payment timing.
+        * **Balance Sheet:** What the company owns vs. owes; the **BALANCE CHECK** line always reads 0 €.
+        * **KPIs & Ratios:** DSCR (total + senior), FCCR, Equity Ratio, Liquidity Runway, Net LTV.
+        * **Visualizations:** Scaling trajectory charts; toggle Free Cash Flow to cumulative to see the J-Curve.
+        * **Risk & Variance (Monte Carlo):** The Layer 33 upgraded engine — percentile distributions, dynamic metric selector (FCF/EBITDA/NI), and the macro-coupled sensitivity tornado.
+
+        ---
+
+        *Disclaimer: forward-looking projection on user-set assumptions; a decision-support tool, not an audited financial statement, and not investment, legal, or tax advice.*
         """)
     else:
         st.markdown("""
         ### 🚕 MRRG Cybercab-Flotte: Master-Finanzmodell
         
-        Willkommen beim MRRG Master-Finanzmodell. Diese Anwendung ist ein vollständig integriertes, institutionelles Finanzmodell, das den Betrieb, die Skalierung und die Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland simuliert.
+        Willkommen beim MRRG Master-Finanzmodell — ein vollständig integriertes, institutionelles Finanzmodell, das Betrieb, Skalierung und Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland nach HGB simuliert.
 
-        Dieses auf **Streamlit** und **Python** basierende Dashboard geht weit über grundlegende Tabellenkalkulationen hinaus. Es nutzt eine **60-monatige Kohorten-Logik**, um reale physikalische und wirtschaftliche Gegebenheiten zu simulieren: von der exakten Anzahl an Tagen pro Monat (inkl. Schaltjahren) über Winterzuschläge beim Stromverbrauch bis hin zur Flotten-Kannibalisierung. Das Ergebnis ist ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
-
-        ---
-
-        #### 🧠 TaaS & Finance 101: Die wichtigsten Grundkonzepte
-        * **TaaS (Transportation-as-a-Service):** Das Geschäftsmodell zur Bereitstellung von Fahrten durch automatisierte Fahrzeuge, die über eine algorithmische Plattform gesteuert werden.
-        * **CapEx (Investitionsausgaben):** Die massiven Vorlaufkosten für den Kauf der Fahrzeuge. Ein Auto wird nicht im ersten Monat als Aufwand verbucht; es wird als Vermögenswert in der Bilanz aktiviert.
-        * **AfA (Absetzung für Abnutzung):** Da Autos im Laufe der Zeit an Wert verlieren, dürfen wir jeden Monat einen Teil des Fahrzeugwerts von unserem steuerpflichtigen Gewinn abziehen.
-        * **Leerfahrten (Deadhead):** Der prozentuale Anteil der gefahrenen Kilometer *ohne* zahlenden Fahrgast.
-        * **HGB (Handelsgesetzbuch):** Dieses Modell folgt strikt den deutschen Rechnungslegungsvorschriften, insbesondere im Hinblick auf die Bildung und Auszahlung von Steuerrückstellungen.
-        * **Gesellschafterdarlehen:** Gibt ein Gründer dem Unternehmen einen Kredit, erwartet das Finanzamt in der Regel einen Marktzins, um verdeckte Gewinnausschüttungen (vGA) zu vermeiden. Da Banken meist einen Rangrücktritt fordern, bleibt die Kreditsumme gebunden, während die Zinsen monatlich anfallen oder gezahlt werden.
+        Auf **Streamlit** und **Python** basierend, nutzt das Dashboard eine **60-monatige Kohorten-Logik** und ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
 
         ---
 
-        #### 🎛️ Bedienung der Seitenleiste (Eingabeparameter)
-        Die linke Seitenleiste ist Ihr Kontrollzentrum. Jede Änderung, die Sie hier vornehmen, berechnet sofort alle 60 Monate der Simulation neu.
-        
-        * **Flottenskalierung:** Anstatt Autos nur einmal pro Jahr hinzuzufügen, geben Sie eine durch Kommas getrennte Liste ein, um Autos in bestimmten Monaten einzuflotten (z. B. `2, 0, 0, 0, 2` bedeutet 2 Autos im Jan, 2 im Mai).
-        * **Auslastungsmodell:** Wenn auf *Dynamisch* gesetzt, simuliert das Modell die Realität: Wenn neue Autos in die Flotte kommen, "kannibalisieren" sie vorübergehend die Fahrten der bestehenden Flotte. Die Gesamtauslastung sinkt und erholt sich dann allmählich.
-        * **Variable Kosten:** Das System multipliziert die Basis-Stromkosten automatisch mit **1,4x im Winter** und **1,3x in den Übergangsmonaten**, da Batterien bei Kälte weniger effizient sind.
-        * **USt-Überbrückungskredit:** Wenn Sie ein Auto für 30.000 € kaufen, müssen Sie sofort 19% Umsatzsteuer zahlen. Das System nimmt automatisch einen kurzfristigen Überbrückungskredit auf (Zinssatz in Seitenleiste konfigurierbar), um diese Vorsteuer zu decken, und zahlt ihn nach der konfigurierten Erstattungsdauer zurück, wenn die Erstattung vom Finanzamt eintrifft.
-        * **OpEx-Vorsteuerabzug ():** Wenn Sie Lieferanten für Energie, Wartung, Stellplätze, Telemetrie, IT, Raumkosten, Rechts- und Beratungsleistungen usw. bezahlen, zahlen Sie brutto (netto + 19% USt). Diese 19% sind **abzugsfähige Vorsteuer**, die mit der monatlichen Umsatzsteuerzahllast verrechnet wird. Das Modell bildet nun korrekt ab: (1) Vorsteuer fließt in diesem Monat als Cash-Abfluss zum Lieferanten ab, (2) die Zahllast an das Finanzamt im Folgemonat wird um genau diesen Betrag reduziert. Die GuV bleibt unverändert — Kosten werden stets netto gebucht — aber Kapitalflussrechnung und Bilanz spiegeln nun die echten UStG-Mechanik wider. Nicht abzugsfähige Posten (Versicherung, IHK, GEZ, Bankgebühren) sind gemäß § 4 UStG ausgenommen.
-        * **Verbesserungen:** (a) **Fahrzeug-AfA jetzt 60 Monate** (5 Jahre, BMF AfA-Tabelle Mietwagen/Taxi gem. § 7 EStG). (b) **Kontokorrent gedeckelt** auf eine benutzerdefinierte Linie; bei Überschreitung wird **INSOLVENZ** angezeigt. (c) **Drei separate Liquiditätssignale:** Insolvenz (Linie überschritten), Netto-Liquidität negativ (Kasse − Kontokorrent unter Puffer = bankübliche Effektive Liquidität), Mindestliquidität unterschritten (klassische Prüfung). (d) **Reinigungskosten** abhängig nur von Kalendertagen × Flotte, nicht von Auslastung. (e) **EBITDA HGB-Sicht** als Memo-Zeile unter Management-EBITDA mit Anlagenabgang-Brücke gem. § 275 II Nr. 4 HGB.
+        #### 🆕 Schicht 33 — Monte-Carlo-Realismus-Upgrades
+        Der Risiko- & Varianz-Tab (Monte Carlo) erhielt vier methodische Upgrades, damit das ausgewiesene Downside-Risiko einer Bank-/Kreditkomitee-Prüfung standhält:
+
+        1. **Gemeinsame Makro-Kopplung (korrelierte Krisen-Engine).** Ein Makro-Umfeld-Faktor wird einmal pro simuliertem *Jahr* gezogen. Ein Krisenwert treibt Energiepreise HOCH, Kreditzinsen HOCH und Nachfrage RUNTER — gemeinsam, im selben Jahr. Ersetzt die frühere Annahme unabhängiger Variablen (die unrealistische Szenarien wie Energiekrise + boomende Nachfrage + billiges Geld erzeugte und den echten P5-Downside unterschätzte). Sensitivitäten (Betas) sind einstellbar; auf null gesetzt stellt sich das alte unabhängige Verhalten wieder ein. Der Faktor erscheint als **🌍 MACRO ENVIRONMENT** im Sensitivitäts-Tornado.
+        2. **Jährliche Shock-Ziehung.** Phase-B-Shock-Ereignisse werden nun *unabhängig für jedes der 5 Jahre* gezogen statt ein Jahr fünfmal zu kopieren — stellt das Einzeljahr-Risiko wieder her, das ein dünn kapitalisiertes Startup tatsächlich bedroht.
+        3. **Schiefe einseitige Kosten.** Verschleiß, Reinigung und Stellplatz werden aus mittelwerterhaltenden Lognormal-Verteilungen gezogen (keine negativen Werte, realistischer Tail) statt symmetrischer Glockenkurven.
+        4. **Kostenseitige Shocks + Nachfrage-Kollaps.** Wetter-Extrem- und Glatteis-Shocks erhöhen nun Energie- + Verschleißkosten, und ein neuer Nachfrage-Kollaps-Shock (Pandemie/Lockdown) bildet den mehrwöchigen Nachfrage-auf-Null-Tail ab.
+
+        Der deterministische Basisfall in allen anderen Tabs ist **unverändert** ggü. Schicht 32.
 
         ---
 
-        #### 🎯 Operative Kalibrierung & Benchmarking ()
-        Operative und variable Kostenannahmen reflektieren Mature-State-Basisfall-Werte mit Benchmarks gegen veröffentlichte Daten europäischer Mobilitätsbetreiber (Sixt+, Free Now, MOIA/Volkswagen Group, Waymo Phoenix). Durchsatzkalibrierung: **30-34 Fahrten/Tag pro Fahrzeug im Steady-State (J3+)**, aufgebaut aus 16h gemischter Werktag/Wochenend-produktiver Schicht (Werktag 15h, Wochenende 18h), 19 km/h Münchner Durchschnittsgeschwindigkeit, 3,5 Min Standzeit pro Fahrt, 22% Leerfahrtenquote. Die 16h-Mischschicht reflektiert Cybercab-spezifische Vorteile gegenüber menschengeführten Benchmarks: Induktivladen während des 2-6 Uhr Tesla Robotaxi-Netzwerk-Fensters läuft parallel zur autonomen Onboard-Sensorreinigung — entfällt die Depotrückkehr + Reinigungsschicht-Lücke des Waymo 13,5h-Benchmarks. Energie- und Verschleißkosten neu kalibriert auf **€0,085/km bzw. €0,10/km** — unter Waymo-Benchmarks wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten, über früheren optimistischen Schätzungen, die einer bankgerechten Due Diligence nicht standhielten. J1-J2 Ramp-State läuft unter den Mature-Zahlen; der **Dynamic Utilization Modus** des Engines (Standard) modelliert dies natürlich über Kannibalisierungs- und Erholungsmechanik. Für aggressive Bull-Case-Modellierung Sidebar-Inputs nach oben anpassen und Begründung separat dokumentieren.
-
-        **Auslastungs-Rekalibrierung + Zwei-Strom-Erlöse:** Die ursprünglichen Auslastungsparameter (Init 35%, Erholung 3%/Monat, Kannibalisierungsfaktor 0,5) führten zu einem J5-Auslastungseinbruch — die Kannibalisierungsformel konnte sich zwischen Kohortenzugängen in J3-J5 nicht erholen. rekalibriert die vier Auslastungsparameter als koordiniertes Set: Init 55% (Preiselastizität + Novelty + Angebotskonzentration), Erholung 5%/Monat (entspricht J3-J5 Kohortenkadenz), Kannibalisierungsfaktor 0,35 (ausgereiftes Dispatching), Ziel 75% unverändert. Auf 24-Stunden-Kalendertag-Basis startet Monat 1 mit ~37% Asset-Auslastung (55% × 16h ÷ 24h) und der reife Zustand in J5 liegt bei ~50% (75% × 16h ÷ 24h) — konsistent mit veröffentlichten Uber NYC Marketplace-Daten reifer Märkte (38-42%). **B2B-Lieferdienst-Toggle (Standard AUS):** Tesla Network dispatched Cybercabs für Warenlieferungen in Schwachlast-Phasen mit identischer Dispatching-Architektur. Bei Aktivierung +4,0h aktive Stunden/Tag mit €6/Lieferung × 3 Lieferungen/Stunde × stufenweise Aktivierung (0/0/30/70/100% J1-J5). Konservativer Basisfall ist Personenverkehr; Lieferdienst-Toggle als "Upside-Layer" für volle 20h Tesla Network-Produktivität (83% 24h-Asset-Auslastung, mit 4h Nacht-Induktivladefenster). Eine Querfeld-Guardrail erzwingt aktive + Lieferstunden ≤ 20h, da die restlichen 4h physisch für Ladung + Sensorreinigung + Depot-Wartung benötigt werden. Tesla steuert Dispatch-Priorität — Personenfahrten haben Vorrang. Inference-Rechenleistungs-Erlöse explizit aus dem Basisfall ausgeschlossen (Tesla-Programm noch nicht kommerziell verfügbar).
-
-        **Energiekosten-Modell (Reine Induktion auf Tesla Robotaxi-Netzwerk):** Cybercabs laden ausschließlich auf Teslas Induktionspad-Netzwerk im 2-6 Uhr Niedrigtarif-Fenster. Energiekosten in 3 unabhängig anpassbare Slider zerlegt: (a) **Verbrauch €0,115 kWh/km** verankert in Tesla VP Lars Moravy Ankündigung 21. Mai 2026: Cybercab zertifiziert mit 165 Wh/mi = 0,103 kWh/km plus 12% urbaner Real-Aufschlag; (b) **Induktivpad-Preis €0,27/kWh** = Mitte des vertretbaren Bandes, bottom-up hergeleitet aus deutschem Großhandel 2-6 Uhr (€0,06-0,10), Tesla-Kostenstack (Netzentgelte, EEG, Stromsteuer, Hardware-Amortisation, Zielmarge), trianguliert mit Supercharger-Nachttarifen (€0,26-0,32 Marktobergrenze, unter der induktiv preisen sollte); (c) **Ladewirkungsgrad 0,90** gem. SAE J2954 / Electreon / InductEV unabhängiger Validierung moderner statischer Induktion (88-93% End-to-End). Effektive Kombi-Rate: **€0,0345/km** Basisfall. Stress-Bereich €0,024/km (optimistisch) bis €0,052/km (negativ) deckt Tesla-Preismacht- und Energiekrise-Szenarien ab. Andere Schlüsselkalibrierungen: Versicherung €180/Mon. (FSD-Sicherheitsbonus + Tesla-Bundle), Stellplatz €170/Mon. (APCOA Mengenrabatt), Reinigung €2/Tag netto (nach Tesla-Reinigungsgebühr-Erlös), aktive Stunden 16h, Frachtversicherung €20/Mon. bei aktivem Lieferdienst, anpassbare 12-Monats-Saisonalität (Standard Dez-Feb 1,45×, Mai-Sep 1,10×), THG €280/Fahrzeug/Jahr.
-
-        **Empirische Quellen:** TomTom Traffic Index 2024 (Münchner Verkehrsdichte); ADAC Wintertest 2023 + Geotab Flottenstudie (EV-Winterverbrauch); Waymo NHTSA-Meldungen (Sensorzuverlässigkeit, Standzeit, Ramp-Kurven); Sixt+ / Free Now / MOIA veröffentlichte Betreiberdaten (€/km Wartungs-Benchmarks); Uber/Lyft Marketplace-Blog (mature europäische Leerfahrtenquoten); Tesla Mai 2026 Model S/X SE Event (Cybercab 165 Wh/mi Zertifizierung); EPEX Spot 2025-26 deutsche Großhandels-Stromdaten (2-6 Uhr-Stunden €0,06-0,10/kWh); Electreon / InductEV / SAE J2954 / WiTricity / MAHLE DIPS (Induktiv-Wirkungsgrad 88-93% Validierungen); Tesla Supercharger Deutschland 2026 (€0,26-0,46/kWh nur als Marktobergrenz-Referenz, NICHT als Betriebsannahme); Tesla Robotaxi Reinigungsgebühren-Politik Dezember 2025 ($50/$150 Stufen).
-
-        ---
-
-        #### 📊 Verständnis der Auswertungen (Die Reiter)
-        * **Gewinn- und Verlustrechnung (GuV):** Misst die buchhalterische Rentabilität. Oben stehen die Kundenbuchungen, unten bleiben EBITDA (operativer Gewinn vor Zinsen/Abschreibungen) und der Jahresüberschuss.
-        * **Kapitalflussrechnung:** Die tatsächlichen Zahlungsströme auf Ihrem Bankkonto. Hier sehen Sie die CapEx-Mittelabflüsse, die Kreditaufnahmen und exakt, wann Sie Ihre Unternehmenssteuern zahlen.
-        * **Bilanz:** Eine Momentaufnahme dessen, was das Unternehmen besitzt und wem es was schuldet. Achten Sie auf die **BILANZKONTROLLE** ganz unten. Sie beweist dynamisch, dass die Mathematik perfekt aufgeht, indem sie immer 0 € anzeigt.
-        * **KPIs & Kennzahlen:** Die Kennzahlen, die Banken und Venture-Capital-Investoren heranziehen, um die Gesundheit Ihres Unternehmens zu beurteilen (wie DSCR und Liquiditätsreichweite).
-        * **Visualisierungen & Dashboards:** Institutionelle Diagramme, die den Skalierungsverlauf zeigen. Wenn Sie den Free Cash Flow auf "Kumuliert" umstellen, sehen Sie die exakte "J-Kurve" Ihres Unternehmens.
+        *Haftungsausschluss: zukunftsgerichtete Projektion auf Basis benutzergesetzter Annahmen; Entscheidungsunterstützung, kein geprüfter Jahresabschluss, keine Anlage-, Rechts- oder Steuerberatung.*
         """)
