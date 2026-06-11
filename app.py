@@ -8,8 +8,11 @@ import time
 # --- GLOBAL MODELING CONSTANTS & FINANCIAL ARCHITECTURE ---
 VAT_RATE = 0.19
 # AfA period aligned to BMF AfA-Tabellen for Mietwagen/Taxi (intensive use).
-# 60 months = 5 Jahre Nutzungsdauer per § 7 EStG. Loan term also extends to 60 months
-# (KfW Universell + commercial Kfz-Finanzierung both support 5-7y terms).
+# 60 months = 5 Jahre Nutzungsdauer per § 7 EStG. Loan term = 60 months TOTAL,
+# structured as 12-month tilgungsfreie Anlaufzeit + 48 amortizing annuity payments
+# (L35 F5 fix: annuity sized over the 48 amortizing installments so the loan fully
+# amortizes exactly at end of useful life — KfW Universell + commercial
+# Kfz-Finanzierung both support this 1+4y structure).
 VEHICLE_AMORTIZATION_PERIOD = 60
 IT_AMORTIZATION_PERIOD = 36
 OVERDRAFT_ANNUAL_RATE = 0.095
@@ -75,7 +78,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 34: Monte Carlo path-dependency fix — per-year crisis injection (no more flattened-average macro shocks); preserves L33 macro coupling, per-year shocks, skewed costs, demand-collapse event)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 35: F1-F5 audit fixes — lease-VAT single reclaim (§ 15 UStG), true 60-month loan amortization (12m grace + 48 annuity), § 10d/§ 10a Verlustvortrag annual tax basis, § 253 III impairment on carrying amount with AfA re-plan, end-of-life salvage realization — on the L34 path-dependent Monte Carlo)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -522,7 +525,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 34: Monte-Carlo Pfadabhängigkeits-Fix — jährliche Krisen-Injektion (keine geglätteten Durchschnitts-Makro-Shocks mehr); erhält L33 Makro-Kopplung, jährliche Shocks, schiefe Kosten, Nachfrage-Kollaps)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 35: F1-F5 Audit-Fixes — einmaliger Vorsteuerabzug Leasing-Sonderzahlung (§ 15 UStG), echte 60-Monats-Tilgung (12M tilgungsfrei + 48 Annuitäten), § 10d/§ 10a Verlustvortrag auf Jahresbasis, § 253 III Impairment auf Buchwert mit AfA-Neuplanung, Restwert-Realisierung am Nutzungsende — auf dem pfadabhängigen L34-Monte-Carlo)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -1435,10 +1438,24 @@ def _execute_financial_simulation_uncached(
             loan = capex_loan * vehicle_ltv  # debt = capex × LTV (only on loan tranche)
             rate = y1_loan_rate if m < 12 else y2_loan_rate
             monthly_rate = rate / 12
+            # === L35 F5 FIX: annuity sized over the AMORTIZING window, not the full term ===
+            # Loan structure: 12-month tilgungsfreie Anlaufzeit (interest-only grace, standard
+            # KfW Gründerkredit / commercial Kfz-Finanzierung) + amortizing installments from
+            # month c_start+12 through c_start+59 = 48 principal payments. The prior code sized
+            # the annuity over the FULL 60 periods, which combined with the 12-month grace
+            # produced an effective ~72-month profile: cohort-1 retained a 21.8% residual balloon
+            # at its own month 60 and 81.4% of all drawn debt was still outstanding at horizon —
+            # contradicting the stated 60-month term and structurally flattering every DSCR.
+            # Sizing over the true 48 amortizing payments gives full amortization exactly at the
+            # end of the 60-month useful life: grace (12) + annuity (48) = 60-month maturity,
+            # synchronized with the AfA schedule and the end-of-life salvage event (F2 fix below).
+            _amortizing_payments = VEHICLE_AMORTIZATION_PERIOD - 12  # 48 at the 60-month default
+            if _amortizing_payments <= 0:
+                _amortizing_payments = VEHICLE_AMORTIZATION_PERIOD  # defensive: no-grace fallback
             if monthly_rate > 0:
-                pmt = loan * (monthly_rate * (1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD) / ((1 + monthly_rate)**VEHICLE_AMORTIZATION_PERIOD - 1)
+                pmt = loan * (monthly_rate * (1 + monthly_rate)**_amortizing_payments) / ((1 + monthly_rate)**_amortizing_payments - 1)
             else:
-                pmt = loan / VEHICLE_AMORTIZATION_PERIOD if VEHICLE_AMORTIZATION_PERIOD > 0 else 0.0
+                pmt = loan / _amortizing_payments if _amortizing_payments > 0 else 0.0
 
             # Tranche B: Operating Lease (HGB: NO capitalization, lessor owns)
             # Sonderzahlung capitalized as ARAP per HGB § 250; linear amortization
@@ -1563,6 +1580,26 @@ def _execute_financial_simulation_uncached(
         for y in range(1, 6)
     }
 
+    # =====================================================================
+    # === L35 F3: Loss carryforward (Verlustvortrag) parameters ===========
+    # § 10d Abs. 2 EStG (via § 8 Abs. 1 KStG) and § 10a GewStG: losses carry
+    # forward indefinitely; in a profit year they offset the positive base in
+    # full up to the €1M Sockelbetrag, and only at a capped percentage of the
+    # base above €1M (Mindestbesteuerung). The percentage is 60% from VZ 2028
+    # (the Wachstumschancengesetz's temporary 70% applied only to VZ 2024-2027
+    # and does not reach this model's horizon). No carryback is modeled
+    # (§ 10d Abs. 1 carryback is KSt-only, capped, and GewSt has none —
+    # omitting it is the conservative simplification).
+    # SIMPLIFICATION (documented): KSt and GewSt loss pots are tracked as ONE
+    # combined Verlustvortrag applied against the single combined-rate base,
+    # consistent with the engine's combined tax-rate architecture. The two
+    # statutory pots evolve nearly identically for this business (no material
+    # Hinzurechnungen/Kürzungen at this interest scale), so the combined pot
+    # is a faithful approximation; a Steuerberater build-out would split them.
+    # =====================================================================
+    _NOL_SOCKEL_EUR = 1_000_000.0
+    _NOL_OFFSET_PCT_ABOVE_SOCKEL = 0.60
+
     # State Loops Configuration
     current_cash = 0.0
     vat_loan_bal = 0.0
@@ -1591,6 +1628,14 @@ def _execute_financial_simulation_uncached(
     current_year_tax_accrued = 0.0
     prepayments_made_this_year = 0.0
     true_up_due_this_m5 = 0.0
+    # === L35 F3: annual-basis tax state ===
+    # ytd_ebt accumulates the current Veranlagungszeitraum's EBT so the tax
+    # accrual can be computed on the ANNUAL base (German corporate tax is
+    # assessed per VZ, not per month). verlustvortrag carries the combined
+    # NOL pot across years; it is READ during the year for the progressive
+    # accrual and CONSUMED/EXTENDED only at the December year-end assessment.
+    ytd_ebt = 0.0
+    verlustvortrag = 0.0
     
     cum_gfa = 0.0
     cum_depr = 0.0
@@ -1715,20 +1760,41 @@ def _execute_financial_simulation_uncached(
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
 
-                # === HGB Impairment (loan + equity tranches — capitalized assets only) ===
+                # === L35 F4 FIX: HGB Impairment per § 253 Abs. 3 HGB (carrying-amount base) ===
+                # Prior code booked extra_afa = loan_bal × imp_pct — the FINANCING figure, not
+                # the book value — and then continued the ORIGINAL planned afa_per_mo unchanged.
+                # Proven defect: 50% impairment at m13 produced 140% cumulative depreciation on
+                # cohort-1 (€128,838 of depreciation on a €92,027 asset → negative cohort NBV).
+                # Correct HGB treatment:
+                #   (a) Impairment base = CARRYING AMOUNT (Buchwert) = capitalized cost − accum.
+                #       AfA, measured BEFORE this month's planned charge (§ 253 Abs. 3 S. 5/6:
+                #       außerplanmäßige Abschreibung auf den niedrigeren beizulegenden Wert).
+                #   (b) Planned AfA must be RE-PLANNED on the reduced carrying amount over the
+                #       REMAINING useful life — an asset can never depreciate below zero.
+                # Invariant enforced: cohort cumulative depreciation ≤ capitalized cost, NBV → 0
+                # exactly at end of useful life (which also keeps the F2 disposal gain clean).
                 if current_month == imp_month and not c["impaired"]:
-                    # Base for impairment: outstanding loan if any, otherwise capitalized capex
-                    if c["loan_bal"] > 0:
-                        extra_afa = c["loan_bal"] * imp_pct_val
-                    else:
-                        extra_afa = c["capex_capitalized"] * imp_pct_val
+                    _carrying_amount = max(0.0, c["capex_capitalized"] - c["accum_afa"])
+                    extra_afa = _carrying_amount * imp_pct_val
                     current_veh_afa += extra_afa
                     c["accum_afa"] += extra_afa
+                    # Re-plan: spread the post-impairment NBV over the months remaining in the
+                    # useful life INCLUDING the current month (this month's planned charge below
+                    # already uses the new rate). remaining = (c_start + LIFE) − current_month.
+                    _remaining_months = (c_start + VEHICLE_AMORTIZATION_PERIOD) - current_month
+                    _nbv_post_impairment = max(0.0, c["capex_capitalized"] - c["accum_afa"])
+                    if _remaining_months > 0:
+                        c["afa_per_mo"] = _nbv_post_impairment / _remaining_months
+                    else:
+                        c["afa_per_mo"] = 0.0
                     c["impaired"] = True
 
                 # === AfA on capitalized capex (loan + equity only — lease NOT capitalized) ===
-                current_veh_afa += c["afa_per_mo"]
-                c["accum_afa"] += c["afa_per_mo"]
+                # Defensive clamp: never depreciate past the capitalized cost (floating-point
+                # guard; the F4 re-plan above makes this exact in normal operation).
+                _afa_this = min(c["afa_per_mo"], max(0.0, c["capex_capitalized"] - c["accum_afa"]))
+                current_veh_afa += _afa_this
+                c["accum_afa"] += _afa_this
 
                 # === Tranche A (Loan): principal amortization starting month c_start+12 ===
                 if current_month >= c_start + 12:
@@ -1748,16 +1814,31 @@ def _execute_financial_simulation_uncached(
                     arap_amort_mo += arap_release
                     c["arap_balance"] -= arap_release
 
-            # === End-of-life month 60: salvage realization (loan + equity tranches only) ===
+            # === L35 F2 FIX: End-of-life salvage realization (loan + equity tranches) ===
+            # Prior condition `current_month == c_start + VEHICLE_AMORTIZATION_PERIOD` fired at
+            # month 61 of cohort life — one month PAST the 60-month horizon for even the month-1
+            # cohort, so the sale NEVER executed: proven by €0 NI delta between €0 and €50,000
+            # salvage settings. The P&L row, the sidebar slider, and the Monte Carlo salvage
+            # parameter were all dead, and the tornado's r≈0 actively misled.
+            # Corrected semantics: the vehicle is sold at the END of the FINAL month of its
+            # useful life (month c_start+59, i.e. life-month 60), AFTER that month's planned AfA
+            # has booked. With the F4 re-plan and the AfA clamp above, accumulated depreciation
+            # equals capitalized cost at that point → NBV = 0 → the full NET sale proceeds are a
+            # disposal gain per § 275 Abs. 2 Nr. 4 HGB (sonstige betriebliche Erträge).
+            # `salvage_value_per_car_y4` is interpreted as the NET-of-VAT realizable price.
+            # Cohorts whose life extends beyond the horizon are NOT force-sold — their NBV
+            # legitimately remains on the closing balance sheet (no fictitious fire-sale).
+            # Coupled with F5: the loan is fully amortized by the 48th installment in this same
+            # month, so the residual payoff below is a pure floating-point safety net (~€0).
             # Lease tranche returns to lessor — zero salvage for MRRG.
-            if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD:
+            if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD - 1:
                 # Salvage applies pro-rata to loan + equity vehicles
                 non_lease_frac = c["loan_frac"] + c["equity_frac"]
                 fleet_sale_rev += c["size"] * non_lease_frac * salvage_value_per_car_y4
                 # Retire capitalized capex (loan + equity portions)
                 capex_sold_this_mo += c["capex_capitalized"]
                 accum_afa_sold_this_mo += c["accum_afa"]
-                # Pay off any residual loan balance (loan tranche)
+                # Pay off any residual loan balance (floating-point remnant under F5 sizing)
                 prin_pay += c["loan_bal"]
                 c["loan_bal"] = 0
                 c["accum_afa"] = 0
@@ -1885,12 +1966,31 @@ def _execute_financial_simulation_uncached(
         vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
                                 + it_cloud_mo + legal_mo
-                                # === Tranche B (Lease): monthly lease pmts + Sonderzahlung
-                                # All VAT-bearing per § 1 Abs. 1 UStG. Note: only the cash
-                                # outflows enter the VAT base — ARAP amortization is a
-                                # non-cash matching release (the VAT was already paid at
-                                # Sonderzahlung inception and is reclaimed in that month).
-                                + lease_pmt_mo_net + lease_downpayment_cash_mo)
+                                # === Tranche B (Lease): monthly lease payments only ===
+                                # Monthly lease installments are VAT-bearing per § 1 Abs. 1
+                                # UStG and their input VAT is reclaimed here through the
+                                # monthly Umsatzsteuer-Voranmeldung netting. ARAP amortization
+                                # is a non-cash matching release and never enters the VAT base.
+                                #
+                                # === L35 F1 FIX: lease_downpayment_cash_mo REMOVED ===========
+                                # The Sonderzahlung's 19% input VAT previously flowed through
+                                # TWO channels: (A) the VAT bridge loan (vat_draw_mo includes
+                                # lease_downpayment_cash_mo: borrow → pay invoice → Finanzamt
+                                # refund → repay) AND (B) this opex input-VAT base (pay vendor
+                                # gross → offset next month's Voranmeldung-Zahllast). Each
+                                # channel both PAID and RECLAIMED the same VAT, so the two
+                                # errors netted to ≈ €0 at horizon — but the model (1) cash-
+                                # paid the Sonderzahlung VAT twice in the setup month (a
+                                # transient −V dip per lease cohort, proven: month-1 cash
+                                # exactly +V higher after this fix), (2) doubled the gross
+                                # VAT flow lines in the CF statement, (3) created a phantom
+                                # Vorsteuerüberhang receivable on the BS, and (4) presented a
+                                # double Vorsteuerabzug that § 15 UStG does not permit and any
+                                # WP flags on sight. The Sonderzahlung VAT now flows solely
+                                # through channel (A), the bridge — mirroring the integrated
+                                # VAT-Vorfinanzierung of real German commercial lease lines.
+                                # Dormant at the default 100%-loan mix.
+                                + lease_pmt_mo_net)
         opex_input_vat_mo = vat_eligible_opex_mo * VAT_RATE
         # P&L impact: ZERO (P&L always books net of VAT — Feature A invariant)
         # CF impact: -opex_input_vat_mo (vendors paid gross this month)
@@ -2017,8 +2117,46 @@ def _execute_financial_simulation_uncached(
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
-        # Monthly HGB tax provision accruals (fixed matrix)
-        tax_exp_mo = max(0.0, ebt_mo) * tax_schedule[current_year]
+        # =====================================================================
+        # === L35 F3 FIX: tax accrual on the ANNUAL base with Verlustvortrag ==
+        # =====================================================================
+        # Prior code: tax_exp_mo = max(0, ebt_mo) × rate — each month taxed in
+        # isolation. Two proven defects: (a) intra-year asymmetry — positive
+        # months were taxed even inside loss years (a mixed-sign Y1 booked
+        # €4,437 vs €4,231 on the correct annual basis); (b) no § 10d EStG /
+        # § 10a GewStG loss carryforward — a Y1 loss produced zero offset and
+        # Y2 was taxed in full. Direction was conservative, but it specifically
+        # distorted the Monte Carlo P5 tail: crisis runs paid phantom taxes a
+        # real GmbH would never owe, making post-crisis recovery look slower.
+        #
+        # New mechanism — progressive annual accrual:
+        #   1. ytd_ebt accumulates the year's EBT.
+        #   2. The year-to-date tax TARGET = rate × max(0, ytd_ebt − offset),
+        #      where offset applies the carried Verlustvortrag against the
+        #      positive base with Mindestbesteuerung (§ 10d Abs. 2 EStG /
+        #      § 10a GewStG): full offset up to the €1M Sockel, 60% of the
+        #      base above it. The pot is only READ here (consumed at Dec).
+        #   3. The MONTH's tax expense = target − accrued-so-far. This can be
+        #      NEGATIVE inside a year (later loss months release prior months'
+        #      accrual) — correct annual-basis behavior. The provision's
+        #      § 246 Bruttoprinzip split downstream already presents any
+        #      resulting net receivable position gross on the asset side.
+        # Annual sums equal rate × max(0, annual EBT − offset) exactly, so the
+        # existing prepayment cadence, May true-up, and provision rollforward
+        # work unchanged on top of this accrual.
+        # =====================================================================
+        ytd_ebt += ebt_mo
+        if ytd_ebt > 0:
+            _nol_offset_ytd = min(
+                verlustvortrag,
+                min(ytd_ebt, _NOL_SOCKEL_EUR)
+                + max(0.0, ytd_ebt - _NOL_SOCKEL_EUR) * _NOL_OFFSET_PCT_ABOVE_SOCKEL
+            )
+            _taxable_ytd = ytd_ebt - _nol_offset_ytd
+        else:
+            _taxable_ytd = 0.0
+        _tax_ytd_target = _taxable_ytd * tax_schedule[current_year]
+        tax_exp_mo = _tax_ytd_target - current_year_tax_accrued
         current_year_tax_accrued += tax_exp_mo
         
         tax_paid_mo = 0.0
@@ -2038,6 +2176,22 @@ def _execute_financial_simulation_uncached(
                 prepayments_made_this_year += payment
                 
         if current_month % 12 == 0:
+            # === L35 F3: December year-end Verlustvortrag assessment ===========
+            # Finalize the Veranlagungszeitraum: a loss year EXTENDS the carried
+            # pot by the full annual loss; a profit year CONSUMES the pot by the
+            # Mindestbesteuerung-capped offset actually used in the annual base
+            # (same formula as the progressive accrual above, evaluated on the
+            # final annual EBT, so accrual and assessment agree to the cent).
+            if ytd_ebt < 0:
+                verlustvortrag += -ytd_ebt
+            elif ytd_ebt > 0:
+                _nol_offset_final = min(
+                    verlustvortrag,
+                    min(ytd_ebt, _NOL_SOCKEL_EUR)
+                    + max(0.0, ytd_ebt - _NOL_SOCKEL_EUR) * _NOL_OFFSET_PCT_ABOVE_SOCKEL
+                )
+                verlustvortrag -= _nol_offset_final
+            ytd_ebt = 0.0
             true_up_due_this_m5 = current_year_tax_accrued - prepayments_made_this_year
             prior_year_tax_actual = current_year_tax_accrued
             current_year_tax_accrued = 0.0
@@ -2345,7 +2499,7 @@ def _execute_financial_simulation_uncached(
 # when user revisits the page with identical sidebar inputs. The MC harness
 # bypasses this and calls _execute_financial_simulation_uncached directly,
 # preventing cache pollution from random parameter sweeps.
-_ENGINE_OUTPUT_VERSION = "L34-mc-pathdep-schema-v1"
+_ENGINE_OUTPUT_VERSION = "L35-f1f5-fixes-schema-v1"
 # Bump this string whenever the engine's pnl_m / cf_m / bs_m output schemas
 # change (e.g., new row keys added). Without bumping, Streamlit Cloud will
 # serve the prior deployment's cached return tuple — which lacks new keys —
@@ -3858,6 +4012,21 @@ with tabs[7]:
 
         ---
 
+        #### 🆕 Layer 35 — the five audit fixes (F1-F5)
+        A full-spectrum 20-dimension audit of Layer 34 computationally proved five High-severity findings. Layer 35 fixes all five:
+
+        **F1 — Lease Sonderzahlung VAT reclaimed once, not twice (§ 15 UStG).** The lease downpayment's 19% input VAT previously flowed through two channels — the VAT bridge loan AND the monthly Voranmeldung netting — with the model paying AND reclaiming the same VAT twice. The two errors netted out at horizon, but they doubled the gross VAT flow lines, created a one-month transient cash dip per lease cohort, put a phantom Vorsteuerüberhang receivable on the balance sheet, and presented a double Vorsteuerabzug that § 15 UStG does not permit. The VAT now flows solely through the bridge (mirroring real German commercial-lease VAT-Vorfinanzierung); the monthly VAT statements are now exact.
+
+        **F2 — End-of-life salvage actually realizes.** The disposal event previously fired one month past the horizon, so the salvage row, the sidebar slider, and the Monte Carlo salvage parameter were all dead — and the tornado's r ≈ 0 misled. Vehicles are now sold at the end of the final month of their 60-month useful life, after the last AfA charge: NBV = 0, full net proceeds book as a § 275 Abs. 2 Nr. 4 disposal gain. Cohorts whose life extends past the horizon keep their NBV on the closing balance sheet — no fictitious fire-sale.
+
+        **F3 — Taxes on the annual base with Verlustvortrag (§ 10d EStG / § 10a GewStG).** Tax is now accrued progressively on the cumulative annual EBT (months can release prior accrual in loss periods — correct German VZ mechanics), and losses carry forward across years: full offset up to the €1M Sockel, 60% above it (Mindestbesteuerung). This removes the phantom taxes that crisis runs previously paid, making the Monte Carlo downside tail honest in both directions.
+
+        **F4 — Impairment per § 253 Abs. 3 HGB.** Außerplanmäßige Abschreibung is now measured against the carrying amount (Buchwert) — previously it erroneously used the loan balance — and planned AfA is re-planned on the reduced NBV over the remaining useful life. An asset can no longer depreciate past zero (the prior code produced 140% cumulative depreciation under a 50% month-13 impairment).
+
+        **F5 — True 60-month loan maturity.** The annuity is now sized over the 48 amortizing installments that actually occur (12-month interest-only grace + 48 payments = 60 months), so every loan fully amortizes exactly at end of useful life — synchronized with the AfA schedule and the F2 disposal event. Previously the annuity was sized over 60 payments, creating an undisclosed ~72-month profile with a 21.8% residual balloon and structurally flattered DSCRs. **Headline effect: DSCR/FCCR are now computed against the genuine contractual debt service — they read lower and are defensible in front of a credit committee.**
+
+        ---
+
         #### 🆕 Layer 34 — Monte Carlo path-dependency fix
         Layer 33 added macro coupling, per-year shock sampling, skewed costs, and a demand-collapse event. Two independent expert reviews then identified one remaining flaw, and Layer 34 fixes it:
 
@@ -3901,6 +4070,21 @@ with tabs[7]:
         Willkommen beim MRRG Master-Finanzmodell — ein vollständig integriertes, institutionelles Finanzmodell, das Betrieb, Skalierung und Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland nach HGB simuliert.
 
         Auf **Streamlit** und **Python** basierend, nutzt das Dashboard eine **60-monatige Kohorten-Logik** und ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
+
+        ---
+
+        #### 🆕 Schicht 35 — die fünf Audit-Fixes (F1-F5)
+        Ein 20-dimensionales Voll-Audit von Schicht 34 bewies rechnerisch fünf High-Severity-Befunde. Schicht 35 behebt alle fünf:
+
+        **F1 — Leasing-Sonderzahlung: Vorsteuerabzug einmal, nicht zweimal (§ 15 UStG).** Die 19% Vorsteuer der Sonderzahlung floss zuvor durch zwei Kanäle (USt-Brücke UND monatliche Voranmeldungs-Verrechnung) — das Modell zahlte UND erstattete dieselbe Vorsteuer doppelt. Netto glichen sich beide Fehler am Horizont aus, doch sie verdoppelten die Brutto-USt-Zahlungsströme, erzeugten einen transienten Kassen-Dip pro Leasing-Kohorte, eine Phantom-Vorsteuerüberhang-Forderung in der Bilanz und einen doppelten Vorsteuerabzug, den § 15 UStG nicht zulässt. Jetzt ausschließlich über die Brücke; die monatlichen USt-Ausweise sind nun exakt.
+
+        **F2 — Restwert-Realisierung am Nutzungsende.** Der Abgang feuerte einen Monat hinter dem Horizont — Restwert-Zeile, Slider und Monte-Carlo-Parameter waren tot. Fahrzeuge werden nun am Ende des letzten Nutzungsmonats verkauft: Buchwert = 0, voller Netto-Erlös als Anlagenabgangs-Ertrag gem. § 275 Abs. 2 Nr. 4 HGB. Kohorten über den Horizont hinaus behalten ihren Buchwert in der Schlussbilanz.
+
+        **F3 — Steuern auf Jahresbasis mit Verlustvortrag (§ 10d EStG / § 10a GewStG).** Progressive Abgrenzung auf das kumulierte Jahres-EBT; Verluste werden vorgetragen: voller Ausgleich bis €1M Sockel, 60% darüber (Mindestbesteuerung). Krisenläufe zahlen keine Phantomsteuern mehr — der Monte-Carlo-Tail ist nun in beide Richtungen ehrlich.
+
+        **F4 — Impairment gem. § 253 Abs. 3 HGB.** Außerplanmäßige Abschreibung nun auf den Buchwert (zuvor fälschlich auf den Darlehenssaldo); planmäßige AfA wird auf den geminderten Buchwert über die Restnutzungsdauer neu geplant. Kein Vermögensgegenstand kann mehr unter null abgeschrieben werden (zuvor 140% kumulierte Abschreibung möglich).
+
+        **F5 — Echte 60-Monats-Darlehenslaufzeit.** Annuität nun über die 48 tatsächlichen Tilgungsraten dimensioniert (12 Monate tilgungsfrei + 48 Raten = 60 Monate) — jedes Darlehen tilgt exakt zum Nutzungsende, synchron mit AfA und F2-Abgang. Zuvor: unausgewiesenes ~72-Monats-Profil mit 21,8% Restballon und geschönten DSCRs. **DSCR/FCCR spiegeln nun den echten vertraglichen Kapitaldienst — niedriger, aber kreditkomitee-fest.**
 
         ---
 
