@@ -78,13 +78,15 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 35: F1-F5 audit fixes — lease-VAT single reclaim (§ 15 UStG), true 60-month loan amortization (12m grace + 48 annuity), § 10d/§ 10a Verlustvortrag annual tax basis, § 253 III impairment on carrying amount with AfA re-plan, end-of-life salvage realization — on the L34 path-dependent Monte Carlo)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 37: F16/F19/F21 fixes — EBITDA reconciliation bridge (Mgmt → HGB view, § 275 II Nr.4), Monte-Carlo triangulars re-centered on the live base case, cleaning grossed up per § 246 II Bruttoprinzip — on the L36 base)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
         "y3_adds": "Year 3 Additions (Jan-Dec)",
         "y4_adds": "Year 4 Additions (Jan-Dec)",
         "y5_adds": "Year 5 Additions (Jan-Dec)",
+        "launch_delay": "Regulatory Launch Delay (months)",
+        "help_launch_delay": "L36 F12 stress lever. Shifts the ENTIRE fleet-addition schedule right by N months while fixed HQ costs, one-off setup costs, and Y1 IT capex keep burning from month 1 with zero revenue — modeling the most probable real-world deviation for a Jan-2028 Cybercab launch: AFGBV Level-4 operating permission, EU type-approval/homologation, or Munich PBefG concession slippage. Additions pushed past the 60-month horizon are never purchased (no capex, no debt). 0 = launch on plan. A configured delay applies to BOTH the deterministic statements and every Monte Carlo run.",
         "sec1b": "1b. OPERATIONAL PHYSICS",
         "active_hours": "Active Hours / Day",
         "help_active_hours": "Blended weekly-average productive shift hours. Weekday 15h (sustained demand 6am-11pm minus brief charging/cleaning windows), weekend 18h (longer demand window 8am-2am next day, more lucrative late-night routes), blended weekly average ≈ 16h. Excludes the 2am-6am Tesla Robotaxi Network inductive charging window, which runs in parallel to depot return and onboard sensor cleaning (Cybercab spec, Cybertruck-derived) — eliminating the depot-cleaning shift penalty assumed in earlier Waymo-benchmark estimates. Onboard inductive charging + autonomous sensor cleaning shortens non-productive windows materially below the 13.5h benchmark used for human-driver fleets.",
@@ -133,6 +135,8 @@ if lang_choice == "English":
         "help_delivery_ramp": "Tesla Network delivery service activation by year. Default 0/0/30/70/100 reflects Tesla launching delivery as Y2H2 product, mature by Y4. Stress-test by setting all to 0% (pure passenger) or 100% (immediate launch).",
         "sec4": "4. DAILY VARIABLE COSTS (Net)",
         "cleaning": "Cleaning Cost per Vehicle/Day (€, Net of Tesla Fees)",
+        "cleaning_fee": "Cleaning fee pass-through €/day (gross-up)",
+        "help_cleaning_fee": "Section 246 (2) HGB Bruttoprinzip gross-up. The Tesla in-cabin soiling fee (~EUR3/day at mature 12 severe + 30 moderate incidents/car/year) is charged to the rider and routed to MRRG. As a sonstige betrieblicher Ertrag it must NOT be netted against the cleaning expense. This grosses the EUR2/day net cleaning into a EUR5/day Materialaufwand and a EUR3/day fee-revenue line; EBITDA, EBIT, NI, cash and VAT are unchanged (fee contra-settled net via the Tesla platform). Set 0 for net presentation (pre-L37).",
         "help_cleaning": "update. Cleaning cost €2/day NET reflects Tesla cleaning-fee revenue pass-through. Tesla published Robotaxi terms (Dec 2025): $50 moderate / $150 severe per incident, deducted automatically from rider via in-cabin cameras. Gross cleaning cost ~€5/day (depot deep-clean + sensor washer fluid + ozone treatment) less ~€3/day fee pass-through revenue at 12 severe + 30 moderate incidents/car/year mature state = €2/day net. Operationally, dirty cars route to depot during charging window — zero productive-shift impact.",
         "wear_rate": "Maintenance/Wear per km (€)",
         "wear_help": "Management-view levelized rate reflecting 4-5y vehicle scrap strategy (post-AfA exhaustion). Breakdown: tires €0.027, sensor maintenance €0.034 (Cybercab onboard cleaning reduces vs Waymo benchmark), body wear €0.012, fluids/suspension €0.005, HVAC/inspections €0.005, accident reserve €0.008, contingency €0.005. Benchmarked vs Sixt+, Free Now, MOIA published data. Below Waymo (€0.12-0.16) due to simpler Cybercab sensor stack and German labor rates.",
@@ -226,7 +230,7 @@ if lang_choice == "English":
         ),
         "sec9": "9. OTHER INCOME / SALVAGE",
         "thg": "THG Quote per vehicle/yr",
-        "help_thg": "Greenhouse Gas (GHG) Reduction Quota certificates per § 7 Abs. 1 38. BImSchV. Flat annual payment per registered EV per calendar year, paid in FULL regardless of when in the year vehicle was registered, provided registration is before Nov 15 deadline. Vehicles registered Nov-Dec defer to following January. Default €280 reflects 2024 German market actuals (range €150-450 depending on provider). 2025-2028 forward pricing volatile. Source: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
+        "help_thg": "NET-of-VAT premium (L36 F7): this value is the amount MRRG keeps per vehicle-year. As an Unternehmer, the quota sale is umsatzsteuerpflichtig — the engine adds 19% output VAT through the monthly Voranmeldung at accrual and collects the gross amount at the quarterly provider settlement. | Greenhouse Gas (GHG) Reduction Quota certificates per § 7 Abs. 1 38. BImSchV. Flat annual payment per registered EV per calendar year, paid in FULL regardless of when in the year vehicle was registered, provided registration is before Nov 15 deadline. Vehicles registered Nov-Dec defer to following January. Default €280 reflects 2024 German market actuals (range €150-450 depending on provider). 2025-2028 forward pricing volatile. Source: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
         "salvage": "Vehicle Sale Price (End of 5-Yr Useful Life)",
         
         "pnl_gbv": "Gross Booking Value (Customer Pays incl. 19% VAT)",
@@ -258,6 +262,7 @@ if lang_choice == "English":
         "pnl_fees": "Less: Subscriptions & Fees (IHK, GEZ)",
         "pnl_bank": "Less: Bank Fees",
         "pnl_legal_prov": "Less: Legal/Litigation Provision (§ 249 HGB)",
+        "pnl_clean_fee": "Add: Cleaning Fee Pass-Through (Section 246 II HGB)",
         "pnl_thg": "Add: THG Quote (Other Operating Income)",
         "pnl_ebitda": "EBITDA (Management View)",
         "pnl_ebitda_hgb": "EBITDA (HGB View, incl. Anlagenabgang per § 275 II Nr.4 HGB)",
@@ -520,18 +525,21 @@ if lang_choice == "English":
         "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ consecutive months of unfunded shortfall first triggered in month: ",
         "insolv_severity_label": "Total cumulative unfunded shortfall over breach period",
         "insolv_diagnostic_note": "Note: simulation continues past the legal insolvency trigger for diagnostic visibility into the cash recovery path. In real operations, the Geschäftsführung would be legally required to file an Insolvenzantrag within 3 weeks of Zahlungsunfähigkeit per § 15a InsO. Use this disclosure to size additional equity/debt required to maintain going-concern status.",
-        "ebitda_recon_title": "EBITDA Reconciliation Bridge (Mgmt View → HGB View)"
+        "ebitda_recon_title": "EBITDA Reconciliation Bridge (Mgmt View → HGB View)",
+        "ebitda_recon_caption": "Management EBITDA is operations-only. The HGB view adds end-of-life fleet disposal gains recognised as sonstige betriebliche Erträge under § 275 Abs. 2 Nr. 4 HGB. The bridge foots exactly: Mgmt EBITDA + Anlagenabgang = HGB EBITDA."
     }
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 35: F1-F5 Audit-Fixes — einmaliger Vorsteuerabzug Leasing-Sonderzahlung (§ 15 UStG), echte 60-Monats-Tilgung (12M tilgungsfrei + 48 Annuitäten), § 10d/§ 10a Verlustvortrag auf Jahresbasis, § 253 III Impairment auf Buchwert mit AfA-Neuplanung, Restwert-Realisierung am Nutzungsende — auf dem pfadabhängigen L34-Monte-Carlo)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 37: F16/F19/F21 Fixes — EBITDA-Überleitungsbrücke (Mgmt → HGB-Sicht, § 275 II Nr.4), Monte-Carlo-Dreiecksverteilungen auf den Live-Basisfall zentriert, Reinigung brutto gem. § 246 II Bruttoprinzip — auf der L36-Basis)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
         "y3_adds": "Jahr 3 Zugänge (Jan-Dez)",
         "y4_adds": "Jahr 4 Zugänge (Jan-Dez)",
         "y5_adds": "Jahr 5 Zugänge (Jan-Dez)",
+        "launch_delay": "Regulatorische Launch-Verzögerung (Monate)",
+        "help_launch_delay": "L36 F12 Stress-Hebel. Verschiebt den GESAMTEN Flottenzugangsplan um N Monate nach hinten, während fixe HQ-Kosten, einmalige Gründungskosten und J1-IT-Capex ab Monat 1 ohne Umsatz weiterlaufen — das wahrscheinlichste reale Abweichungsszenario für einen Cybercab-Start Jan 2028: AFGBV-Level-4-Betriebserlaubnis, EU-Typgenehmigung/Homologation oder Münchner PBefG-Konzession. Über den 60-Monats-Horizont hinausgeschobene Zugänge werden nie gekauft (kein Capex, keine Schulden). 0 = Start nach Plan. Eine konfigurierte Verzögerung gilt für die deterministischen Statements UND jeden Monte-Carlo-Lauf.",
         "sec1b": "1b. OPERATIVE PHYSIK",
         "active_hours": "Aktive Stunden / Tag",
         "help_active_hours": "Gemischter Wochendurchschnitt produktiver Schichtstunden. Werktag 15h (Nachfrage 6-23 Uhr abzüglich kurzer Lade-/Reinigungsfenster), Wochenende 18h (längeres Nachfragefenster 8-2 Uhr Folgetag, lukrativere Nachtstrecken), gemischter Wochendurchschnitt ≈ 16h. Ausgeschlossen ist das 2-6 Uhr Tesla Robotaxi-Netzwerk-Induktionsladefenster, das parallel zur Depotrückkehr und autonomen Sensorreinigung läuft (Cybercab Spec, Cybertruck-abgeleitet) — entfällt die Depot-Reinigungsschicht älterer Waymo-Benchmark-Schätzungen. Induktivladen + autonome Sensorreinigung verkürzen die unproduktiven Fenster wesentlich unter den 13,5h-Benchmark menschengeführter Flotten.",
@@ -580,6 +588,8 @@ else:
         "help_delivery_ramp": "Tesla Network Lieferdienst-Aktivierung nach Jahr. Standard 0/0/30/70/100 reflektiert Tesla Lieferdienst-Launch J2H2, reif J4. Stresstest: alle 0% (reiner Personenverkehr) oder 100% (sofortiger Start).",
         "sec4": "4. TÄGLICHE VARIABLE KOSTEN (Netto)",
         "cleaning": "Reinigungskosten pro Fahrzeug/Tag (€, netto Tesla-Gebühren)",
+        "cleaning_fee": "Reinigungsgebuehren-Durchleitung €/Tag (Bruttoausweis)",
+        "help_cleaning_fee": "Section 246 Abs. 2 HGB Bruttoprinzip. Die Tesla-Verschmutzungsgebuehr (~EUR3/Tag bei 12 schweren + 30 mittleren Vorfaellen pro Fahrzeug/Jahr) wird dem Fahrgast belastet und MRRG gutgeschrieben. Als sonstiger betrieblicher Ertrag darf sie NICHT mit dem Reinigungsaufwand saldiert werden. Dies blaeht die EUR2/Tag Nettoreinigung auf EUR5/Tag Materialaufwand und eine EUR3/Tag Erloeszeile auf; EBITDA, EBIT, JUE, Cash und USt bleiben unveraendert. 0 = Nettoausweis (vor L37).",
         "help_cleaning": "Update. Reinigungskosten €2/Tag NETTO unter Berücksichtigung der Tesla-Reinigungsgebühr-Erlöse. Tesla Robotaxi AGB (Dez 2025): $50 mittlere / $150 schwere Verschmutzungen pro Vorfall, automatisch über Innenraumkameras dem Fahrgast belastet. Bruttoreinigungskosten ~€5/Tag (Depot-Tiefenreinigung + Sensor-Waschflüssigkeit + Ozonbehandlung) abzüglich ~€3/Tag Gebührenerlöse bei 12 schweren + 30 mittleren Vorfällen pro Fahrzeug/Jahr im Reifezustand = €2/Tag netto. Verschmutzte Fahrzeuge fahren während des Ladefensters zum Depot — null Auswirkung auf die produktive Schicht.",
         "wear_rate": "Instandhaltung/Verschleiß pro km (€)",
         "wear_help": "Management-Sicht: nivellierter Verschleißsatz für 4-5j Scrap-Strategie (nach AfA-Schild). Aufschlüsselung: Reifen €0,027, Sensorwartung €0,034 (Cybercab Onboard-Reinigung reduziert ggü. Waymo-Benchmark), Innenraumverschleiß €0,012, Flüssigkeiten/Fahrwerk €0,005, HVAC/Inspektionen €0,005, Unfallrückstellung €0,008, Reserve €0,005. Benchmarks: Sixt+, Free Now, MOIA. Unter Waymo (€0,12-0,16) wegen einfacherem Cybercab-Sensorstack und deutschen Arbeitskosten.",
@@ -673,7 +683,7 @@ else:
         ),
         "sec9": "9. SONSTIGE ERTRÄGE / RESTWERT",
         "thg": "THG-Quote pro Fahrzeug/Jahr",
-        "help_thg": "Treibhausgasminderungsquote gem. § 7 Abs. 1 38. BImSchV. Jährliche Pauschalzahlung pro zugelassenes E-Fahrzeug pro Kalenderjahr, VOLL ausgezahlt unabhängig vom Zulassungszeitpunkt im Jahr, sofern Zulassung vor Stichtag 15. November. Nov-Dez-Zulassungen werden auf Folgejahr-Januar verschoben. Standard €280 entspricht 2024 deutschen Markt-Ist-Werten (Bandbreite €150-450 je nach Anbieter). 2025-2028 Forward-Preise volatil. Quelle: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
+        "help_thg": "NETTO-Prämie nach USt (L36 F7): dieser Wert ist der Betrag, den MRRG pro Fahrzeugjahr behält. Als Unternehmer ist der Quotenverkauf umsatzsteuerpflichtig — die Engine führt 19% Umsatzsteuer über die monatliche Voranmeldung bei Entstehung ab und vereinnahmt den Bruttobetrag bei der quartalsweisen Anbieterabrechnung. | Treibhausgasminderungsquote gem. § 7 Abs. 1 38. BImSchV. Jährliche Pauschalzahlung pro zugelassenes E-Fahrzeug pro Kalenderjahr, VOLL ausgezahlt unabhängig vom Zulassungszeitpunkt im Jahr, sofern Zulassung vor Stichtag 15. November. Nov-Dez-Zulassungen werden auf Folgejahr-Januar verschoben. Standard €280 entspricht 2024 deutschen Markt-Ist-Werten (Bandbreite €150-450 je nach Anbieter). 2025-2028 Forward-Preise volatil. Quelle: ADAC, EnBW, Finanztip, Klima-Quote, elektrovorteil.",
         "salvage": "Fahrzeugverkaufspreis (Ende 5-J. Nutzungsdauer)",
         
         "pnl_gbv": "Bruttobuchungswert (Kunde zahlt inkl. 19% USt)",
@@ -705,6 +715,7 @@ else:
         "pnl_fees": "Abzüglich: Beiträge & Gebühren (IHK, GEZ)",
         "pnl_bank": "Abzüglich: Bankgebühren",
         "pnl_legal_prov": "Abzüglich: Zuführung Rückstellung Rechtsrisiken (§ 249 HGB)",
+        "pnl_clean_fee": "Zuzüglich: Reinigungsgebühren-Durchleitung (§ 246 II HGB)",
         "pnl_thg": "Zuzüglich: THG-Quote (Sonstige betriebliche Erträge)",
         "pnl_ebitda": "EBITDA (Management View)",
         "pnl_ebitda_hgb": "EBITDA (HGB-Sicht, inkl. Anlagenabgang gem. § 275 II Nr.4 HGB)",
@@ -967,7 +978,8 @@ else:
         "legal_insolv_warn": "⚖️ § 15a InsO ANTRAGSPFLICHT: 3+ aufeinanderfolgende Monate ungedeckten Liquiditätsbedarfs erstmals erreicht in Monat: ",
         "insolv_severity_label": "Kumulierter ungedeckter Liquiditätsbedarf über den Verletzungszeitraum",
         "insolv_diagnostic_note": "Hinweis: Die Simulation läuft über den gesetzlichen Insolvenzauslöser hinaus weiter — zur diagnostischen Sichtbarkeit des Liquiditätsverlaufs. In der Realität müsste die Geschäftsführung gemäß § 15a InsO innerhalb von 3 Wochen ab Zahlungsunfähigkeit Insolvenzantrag stellen. Diese Offenlegung dient der Quantifizierung des Kapitalbedarfs zur Sicherung der Fortführungsfähigkeit (Going Concern).",
-        "ebitda_recon_title": "EBITDA-Überleitung (Management-Sicht → HGB-Sicht)"
+        "ebitda_recon_title": "EBITDA-Überleitung (Management-Sicht → HGB-Sicht)",
+        "ebitda_recon_caption": "Das Management-EBITDA ist rein operativ. Die HGB-Sicht ergänzt die Anlagenabgangsgewinne am Nutzungsende, die als sonstige betriebliche Erträge gem. § 275 Abs. 2 Nr. 4 HGB erfasst werden. Die Überleitung stimmt exakt: Management-EBITDA + Anlagenabgang = HGB-EBITDA."
     }
 
 # --- SIDEBAR INTERFACE CONTROLS ---
@@ -1027,6 +1039,12 @@ if _fleet_errors:
     for _e in _fleet_errors:
         st.sidebar.error(_e)
     st.stop()
+
+# === L36 F12: first-class regulatory launch-delay stress parameter ===
+launch_delay_months = st.sidebar.number_input(
+    loc["launch_delay"], value=0, min_value=0, max_value=24, step=1,
+    help=loc["help_launch_delay"]
+)
 
 st.sidebar.header(loc["sec1b"])
 active_hours_per_day = st.sidebar.number_input(loc["active_hours"], value=16.0, min_value=10.0, max_value=20.0, step=0.5, help=loc["help_active_hours"])
@@ -1131,6 +1149,8 @@ else:
 
 st.sidebar.header(loc["sec4"])
 cleaning_cost_per_day = st.sidebar.number_input(loc["cleaning"], value=2.00, min_value=0.0, max_value=25.0, step=0.5, help=loc["help_cleaning"])
+# === L37 F21: gross-up of the cleaning fee pass-through (Bruttoprinzip) ===
+cleaning_fee_passthrough_per_day = st.sidebar.number_input(loc["cleaning_fee"], value=3.00, min_value=0.0, max_value=25.0, step=0.5, help=loc["help_cleaning_fee"])
 wear_and_tear_rate = st.sidebar.number_input(loc["wear_rate"], value=0.10, min_value=0.07, max_value=0.25, format="%.2f", step=0.01, help=loc["wear_help"])
 # === Energy decomposed into 3 sliders ===
 # Three independent drivers replace the prior single energy_rate parameter,
@@ -1319,7 +1339,7 @@ def _execute_financial_simulation_uncached(
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
-    cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
+    cleaning_cost_per_day, cleaning_fee_passthrough_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
     legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
@@ -1353,7 +1373,29 @@ def _execute_financial_simulation_uncached(
     # at €2,363,562). This is the zero-regression contract: the per-year channel
     # is dormant unless the MC harness explicitly supplies non-neutral arrays.
     macro_demand_mult_by_year=None,
-    macro_energy_mult_by_year=None
+    macro_energy_mult_by_year=None,
+    # === L36 F12: first-class regulatory launch-delay stress parameter ======
+    # Shifts the ENTIRE fleet-addition schedule right by N months while fixed
+    # HQ costs, one-off setup costs, and Y1 IT capex correctly burn from
+    # month 1 — modeling the single most probable real-world deviation for a
+    # Jan-2028 Cybercab launch: AFGBV Level-4 operating permission, EU
+    # type-approval/homologation, or Munich PBefG concession slippage.
+    # Additions pushed past the 60-month horizon are simply never purchased
+    # (no capex, no debt — you do not buy cars you cannot deploy). Default 0
+    # → bit-identical to prior layers (zero-regression contract).
+    launch_delay_months=0,
+    # === L36 F10: per-year overdraft (Kontokorrent) rate add-on =============
+    # The overdraft is the model's ONE genuinely floating-rate liability — and
+    # it is drawn precisely in crisis scenarios. Previously its 9.5% rate was
+    # a constant that never felt the macro factor: the L33/L34 correlated
+    # crisis engine raised fixed loan rates (locked at origination, correctly
+    # tugged per cohort year) but left the floating line untouched — the
+    # largest remaining macro transmission gap. This optional 5-element array
+    # (percentage-point adders, index 0 = Year 1) lets the Monte Carlo push
+    # each year's macro shock into the floating rate IN-PLACE. None → zeros →
+    # deterministic engine bit-identical (zero regression). Effective rate is
+    # floored at 0.5% (banks do not pay you to draw a Kontokorrent).
+    overdraft_rate_addon_by_year=None
 ):
     # ============================================================
     # is_dynamic parameter added before lang_choice
@@ -1369,11 +1411,11 @@ def _execute_financial_simulation_uncached(
     # P_DTFEE = Tesla Network fee on delivery net
     # P_DMNET = MRRG Net Revenue from Delivery (after Tesla fee)
     # P_TMNET = Total MRRG Net Revenue (Passenger + Delivery)
-    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI = [
+    P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_CFR, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI = [
         "pnl_gbv", "pnl_vat", "pnl_net_rev", "pnl_tesla_fee", "pnl_mrrg_net",
         "pnl_delivery_gbv", "pnl_delivery_vat", "pnl_delivery_net_rev", "pnl_delivery_tesla_fee", "pnl_delivery_mrrg_net", "pnl_total_mrrg_net",
         "pnl_energy", "pnl_wear", "pnl_clean", "pnl_lease", "pnl_db1", "pnl_ins", "pnl_park",
-        "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg",
+        "pnl_api", "pnl_tuev", "pnl_sub", "pnl_db2", "pnl_hq_lease", "pnl_it", "pnl_legal", "pnl_hq_ins", "pnl_fees", "pnl_bank", "pnl_legal_prov", "pnl_thg", "pnl_clean_fee",
         "pnl_ebitda", "pnl_ebitda_hgb", "pnl_afa_veh", "pnl_afa_it", "pnl_salvage", "pnl_ebit", "pnl_int_inc", "pnl_int_exp", "pnl_int_exp_sh", "pnl_ebt", "pnl_tax", "pnl_ni"
     ]
 
@@ -1397,6 +1439,19 @@ def _execute_financial_simulation_uncached(
             return [0]*12
 
     all_adds = parse_adds(y1_adds_str) + parse_adds(y2_adds_str) + parse_adds(y3_adds_str) + parse_adds(y4_adds_str) + parse_adds(y5_adds_str)
+    # === L36 F12: regulatory launch-delay shift =============================
+    # Prepend N zero-addition months and truncate back to the 60-month
+    # horizon: every cohort lands N months later; additions displaced past
+    # month 60 are never purchased. Fixed corporate costs (HQ lease, IT cloud,
+    # legal base, setup costs, Y1 IT hardware capex) intentionally remain
+    # anchored to month 1 — they burn through the delay window with zero
+    # revenue, which is exactly the regulatory-slippage stress this parameter
+    # exists to expose. base_fleet_size (the scaling-cost anchor) stays on the
+    # NOMINAL Y1 plan: per-vehicle legal/insurance scaling premiums apply to
+    # growth beyond the originally-planned base fleet, delay or not.
+    _delay = int(max(0, launch_delay_months))
+    if _delay > 0:
+        all_adds = ([0] * _delay + all_adds)[:60]
     # === base_fleet_size restored inside cached function scope ===
     base_fleet_size = sum(parse_adds(y1_adds_str))
     
@@ -1408,6 +1463,15 @@ def _execute_financial_simulation_uncached(
     # === Default financing mix fallback (preserves backward compat) ===
     if fin_mix_by_year is None:
         fin_mix_by_year = {y: (1.0, 0.0, 0.0) for y in range(1, 6)}
+
+    # === L36 F10: normalize the per-year overdraft rate add-on array ========
+    # None → all-zero (deterministic engine bit-identical to prior layers);
+    # defensive length-pad to 5 so a short array cannot IndexError mid-horizon.
+    if overdraft_rate_addon_by_year is None:
+        _od_addon_yr = [0.0, 0.0, 0.0, 0.0, 0.0]
+    else:
+        _od_addon_yr = list(overdraft_rate_addon_by_year)[:5]
+        _od_addon_yr += [0.0] * (5 - len(_od_addon_yr))
 
     # === L34: normalize per-year macro arrays. None → neutral (all 1.0) so the
     # deterministic engine and all prior baselines are unchanged. Defensive
@@ -1544,7 +1608,7 @@ def _execute_financial_simulation_uncached(
     delivery_gbv_per_day_per_car_full = delivery_trips_per_day_full * delivery_rev_per_trip
     delivery_ramp_by_year = {1: delivery_ramp_y1, 2: delivery_ramp_y2, 3: delivery_ramp_y3, 4: delivery_ramp_y4, 5: delivery_ramp_y5}
 
-    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI]}
+    pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_CFR, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
 
@@ -1752,10 +1816,32 @@ def _execute_financial_simulation_uncached(
                 # Cars added (any tranche) — drives THG accrual
                 cars_added_this_month += c["size"]
 
-            # Active fleet: ALL tranches count toward operational fleet
-            # (lease tranche operates same as loan/equity, just different financing).
-            if current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD:
-                active_fleet += c["size"]
+            # === L36 F6 FIX: tranche-aware operational fleet membership ===========
+            # Prior code counted the WHOLE cohort (`active_fleet += c["size"]`) for
+            # the full 60-month useful life regardless of financing tranche. Proven
+            # defect: at lease_term_months = 24, the Y1 lease cohort stopped paying
+            # lease at month 24 (returned to the lessor ✓) yet STILL earned full
+            # passenger revenue through month 60 — phantom fleet, internally
+            # contradictory. Corrected semantics:
+            #   • Loan + equity cars (MRRG-owned): active for the full useful life
+            #     (60 months), then sold per the F2 end-of-life event — unchanged.
+            #   • Lease cars (lessor-owned): active only while the lease contract
+            #     runs, i.e. within BOTH the useful-life window AND the lease term.
+            #     When the term ends before month 60, the cars are physically
+            #     returned and stop producing revenue, costs, and THG claims.
+            #     A term > 60 is capped by the useful-life window (identical to
+            #     prior behavior, so term ≥ 60 is bit-for-bit zero-regression;
+            #     the default mix of 100% loan is trivially unchanged).
+            # Note: with mixed tranches the fleet count becomes fractional after a
+            # short lease expires — consistent with the engine's existing
+            # continuous tranche-fraction arithmetic (costs, THG, and revenue all
+            # scale per-car linearly).
+            _in_life_window = (current_month >= c_start and current_month < c_start + VEHICLE_AMORTIZATION_PERIOD)
+            _in_lease_window = (current_month >= c_start and current_month < c_start + c_lease_term)
+            if _in_life_window:
+                active_fleet += c["size"] * (c["loan_frac"] + c["equity_frac"])
+                if _in_lease_window:
+                    active_fleet += c["size"] * c["lease_frac"]
                 # === Tranche A (Loan): interest expense on outstanding loan balance ===
                 int_for_this_loan = c["loan_bal"] * (c["rate"] / 12)
                 int_exp += int_for_this_loan
@@ -1916,7 +2002,24 @@ def _execute_financial_simulation_uncached(
         # multiplicatively, consistent with how seasonality already scales energy.
         _macro_en_this_year = _macro_en_yr[current_year - 1]
         energy_mo = total_km_mo * (energy_rate * season_mult * _macro_en_this_year)
-        clean_mo = cleaning_cost_per_day * days_in_mo * active_fleet  # calendar-driven, unchanged
+        # === L37 F21 FIX: cleaning grossed up per § 246 Abs. 2 HGB (Bruttoprinzip) ===
+        # The sidebar `cleaning_cost_per_day` is the NET cost (€2/day default) = gross
+        # depot cleaning (~€5/day) LESS the Tesla in-cabin fee pass-through (~€3/day,
+        # charged to the soiling rider and routed to MRRG). Booking the expense net of
+        # that fee revenue violates the Saldierungsverbot (§ 246 Abs. 2 HGB): income and
+        # expense may not be offset. The fee is a sonstige betrieblicher Ertrag and the
+        # gross cleaning a Materialaufwand; both must appear gross.
+        #   • clean_net_mo  — the €2/day net figure. Drives the VAT base and cash EXACTLY
+        #     as before (the fee pass-through is contra-settled net through the Tesla
+        #     platform per the working-capital disclosure), so cash/VAT/BS are untouched.
+        #   • clean_mo      — GROSS expense (net + pass-through) → pos3 Materialaufwand.
+        #   • clean_fee_rev_mo — the pass-through revenue → pos2 sonstige betr. Erträge.
+        # EBITDA / EBIT / EBT / NI are all unchanged: the gross expense is exactly offset
+        # by the fee revenue added back into EBITDA below (parallel to thg_rev_mo). With
+        # cleaning_fee_passthrough_per_day = 0 the model is bit-identical to L36.
+        clean_net_mo = cleaning_cost_per_day * days_in_mo * active_fleet  # VAT/cash base — unchanged
+        clean_fee_rev_mo = cleaning_fee_passthrough_per_day * days_in_mo * active_fleet  # pos2 income
+        clean_mo = clean_net_mo + clean_fee_rev_mo  # GROSS expense (pos3) — calendar-driven
         # DB1 includes BOTH passenger and delivery MRRG net revenue
         total_mrrg_net_mo = mrrg_net_mo + delivery_mrrg_net_mo
         # === Tranche B (Lease): Total lease P&L expense for this month ===
@@ -1963,7 +2066,10 @@ def _execute_financial_simulation_uncached(
         # - IHK contributions: Mitgliedsbeitrag (no VAT)
         # - GEZ broadcast fee: öffentliche Abgabe (no VAT)
         # ============================================================
-        vat_eligible_opex_mo = (energy_mo + wear_mo + clean_mo + park_mo
+        vat_eligible_opex_mo = (energy_mo + wear_mo + clean_net_mo + park_mo
+                                # === L37 F21: clean_net_mo (NOT gross clean_mo) — the fee
+                                # pass-through is contra-settled net via the Tesla platform,
+                                # so the recoverable input VAT base is unchanged from L36. ===
                                 + tel_mo + tuev_mo + sub_mo + hq_lease_mo
                                 + it_cloud_mo + legal_mo
                                 # === Tranche B (Lease): monthly lease payments only ===
@@ -2042,20 +2148,48 @@ def _execute_financial_simulation_uncached(
             thg_rev_mo += thg_deferred_next_year
             thg_deferred_next_year = 0.0
             pending_carryover_cars = 0  # released, reset
-        # Receivable + quarterly cash collection (unchanged pattern)
-        thg_receivable += thg_rev_mo
+        # =====================================================================
+        # === L36 F7 FIX: THG-Quote output VAT (Umsatzsteuer) ================
+        # =====================================================================
+        # For an Unternehmer, the sale of the GHG quota to a pooling provider
+        # is an umsatzsteuerpflichtige sonstige Leistung (BMF guidance on
+        # THG-Quotenhandel; the private-individual exemption does NOT apply to
+        # a GmbH fleet operator). Prior layers booked the THG premium with no
+        # output VAT — a presentation gap in an otherwise exact VAT engine.
+        # ANCHORING CONVENTION: the sidebar value (default €280) is the NET
+        # premium — the amount MRRG keeps. This preserves the P&L THG row,
+        # EBITDA, and every prior baseline bit-for-bit. What changes is the
+        # statement plumbing, routed through the EXISTING Voranmeldung
+        # machinery: 19% output VAT enters the monthly Umsatzsteuer-Zahllast
+        # in the ACCRUAL month (Sollversteuerung — tax arises with the
+        # supply, not the cash), the receivable is carried GROSS per § 246
+        # HGB, and the quarterly provider settlement collects GROSS cash.
+        # Net cash over the cycle = net premium, exactly as before; the
+        # company briefly fronts the VAT between remittance and collection —
+        # the genuine Sollversteuerung working-capital cost.
+        # =====================================================================
+        thg_output_vat_mo = thg_rev_mo * VAT_RATE
+        # Receivable carried GROSS (net premium + output VAT); quarterly
+        # settlement collects the gross balance — pattern otherwise unchanged.
+        thg_receivable += thg_rev_mo + thg_output_vat_mo
         thg_cash_mo = 0.0
         if current_month % 3 == 0:
             thg_cash_mo = thg_receivable
             thg_receivable = 0.0
-        thg_wc_delta = thg_cash_mo - thg_rev_mo
+        # WC delta now reconciles GROSS cash against GROSS accrual (net + VAT),
+        # so the CF identity holds: in the accrual month the +VAT in
+        # op_vat_collected is exactly offset here (no cash has arrived yet);
+        # in the settlement month the gross collection flows through.
+        thg_wc_delta = thg_cash_mo - (thg_rev_mo + thg_output_vat_mo)
         
         # Risk Provisions allocation (§ 249 HGB)
         legal_provision_mo = legal_provision_rate if active_fleet > 0 else 0.0
         legal_provision_bal += legal_provision_mo
         
         # Capital gains stripped cleanly from operational cash line
-        ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo - legal_provision_mo
+        # === L37 F21: + clean_fee_rev_mo (sonstige betr. Ertrag) offsets the grossed-up
+        # cleaning expense flowing through db2_mo, so management EBITDA is unchanged. ===
+        ebitda_mo = db2_mo - hq_lease_mo - it_cloud_mo - legal_mo - hq_ins_mo - fees_mo - bank_fees_pm + thg_rev_mo + clean_fee_rev_mo - legal_provision_mo
         ebit_mo = ebitda_mo - total_afa_this_mo + fleet_sale_rev
         
                 # Interest income accrues on Beginning-of-Period NET cash position
@@ -2113,7 +2247,13 @@ def _execute_financial_simulation_uncached(
         int_exp += vat_int_mo
         
         if overdraft_facility_bal > 0:
-            int_exp += overdraft_facility_bal * (OVERDRAFT_ANNUAL_RATE / 12.0)
+            # === L36 F10 FIX: floating Kontokorrent rate feels the macro factor ===
+            # The overdraft is the one genuinely floating-rate liability and is drawn
+            # exactly in crisis scenarios; its rate now carries THIS YEAR's macro
+            # add-on (zeros on the deterministic path → zero regression). Floored at
+            # 0.5% — a negative-rate Kontokorrent does not exist commercially.
+            _od_rate_eff = max(0.005, OVERDRAFT_ANNUAL_RATE + _od_addon_yr[current_year - 1])
+            int_exp += overdraft_facility_bal * (_od_rate_eff / 12.0)
             
         ebt_mo = ebit_mo + int_inc_mo - int_exp
         
@@ -2200,8 +2340,10 @@ def _execute_financial_simulation_uncached(
         net_inc_mo = ebt_mo - tax_exp_mo
         
         # Short-Term Overdraft Linkage Mechanics
-        # Output VAT now includes BOTH passenger and delivery
-        op_vat_collected = vat_owed_mo + delivery_vat_mo
+        # Output VAT includes passenger + delivery (cash-instant ride VAT) and,
+        # per the L36 F7 fix, the THG output VAT (accrual-month Sollversteuerung;
+        # the matching cash arrives at the quarterly settlement via thg_wc_delta).
+        op_vat_collected = vat_owed_mo + delivery_vat_mo + thg_output_vat_mo
         # === FEATURE A: VAT cash flow ===
         # op_vat_paid = prior month's NETTED payable being remitted to Finanzamt
         # opex_input_vat_mo = vendors paid gross THIS month (separate cash drain)
@@ -2393,6 +2535,7 @@ def _execute_financial_simulation_uncached(
         pnl_m[P_BNK].append(-bank_fees_pm)
         pnl_m[P_LPR].append(-legal_provision_mo)
         pnl_m[P_THG].append(thg_rev_mo)
+        pnl_m[P_CFR].append(clean_fee_rev_mo)  # L37 F21: cleaning fee pass-through (pos2 income)
         pnl_m[P_EB].append(ebitda_mo)
         # HGB-view EBITDA = Mgmt EBITDA + Anlagenabgang (per § 275 II Nr.4 HGB)
         pnl_m[P_EB_HGB].append(ebitda_mo + fleet_sale_rev)
@@ -2499,7 +2642,7 @@ def _execute_financial_simulation_uncached(
 # when user revisits the page with identical sidebar inputs. The MC harness
 # bypasses this and calls _execute_financial_simulation_uncached directly,
 # preventing cache pollution from random parameter sweeps.
-_ENGINE_OUTPUT_VERSION = "L35-f1f5-fixes-schema-v1"
+_ENGINE_OUTPUT_VERSION = "L37-f16f19f21-fixes-schema-v1"
 # Bump this string whenever the engine's pnl_m / cf_m / bs_m output schemas
 # change (e.g., new row keys added). Without bumping, Streamlit Cloud will
 # serve the prior deployment's cached return tuple — which lacks new keys —
@@ -2522,7 +2665,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
     dwell_time_mins, base_fare_eur, price_per_km_eur, tesla_take_rate,
-    cleaning_cost_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
+    cleaning_cost_per_day, cleaning_fee_passthrough_per_day, wear_and_tear_rate, energy_rate, insurance_pm,
     parking_pm, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
     legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
@@ -2538,7 +2681,10 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     is_dynamic, lang_choice,
     fin_mix_by_year, lease_money_factor, lease_downpayment_pct, lease_term_months,
     equity_capital_call_enabled,
-    hebesatz_pct
+    hebesatz_pct,
+    # === L36 F12: deterministic launch-delay scenario lever (hashed kwarg —
+    # participates in the st.cache_data key, so changing the slider recomputes)
+    launch_delay_months=launch_delay_months
 )
 
 # ============================================================
@@ -2619,7 +2765,7 @@ df_bs_combined.rename(index=lambda x: loc.get(x, x), inplace=True)
 hgb_structure = {}
 # pos1 Umsatzerlöse: passenger Net Revenue + delivery Net Revenue (both operating activity)
 hgb_structure[loc["hgb_pos1"]] = (df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]).values
-hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]]).values
+hgb_structure[loc["hgb_pos2"]] = (df_pnl_combined.loc[loc["pnl_thg"]] + df_pnl_combined.loc[loc["pnl_salvage"]] + df_pnl_combined.loc[loc["pnl_clean_fee"]]).values
 # === HGB § 275 Abs. 2 Nr. 5 — Materialaufwand (strict scope per German GAAP) ===
 # Per § 275 HGB, Materialaufwand is limited to:
 #   (a) Aufwendungen für Roh-, Hilfs- und Betriebsstoffe — energy, wear consumables, cleaning
@@ -2897,7 +3043,22 @@ def style_kpi_rows(row):
     return [''] * len(row)
 
 with tabs[0]: st.dataframe(df_pnl_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
-with tabs[1]: st.dataframe(df_hgb_pnl[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+with tabs[1]:
+    st.dataframe(df_hgb_pnl[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+    # === L37 F16 FIX: EBITDA reconciliation bridge (Mgmt View → HGB View) ===
+    # The previously-dead `ebitda_recon_title` loc key now drives a real bridge. The
+    # L35 F2 fix made this necessary: end-of-life fleet disposal gains (§ 275 Abs. 2
+    # Nr. 4 HGB) lift the HGB-view EBITDA above the management EBITDA, and that
+    # reconciling item had no home until now. By construction the bridge foots exactly:
+    # mgmt EBITDA + Anlagenabgang (pnl_salvage = fleet_sale_rev) = HGB EBITDA.
+    st.markdown(f"**{loc['ebitda_recon_title']}**")
+    _recon_bridge = pd.DataFrame({
+        loc["pnl_ebitda"]: df_pnl_combined.loc[loc["pnl_ebitda"]],
+        loc["pnl_salvage"]: df_pnl_combined.loc[loc["pnl_salvage"]],
+        loc["pnl_ebitda_hgb"]: df_pnl_combined.loc[loc["pnl_ebitda_hgb"]],
+    }).T
+    st.dataframe(_recon_bridge[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
+    st.caption(loc["ebitda_recon_caption"])
 with tabs[2]: st.dataframe(df_cf_combined[display_cols].style.format("{:,.0f} €").apply(style_pnl_rows, axis=1), use_container_width=True)
 with tabs[3]: st.dataframe(df_bs_combined[display_cols].style.format("{:,.0f} €").apply(style_bs_rows, axis=1), use_container_width=True)
 with tabs[4]:
@@ -3046,24 +3207,43 @@ with tabs[6]:
             mc_sigma_can_fac = st.number_input(loc["mc_p_can_fac"], value=0.08, min_value=0.01, max_value=0.25, step=0.01, format="%.2f")
         with t1c3:
             mc_sigma_price = st.number_input(loc["mc_p_price"], value=0.10, min_value=0.01, max_value=0.50, step=0.01, format="%.2f")
-            mc_take_min = st.number_input("Tesla Take Min", value=0.25, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
-            mc_take_mode = st.number_input("Tesla Take Mode", value=0.25, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
-            mc_take_max = st.number_input("Tesla Take Max", value=0.30, min_value=0.10, max_value=0.50, step=0.01, format="%.2f")
+            # === L37 F19 FIX: triangular MODE = live sidebar base (tesla_take_rate) ===
+            # Previously Min/Mode/Max were hardcoded and ignored the sidebar base case,
+            # so the MC was not centered on the deterministic scenario. Now the mode IS
+            # the base case and the user controls only the % uncertainty band, which
+            # shifts automatically when the sidebar value changes. Default down/up (0% /
+            # +20%) reproduce the prior 0.25/0.25/0.30 band exactly at the 0.25 default.
+            st.caption(f"Tesla Take-Rate mode = base case {tesla_take_rate:.2f} (tracks sidebar)")
+            mc_take_down = st.number_input("Tesla Take − downside %", value=0.00, min_value=0.0, max_value=0.90, step=0.05, format="%.2f")
+            mc_take_up = st.number_input("Tesla Take + upside %", value=0.20, min_value=0.0, max_value=2.0, step=0.05, format="%.2f")
+            mc_take_mode = tesla_take_rate
+            mc_take_min = max(0.0, mc_take_mode * (1.0 - mc_take_down))
+            mc_take_max = mc_take_mode * (1.0 + mc_take_up)
 
         st.markdown("**Delivery Ramp Uncertainty (Triangular Y2/Y3/Y4)**")
+        # === L37 F19 FIX: delivery-ramp triangular MODE = live sidebar base ramps ===
+        # Additive bands (the base can be 0, so a % band would be degenerate). Defaults
+        # reproduce the prior absolute Min/Mode/Max exactly at the default ramp values.
+        st.caption(f"Modes track sidebar base ramps — Y2 {delivery_ramp_y2:.2f} / Y3 {delivery_ramp_y3:.2f} / Y4 {delivery_ramp_y4:.2f}")
         d_c1, d_c2, d_c3 = st.columns(3)
         with d_c1:
-            mc_dy2_min = st.number_input("Delivery Y2 Min", value=0.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy2_mode = st.number_input("Delivery Y2 Mode", value=0.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy2_max = st.number_input("Delivery Y2 Max", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy2_down = st.number_input("Delivery Y2 − downside", value=0.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy2_up = st.number_input("Delivery Y2 + upside", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy2_mode = delivery_ramp_y2
+            mc_dy2_min = max(0.0, mc_dy2_mode - mc_dy2_down)
+            mc_dy2_max = min(1.0, mc_dy2_mode + mc_dy2_up)
         with d_c2:
-            mc_dy3_min = st.number_input("Delivery Y3 Min", value=0.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy3_mode = st.number_input("Delivery Y3 Mode", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy3_max = st.number_input("Delivery Y3 Max", value=0.60, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy3_down = st.number_input("Delivery Y3 − downside", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy3_up = st.number_input("Delivery Y3 + upside", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy3_mode = delivery_ramp_y3
+            mc_dy3_min = max(0.0, mc_dy3_mode - mc_dy3_down)
+            mc_dy3_max = min(1.0, mc_dy3_mode + mc_dy3_up)
         with d_c3:
-            mc_dy4_min = st.number_input("Delivery Y4 Min", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy4_mode = st.number_input("Delivery Y4 Mode", value=0.70, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
-            mc_dy4_max = st.number_input("Delivery Y4 Max", value=1.00, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy4_down = st.number_input("Delivery Y4 − downside", value=0.40, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy4_up = st.number_input("Delivery Y4 + upside", value=0.30, min_value=0.0, max_value=1.0, step=0.05, format="%.2f")
+            mc_dy4_mode = delivery_ramp_y4
+            mc_dy4_min = max(0.0, mc_dy4_mode - mc_dy4_down)
+            mc_dy4_max = min(1.0, mc_dy4_mode + mc_dy4_up)
 
         st.markdown(f"**{loc['mc_tier2_header']}**")
         t2c1, t2c2, t2c3 = st.columns(3)
@@ -3072,19 +3252,32 @@ with tabs[6]:
             mc_sigma_fx = st.number_input(loc["mc_p_fx"], value=0.05, min_value=0.01, max_value=0.20, step=0.01, format="%.2f")
             mc_sigma_ltv = st.number_input(loc["mc_p_ltv"], value=0.05, min_value=0.01, max_value=0.20, step=0.01, format="%.2f")
         with t2c2:
-            mc_loan_y1_min = st.number_input("Y1 Loan Min", value=0.035, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
-            mc_loan_y1_mode = st.number_input("Y1 Loan Mode", value=0.045, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
-            mc_loan_y1_max = st.number_input("Y1 Loan Max", value=0.075, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
+            # === L37 F19 FIX: Y1 loan-rate mode = live base (y1_loan_rate), % band ===
+            st.caption(f"Y1 Loan mode = base {y1_loan_rate:.3f}")
+            mc_loan_y1_down = st.number_input("Y1 Loan − downside %", value=0.2222, min_value=0.0, max_value=0.90, step=0.01, format="%.2f")
+            mc_loan_y1_up = st.number_input("Y1 Loan + upside %", value=0.6667, min_value=0.0, max_value=3.0, step=0.05, format="%.2f")
+            mc_loan_y1_mode = y1_loan_rate
+            mc_loan_y1_min = max(0.0, mc_loan_y1_mode * (1.0 - mc_loan_y1_down))
+            mc_loan_y1_max = mc_loan_y1_mode * (1.0 + mc_loan_y1_up)
         with t2c3:
-            mc_loan_y2_min = st.number_input("Y2 Loan Min", value=0.045, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
-            mc_loan_y2_mode = st.number_input("Y2 Loan Mode", value=0.055, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
-            mc_loan_y2_max = st.number_input("Y2 Loan Max", value=0.085, min_value=0.01, max_value=0.20, step=0.005, format="%.3f")
+            # === L37 F19 FIX: Y2 loan-rate mode = live base (y2_loan_rate), % band ===
+            st.caption(f"Y2 Loan mode = base {y2_loan_rate:.3f}")
+            mc_loan_y2_down = st.number_input("Y2 Loan − downside %", value=0.1818, min_value=0.0, max_value=0.90, step=0.01, format="%.2f")
+            mc_loan_y2_up = st.number_input("Y2 Loan + upside %", value=0.5455, min_value=0.0, max_value=3.0, step=0.05, format="%.2f")
+            mc_loan_y2_mode = y2_loan_rate
+            mc_loan_y2_min = max(0.0, mc_loan_y2_mode * (1.0 - mc_loan_y2_down))
+            mc_loan_y2_max = mc_loan_y2_mode * (1.0 + mc_loan_y2_up)
 
         t2d1, t2d2, t2d3 = st.columns(3)
         with t2d1:
-            mc_ins_min = st.number_input("Insurance Min €/mo", value=140.0, min_value=50.0, max_value=500.0, step=10.0)
-            mc_ins_mode = st.number_input("Insurance Mode €/mo", value=180.0, min_value=50.0, max_value=500.0, step=10.0)
-            mc_ins_max = st.number_input("Insurance Max €/mo", value=280.0, min_value=50.0, max_value=600.0, step=10.0)
+            # === L37 F19 FIX: insurance mode = live base (insurance_pm), % band ===
+            # Defaults (−22.22% / +55.56%) reproduce the prior 140/180/280 at base 180.
+            st.caption(f"Insurance mode = base €{insurance_pm:.0f}/mo")
+            mc_ins_down = st.number_input("Insurance − downside %", value=0.2222, min_value=0.0, max_value=0.90, step=0.01, format="%.2f")
+            mc_ins_up = st.number_input("Insurance + upside %", value=0.5556, min_value=0.0, max_value=3.0, step=0.05, format="%.2f")
+            mc_ins_mode = insurance_pm
+            mc_ins_min = max(0.0, mc_ins_mode * (1.0 - mc_ins_down))
+            mc_ins_max = mc_ins_mode * (1.0 + mc_ins_up)
         with t2d2:
             mc_sigma_energy_eur = st.number_input(loc["mc_p_energy_eur"], value=0.040, min_value=0.001, max_value=0.20, step=0.005, format="%.3f")
             mc_sigma_kwh = st.number_input(loc["mc_p_kwh_per_km"], value=0.012, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
@@ -3092,10 +3285,19 @@ with tabs[6]:
         st.markdown(f"**{loc['mc_tier3_header']}**")
         t3c1, t3c2, t3c3 = st.columns(3)
         with t3c1:
-            mc_sigma_cleaning = st.number_input(loc["mc_p_cleaning"], value=0.50, min_value=0.05, max_value=3.0, step=0.05, format="%.2f")
-            mc_sigma_wear = st.number_input(loc["mc_p_wear"], value=0.012, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
+            # === L36 F14: lognormal cost sigma defaults raised to genuinely fat tails.
+            # The mean-preserving lognormal shape (the audit's "exploding repair bill"
+            # curve) was correct, but the prior defaults were tail-cosmetic:
+            # wear log-sigma ~0.12 and cleaning ~0.25 almost never produced the 2-3x
+            # overrun years that justify the skewed shape (drivetrain/sensor failure
+            # clusters, vandalism waves, deep-clean seasons). New defaults: cleaning
+            # sigma 0.80 (log-sigma ~0.40), wear 0.030 (~0.30), parking 45 (~0.26) —
+            # mean-preserving, so the CENTER of the distribution is unchanged; only
+            # the right tail gains the real-world weight. User-overridable as before.
+            mc_sigma_cleaning = st.number_input(loc["mc_p_cleaning"], value=0.80, min_value=0.05, max_value=3.0, step=0.05, format="%.2f")
+            mc_sigma_wear = st.number_input(loc["mc_p_wear"], value=0.030, min_value=0.001, max_value=0.05, step=0.001, format="%.3f")
         with t3c2:
-            mc_sigma_parking = st.number_input(loc["mc_p_parking"], value=25.0, min_value=5.0, max_value=100.0, step=5.0, format="%.1f")
+            mc_sigma_parking = st.number_input(loc["mc_p_parking"], value=45.0, min_value=5.0, max_value=100.0, step=5.0, format="%.1f")
             mc_sigma_customs = st.number_input(loc["mc_p_customs"], value=0.025, min_value=0.005, max_value=0.10, step=0.005, format="%.3f")
         with t3c3:
             mc_sigma_salvage = st.number_input(loc["mc_p_salvage"], value=2500.0, min_value=500.0, max_value=10000.0, step=500.0)
@@ -3177,6 +3379,10 @@ with tabs[6]:
             if low > high:
                 low, high = high, low
             mode = max(low, min(high, mode))
+            # L37 F19: a zero-width band (user set both spreads to 0) would make
+            # np.triangular raise (requires left < right). Degenerate → return the mode.
+            if high - low < 1e-12:
+                return mode
             return rng.triangular(low, mode, high)
 
         # === Mean-preserving skewed (lognormal) one-sided cost draw ===
@@ -3433,12 +3639,15 @@ with tabs[6]:
                 float(per_year_demand_level[yr] / cross_year_avg_level) if cross_year_avg_level > 0 else 1.0
                 for yr in range(5)
             ]
-            # Per-year energy multiplier the ENGINE applies (shock-cost coupling +
-            # macro energy tug, kept PER YEAR). A crisis year raises energy in-place.
-            macro_energy_mult_by_year = [
-                float(per_year_energy_mult[yr]) * float(1.0 + (beta_energy * annual_macro[yr]) / max(0.01, energy_eur_per_kwh))
-                for yr in range(5)
-            ]
+            # === L36 F13 FIX: the per-year ENERGY multiplier is now built AFTER ==
+            # Tier-2 sampling (see below), because the additive macro tug
+            # (beta_energy × shock, in €/kWh) must be converted to a multiplier
+            # using the SAMPLED energy price of this iteration — not the sidebar
+            # base price. Using the base price made the effective additive shock
+            # drift whenever the lognormal price draw deviated from base (a low
+            # price draw silently amplified the crisis, a high draw damped it).
+            # Only deterministic arithmetic moved — the RNG call sequence is
+            # unchanged, so all draws remain stream-identical.
             # Per-year wear multiplier — applied to the scalar wear input via the
             # horizon average (wear is not a per-year engine channel; its cost
             # coupling is modest and symmetric enough that the average is acceptable).
@@ -3448,7 +3657,13 @@ with tabs[6]:
             active_hours_sampled = max(8.0, min(22.0, rng.normal(active_hours_per_day, mc_sigma_active_hours)))
             speed_sampled = max(10.0, min(30.0, rng.normal(avg_speed_kmh, mc_sigma_speed)))
             dwell_sampled = max(0.5, min(8.0, rng.normal(dwell_time_mins, mc_sigma_dwell)))
-            target_util_sampled = _sample_beta_scaled(rng, 0.75, mc_target_util_min, mc_target_util_max)
+            # === L36 F8 FIX: the Monte Carlo target-utilization distribution now
+            # centers on the SIDEBAR value instead of a hardcoded 0.75. Previously,
+            # stress-testing the deterministic case at e.g. 65% target utilization
+            # left the MC silently centered on 75% — the two views diverged without
+            # warning. The beta-scaled sampler clamps the mean into the (Min, Max)
+            # band, so an off-band sidebar value degrades gracefully to the edge.
+            target_util_sampled = _sample_beta_scaled(rng, target_util, mc_target_util_min, mc_target_util_max)
             init_util_sampled = max(0.10, min(0.95, rng.normal(init_util, mc_sigma_init_util)))
             if init_util_sampled > target_util_sampled:
                 init_util_sampled = target_util_sampled
@@ -3488,6 +3703,25 @@ with tabs[6]:
             # via macro_energy_mult_by_year — NOT baked into this scalar. The scalar
             # energy_eur_sampled carries only the cross-iteration price-level draw.
             kwh_per_km_sampled = max(0.05, rng.normal(energy_kwh_per_km, mc_sigma_kwh))
+
+            # === L36 F13: per-year ENERGY multiplier — built with the SAMPLED price ==
+            # Shock-cost coupling (per_year_energy_mult, from this iteration's per-year
+            # shock library) × the macro tug converted additive→multiplicative using
+            # energy_eur_sampled, this iteration's actual price level. A crisis year
+            # raises that year's €/km IN-PLACE inside the engine (L34 architecture).
+            macro_energy_mult_by_year = [
+                float(per_year_energy_mult[yr]) * float(1.0 + (beta_energy * annual_macro[yr]) / max(0.01, energy_eur_sampled))
+                for yr in range(5)
+            ]
+            # === L36 F10: per-year FLOATING-RATE (Kontokorrent) add-on ==============
+            # The overdraft rate follows each year's macro shock with the same
+            # beta_rate transmission used for cohort loan rates — but applied
+            # PER YEAR, because the floating line reprices continuously rather than
+            # locking at origination. This closes the last macro transmission gap:
+            # the line you draw in a crisis now also costs more in that crisis.
+            overdraft_rate_addon_by_year_iter = [
+                float(beta_rate * annual_macro[yr]) for yr in range(5)
+            ]
 
             # ===== TIER 3 sampling — skewed one-sided costs =====
             cleaning_sampled = _sample_cost_skewed(rng, cleaning_cost_per_day, mc_sigma_cleaning / max(0.01, cleaning_cost_per_day))
@@ -3554,7 +3788,7 @@ with tabs[6]:
                     active_hours_sampled, speed_sampled, deadhead_sampled, util_mode,
                     target_util_sampled, init_util_sampled, rec_rate_sampled, can_fac_sampled, flat_util, trip_dist_sampled,
                     dwell_sampled, base_fare_eur, price_sampled, take_sampled,
-                    cleaning_sampled, wear_sampled, energy_rate_sampled, insurance_sampled,
+                    cleaning_sampled, cleaning_fee_passthrough_per_day, wear_sampled, energy_rate_sampled, insurance_sampled,
                     parking_sampled, telemetry_pm, tuev_pm, charging_sub_pm, hq_lease_pm, it_cloud_pm,
                     legal_bookkeeping_pm, hq_insurance_pm, legal_scaling_pm,
                     insurance_scaling_pm, bank_fees_pm, ihk_pm, gez_pm_per_car, setup_costs_y1,
@@ -3573,7 +3807,11 @@ with tabs[6]:
                     hebesatz_pct,
                     # === L34: pass the per-year arrays (NOT averaged) ===
                     macro_demand_mult_by_year,
-                    macro_energy_mult_by_year
+                    macro_energy_mult_by_year,
+                    # === L36 F12: a configured launch delay applies to every MC run ===
+                    launch_delay_months,
+                    # === L36 F10: per-year floating-rate macro transmission ===
+                    overdraft_rate_addon_by_year_iter
                 )
                 ni_cum_arr[i] = float(sum(pnl_mc["pnl_ni"]))
                 y5_ebitda_arr[i] = float(sum(pnl_mc["pnl_ebitda"][48:60]))
@@ -4012,6 +4250,38 @@ with tabs[7]:
 
         ---
 
+        #### 🆕 Layer 37 — tertiary audit fixes (F16, F19, F21)
+        **F21 — Cleaning grossed up per § 246 Abs. 2 HGB (Bruttoprinzip).** The €2/day cleaning figure was the cost *net* of the Tesla in-cabin soiling fee charged to the rider (~€3/day at the mature incident rate). Netting income against expense violates the Saldierungsverbot. The cleaning line is now grossed: a €5/day Materialaufwand and a separate €3/day fee-revenue line under sonstige betriebliche Erträge. Fully EBITDA-, EBIT-, NI-, cash- and VAT-neutral — the fee is contra-settled net via the Tesla platform, so the recoverable input-VAT base and every cash flow are unchanged. The new sidebar field controls the pass-through; set it to 0 to recover the pre-L37 net presentation exactly.
+
+        **F19 — Monte Carlo triangulars re-centered on the live base case.** The triangular-sampled inputs (Tesla take-rate, delivery ramps Y2/Y3/Y4, Y1/Y2 loan rates, insurance) previously used hardcoded Min/Mode/Max that ignored the sidebar. Changing the deterministic insurance to €250 still sampled around €180 — the stochastic view silently drifted from the headline case. Now the **mode is the live base case** and you control only the uncertainty band (a % spread for rates/insurance, an absolute spread for the can-be-zero delivery ramps). The band shifts automatically with the base; defaults reproduce the prior bands exactly at the default inputs.
+
+        **F16 — EBITDA reconciliation bridge.** The HGB P&L tab now renders an explicit Mgmt-view → HGB-view EBITDA bridge. After the L35 F2 fix, end-of-life fleet disposal gains (§ 275 Abs. 2 Nr. 4 HGB) lift the HGB EBITDA above the operational management EBITDA; that reconciling item previously had no home. The bridge foots by construction: Mgmt EBITDA + Anlagenabgang = HGB EBITDA.
+
+        *Regression contract: at default inputs Y5 management EBITDA holds at €2,363,561.50 to the cent, the full 19-scenario integrity sweep passes (BS / 3-statement / HGB / cash-flow tie-outs all 0.00), and cleaning pass-through = 0 is bit-identical to Layer 36.*
+
+        ---
+
+        #### 🆕 Layer 36 — secondary audit fixes (F6-F8, F10, F12-F14) + disclosures
+        **F6 — Lease-term fleet membership.** Leased vehicles now leave the operational fleet when the lease term ends: a 24-month lease cohort stops earning revenue, incurring per-car costs, and claiming THG the month it returns to the lessor. (Loan/equity vehicles remain on the 60-month useful-life clock with the F2 disposal event.) Previously, returned cars kept earning phantom revenue through month 60.
+
+        **F7 — THG-Quote output VAT.** As an Unternehmer, MRRG's quota sale is umsatzsteuerpflichtig. The sidebar value is anchored as the NET premium (P&L, EBITDA, and all baselines unchanged); the engine now routes the 19% output VAT through the monthly Voranmeldung at accrual, carries the receivable gross, and collects gross cash at the quarterly settlement — including the genuine Sollversteuerung working-capital cost of briefly fronting the VAT.
+
+        **F8 — Monte Carlo target utilization follows the sidebar.** The MC distribution now centers on your configured target utilization instead of a hardcoded 75%, so deterministic and stochastic views can no longer silently diverge.
+
+        **F10 — Macro-coupled floating overdraft rate.** The Kontokorrent — the one genuinely floating-rate liability, drawn exactly in crisis scenarios — now reprices per simulated year with the same beta-rate transmission as loan rates. The line you draw in a crisis also costs more in that crisis.
+
+        **F12 — First-class regulatory launch-delay stress.** A sidebar parameter shifts the entire fleet schedule right by N months while fixed HQ costs burn from month 1 with zero revenue — the AFGBV/type-approval/PBefG slippage scenario a credit committee asks about first. Applies to the deterministic statements and every MC run.
+
+        **F13 — Energy crisis tug uses the sampled price.** The additive macro energy shock is converted to a per-year multiplier using each iteration's actual sampled €/kWh, eliminating the drift that the base-price denominator introduced.
+
+        **F14 — Genuinely fat-tailed cost distributions.** The mean-preserving lognormal sigmas for cleaning, wear, and parking are raised so the right tail actually produces the 2-3× overrun years (failure clusters, vandalism waves) that justify the skewed shape. Centers unchanged.
+
+        **F9 — deliberately NOT changed.** Trips per day remain floored to whole trips: you cannot sell 0.8 of a taxi ride. Rounding down is conservative and operationally realistic; if the sensitivity tornado looks slightly bumpy as a result, that is the model staying tethered to physical reality.
+
+        **F11 — Working-capital disclosure.** Working capital assumes near-instant digital settlement via the Tesla platform architecture: no trade receivables (rides settle by card at booking), no trade payables (vendors and the Tesla platform fee settle within the month). The only modeled working-capital lags are the THG quarterly settlement, VAT refund timing, and tax prepayment cadence.
+
+        ---
+
         #### 🆕 Layer 35 — the five audit fixes (F1-F5)
         A full-spectrum 20-dimension audit of Layer 34 computationally proved five High-severity findings. Layer 35 fixes all five:
 
@@ -4070,6 +4340,38 @@ with tabs[7]:
         Willkommen beim MRRG Master-Finanzmodell — ein vollständig integriertes, institutionelles Finanzmodell, das Betrieb, Skalierung und Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland nach HGB simuliert.
 
         Auf **Streamlit** und **Python** basierend, nutzt das Dashboard eine **60-monatige Kohorten-Logik** und ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
+
+        ---
+
+        #### 🆕 Schicht 37 — tertiäre Audit-Fixes (F16, F19, F21)
+        **F21 — Reinigung brutto gem. § 246 Abs. 2 HGB (Bruttoprinzip).** Die €2/Tag waren die Reinigungskosten *netto* der Tesla-Verschmutzungsgebühr, die dem Fahrgast belastet wird (~€3/Tag im Reifezustand). Die Saldierung von Ertrag und Aufwand verstößt gegen das Saldierungsverbot. Die Reinigung wird nun brutto ausgewiesen: €5/Tag Materialaufwand und eine separate €3/Tag Erlöszeile unter sonstige betriebliche Erträge. Vollständig EBITDA-, EBIT-, JÜ-, Cash- und USt-neutral — die Gebühr wird netto über die Tesla-Plattform contra-verrechnet, sodass die abziehbare Vorsteuerbasis und alle Cashflows unverändert bleiben. Das neue Seitenleisten-Feld steuert die Durchleitung; 0 stellt die Nettodarstellung vor L37 exakt wieder her.
+
+        **F19 — Monte-Carlo-Dreiecksverteilungen auf den Live-Basisfall zentriert.** Die dreieckverteilten Eingaben (Tesla-Take-Rate, Lieferdienst-Rampen J2/J3/J4, J1/J2-Darlehenszinsen, Versicherung) nutzten zuvor fest codierte Min/Modus/Max-Werte, die die Seitenleiste ignorierten. Eine deterministische Versicherung von €250 wurde weiterhin um €180 gezogen — die stochastische Sicht driftete still vom Hauptfall ab. Nun ist der **Modus der Live-Basisfall**, und Sie steuern nur die Unsicherheitsbandbreite (%-Spanne für Zinsen/Versicherung, absolute Spanne für die null-fähigen Lieferrampen). Das Band verschiebt sich automatisch mit der Basis; Standardwerte reproduzieren die bisherigen Bänder exakt.
+
+        **F16 — EBITDA-Überleitungsbrücke.** Der HGB-GuV-Reiter zeigt nun eine explizite Überleitung Management-Sicht → HGB-Sicht des EBITDA. Nach dem L35-F2-Fix heben die Anlagenabgangsgewinne am Nutzungsende (§ 275 Abs. 2 Nr. 4 HGB) das HGB-EBITDA über das operative Management-EBITDA; dieser Überleitungsposten hatte zuvor keinen Ausweis. Die Brücke stimmt konstruktionsbedingt: Management-EBITDA + Anlagenabgang = HGB-EBITDA.
+
+        *Regressionsvertrag: bei Standardeingaben bleibt das J5-Management-EBITDA centgenau bei €2.363.561,50, der vollständige 19-Szenarien-Integritätstest besteht (Bilanz / 3-Statement / HGB / Cashflow-Abstimmungen alle 0,00), und Reinigungs-Durchleitung = 0 ist bit-identisch zu Schicht 36.*
+
+        ---
+
+        #### 🆕 Schicht 36 — sekundäre Audit-Fixes (F6-F8, F10, F12-F14) + Offenlegungen
+        **F6 — Flottenzugehörigkeit nach Leasinglaufzeit.** Geleaste Fahrzeuge verlassen die operative Flotte mit Ende der Leasinglaufzeit: eine 24-Monats-Kohorte erzielt ab Rückgabe an den Leasinggeber keinen Umsatz, keine Pro-Fahrzeug-Kosten, keine THG-Ansprüche mehr. (Darlehens-/Eigenkapitalfahrzeuge bleiben auf der 60-Monats-Nutzungsdauer mit F2-Abgang.) Zuvor: Phantom-Umsatz zurückgegebener Fahrzeuge bis Monat 60.
+
+        **F7 — THG-Quote Umsatzsteuer.** Als Unternehmer ist der Quotenverkauf umsatzsteuerpflichtig. Der Seitenleisten-Wert ist als NETTO-Prämie verankert (GuV, EBITDA und alle Basislinien unverändert); die Engine führt die 19% USt über die monatliche Voranmeldung bei Entstehung ab, führt die Forderung brutto und vereinnahmt brutto bei der Quartalsabrechnung — inklusive der echten Sollversteuerungs-Working-Capital-Kosten.
+
+        **F8 — MC-Zielauslastung folgt der Seitenleiste.** Die Monte-Carlo-Verteilung zentriert nun auf der konfigurierten Zielauslastung statt hartkodierter 75%.
+
+        **F10 — Makro-gekoppelter variabler Kontokorrentzins.** Der Kontokorrent — die einzige echt variabel verzinste Verbindlichkeit, gezogen genau in Krisenszenarien — repreist nun pro Simulationsjahr mit derselben Beta-Transmission wie die Darlehenszinsen.
+
+        **F12 — Regulatorischer Launch-Verzögerungs-Stresstest.** Ein Seitenleisten-Parameter verschiebt den gesamten Flottenplan um N Monate, während fixe HQ-Kosten ab Monat 1 ohne Umsatz weiterlaufen — das AFGBV-/Typgenehmigungs-/PBefG-Szenario, nach dem ein Kreditkomitee zuerst fragt. Gilt deterministisch UND in jedem MC-Lauf.
+
+        **F13 — Energie-Tug auf Basis des gezogenen Preises.** Die additive Makro-Energie-Störung wird nun mit dem tatsächlich gezogenen €/kWh-Preis jeder Iteration in einen Multiplikator umgerechnet.
+
+        **F14 — Echte Fat-Tail-Kostenverteilungen.** Die mittelwerterhaltenden Lognormal-Sigmas für Reinigung, Verschleiß und Stellplatz wurden angehoben, damit der rechte Tail die 2-3×-Überschreitungsjahre tatsächlich erzeugt. Zentren unverändert.
+
+        **F9 — bewusst NICHT geändert.** Fahrten pro Tag bleiben auf ganze Fahrten abgerundet: man kann nicht 0,8 Taxifahrten verkaufen. Konservativ und operativ realistisch.
+
+        **F11 — Working-Capital-Offenlegung.** Das Working Capital unterstellt nahezu sofortige digitale Abrechnung über die Tesla-Plattform-Architektur: keine Forderungen aus Lieferungen und Leistungen (Fahrten werden bei Buchung per Karte beglichen), keine Verbindlichkeiten aus L&L (Lieferanten und Tesla-Plattformgebühr werden im Monat beglichen). Modellierte Lags: THG-Quartalsabrechnung, USt-Erstattung, Steuervorauszahlungs-Kadenz.
 
         ---
 
