@@ -78,7 +78,7 @@ lang_choice = st.sidebar.selectbox("Language / Sprache", ["English", "Deutsch"])
 if lang_choice == "English":
     loc = {
         "title": "MRRG Cybercab Fleet: Master Financial Engine",
-        "subtitle": "*(HGB 3-Statement Model — Layer 37: F16/F19/F21 fixes — EBITDA reconciliation bridge (Mgmt → HGB view, § 275 II Nr.4), Monte-Carlo triangulars re-centered on the live base case, cleaning grossed up per § 246 II Bruttoprinzip — on the L36 base)*",
+        "subtitle": "*(HGB 3-Statement Model — Layer 38: F17/F18/F20/F22 cosmetic & robustness fixes — tornado collinearity guard, Monte-Carlo provenance expander, unified salvage_value_per_car_eol naming, seasonally-stable Liquidity Runway denominator — on the L37 base; engine numbers unchanged)*",
         "sec1": "1a. FLEET SCALING SCHEDULE",
         "y1_adds": "Year 1 Additions (Jan-Dec)",
         "y2_adds": "Year 2 Additions (Jan-Dec)",
@@ -465,6 +465,9 @@ if lang_choice == "English":
         "mc_narr_survival_h": "**The survival picture (the one that matters most).**",
         "mc_narr_drivers_h": "**What actually drives your fate.**",
         "mc_narr_implication_h": "**Implication for the business.**",
+        # === L38 F18: simulation provenance panel (surfaces simulation_settings) ===
+        "mc_provenance_header": "🧾 Simulation Provenance & Settings (reproducibility)",
+        "mc_provenance_caption": "The exact inputs behind the percentile tables above — iteration count, RNG seed, macro-coupling betas, and every baseline center the simulation sampled around. Captured so any Monte Carlo run is fully reproducible and auditable by a bank credit committee.",
 
         "hgb_title": "Statutory Income Statement (Gesamtkostenverfahren)",
         "hgb_pos1": "1. Revenues (Umsatzerlöse)",
@@ -531,7 +534,7 @@ if lang_choice == "English":
 else:
     loc = {
         "title": "MRRG Cybercab-Flotte: Master-Finanzmodell",
-        "subtitle": "*(HGB 3-Statement Model — Schicht 37: F16/F19/F21 Fixes — EBITDA-Überleitungsbrücke (Mgmt → HGB-Sicht, § 275 II Nr.4), Monte-Carlo-Dreiecksverteilungen auf den Live-Basisfall zentriert, Reinigung brutto gem. § 246 II Bruttoprinzip — auf der L36-Basis)*",
+        "subtitle": "*(HGB 3-Statement Model — Schicht 38: F17/F18/F20/F22 Kosmetik- & Robustheits-Fixes — Tornado-Kollinearitäts-Guard, Monte-Carlo-Provenienz-Expander, vereinheitlichte salvage_value_per_car_eol-Benennung, saisonal stabiler Liquiditätsreichweiten-Nenner — auf der L37-Basis; Engine-Zahlen unverändert)*",
         "sec1": "1a. FLOTTENSKALIERUNG",
         "y1_adds": "Jahr 1 Zugänge (Jan-Dez)",
         "y2_adds": "Jahr 2 Zugänge (Jan-Dez)",
@@ -918,6 +921,9 @@ else:
         "mc_narr_survival_h": "**Das Überlebensbild (das wichtigste).**",
         "mc_narr_drivers_h": "**Was Ihr Schicksal tatsächlich bestimmt.**",
         "mc_narr_implication_h": "**Implikation für das Geschäft.**",
+        # === L38 F18: Simulations-Provenienz-Panel (zeigt simulation_settings) ===
+        "mc_provenance_header": "🧾 Simulations-Provenienz & Einstellungen (Reproduzierbarkeit)",
+        "mc_provenance_caption": "Die exakten Eingaben hinter den obigen Perzentiltabellen — Iterationszahl, RNG-Seed, Makro-Kopplungs-Betas und jeder Basiswert, um den die Simulation gezogen hat. Erfasst, damit jeder Monte-Carlo-Lauf vollständig reproduzierbar und für ein Bank-Kreditkomitee prüfbar ist.",
 
         "hgb_title": "Gesetzliche Gewinn- und Verlustrechnung (Gesamtkostenverfahren)",
         "hgb_pos1": "1. Umsatzerlöse",
@@ -1323,7 +1329,7 @@ hebesatz_pct = st.sidebar.number_input(
 
 st.sidebar.header(loc["sec9"])
 thg_quote_per_car_py = st.sidebar.number_input(loc["thg"], value=280.0, min_value=0.0, max_value=1000.0, step=10.0, help=loc["help_thg"])
-salvage_value_per_car_y4 = st.sidebar.number_input(loc["salvage"], value=10000.0, min_value=0.0, max_value=50000.0, step=500.0)
+salvage_value_per_car_eol = st.sidebar.number_input(loc["salvage"], value=10000.0, min_value=0.0, max_value=50000.0, step=500.0)
 
 
 # --- 5. COMPREHENSIVE COMPUTATIONAL ENGINE FUNCTION ===
@@ -1347,7 +1353,7 @@ def _execute_financial_simulation_uncached(
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
     sh_loan_rate, vehicle_ltv, y1_loan_rate, y2_loan_rate, vat_bridge_rate,
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
-    thg_quote_per_car_py, salvage_value_per_car_y4, max_overdraft_limit,
+    thg_quote_per_car_py, salvage_value_per_car_eol, max_overdraft_limit,
     delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
@@ -1911,7 +1917,7 @@ def _execute_financial_simulation_uncached(
             # has booked. With the F4 re-plan and the AfA clamp above, accumulated depreciation
             # equals capitalized cost at that point → NBV = 0 → the full NET sale proceeds are a
             # disposal gain per § 275 Abs. 2 Nr. 4 HGB (sonstige betriebliche Erträge).
-            # `salvage_value_per_car_y4` is interpreted as the NET-of-VAT realizable price.
+            # `salvage_value_per_car_eol` is interpreted as the NET-of-VAT realizable price.
             # Cohorts whose life extends beyond the horizon are NOT force-sold — their NBV
             # legitimately remains on the closing balance sheet (no fictitious fire-sale).
             # Coupled with F5: the loan is fully amortized by the 48th installment in this same
@@ -1920,7 +1926,7 @@ def _execute_financial_simulation_uncached(
             if current_month == c_start + VEHICLE_AMORTIZATION_PERIOD - 1:
                 # Salvage applies pro-rata to loan + equity vehicles
                 non_lease_frac = c["loan_frac"] + c["equity_frac"]
-                fleet_sale_rev += c["size"] * non_lease_frac * salvage_value_per_car_y4
+                fleet_sale_rev += c["size"] * non_lease_frac * salvage_value_per_car_eol
                 # Retire capitalized capex (loan + equity portions)
                 capex_sold_this_mo += c["capex_capitalized"]
                 accum_afa_sold_this_mo += c["accum_afa"]
@@ -2673,7 +2679,7 @@ pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_li
     it_hardware_capex_y1, imp_month, imp_pct_val, stammkapital, shareholder_loan,
     sh_loan_rate, vehicle_ltv, y1_loan_rate, y2_loan_rate, vat_bridge_rate,
     vat_lag_months, min_cash_buffer, legal_provision_rate, interest_income_rate,
-    thg_quote_per_car_py, salvage_value_per_car_y4, max_overdraft_limit,
+    thg_quote_per_car_py, salvage_value_per_car_eol, max_overdraft_limit,
     delivery_enabled, delivery_hours_per_day, delivery_rev_per_trip,
     delivery_trips_per_hour, delivery_take_rate,
     delivery_ramp_y1, delivery_ramp_y2, delivery_ramp_y3, delivery_ramp_y4, delivery_ramp_y5,
@@ -2882,10 +2888,32 @@ kpi_dict[loc["kpi_dscr_senior"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in saf
 kpi_dict[loc["kpi_fccr"]] = [f"{x:.1f}x" if x > 0 else "n/a" for x in safe_div(ebitdar, fixed_charges)]
 kpi_dict[loc["kpi_eq_ratio"]] = [f"{x*100:.1f}%" for x in safe_div(teq_kpi, ta)]
 
+# === L38 F22 FIX: stabilize the Liquidity Runway denominator =================
+# Prior behavior divided a MONTHLY column's closing cash by that SAME single
+# month's burn (fix_costs + debt_service). That denominator is distorted by
+# (a) energy seasonality — a winter month's burn is materially higher than a
+# summer month's — and (b) lumpy debt service — the month a cohort's balloon
+# /residual principal clears spikes the burn — so the per-month runway swung
+# misleadingly even when the underlying liquidity position was stable. The
+# yearly columns were always the reliable read because they divide by the
+# YEAR's average monthly burn (annual ÷ 12).
+# Fix: keep the yearly columns bit-identical (zero regression on the headline
+# read), but for monthly columns divide that month's closing cash by the
+# CONTAINING YEAR's average monthly burn — the same stable denominator the
+# yearly column uses. The monthly runway now reads "this month's cash ÷ a
+# typical month's burn", which is the intended decision-useful figure.
+# The first 60 combined columns are the chronological monthly cohorts
+# (df_pnl_mo) followed by the 5 yearly columns (df_pnl_yr), so a monthly
+# column's year index is its position // 12 (clamped defensively to 0..4).
 runway_arr = []
-for col in df_pnl_combined.columns:
+for _ci, col in enumerate(df_pnl_combined.columns):
     is_year = "Year" in col or "Jahr" in col
-    div = (fix_costs[col] + debt_service[col]) / 12 if is_year else (fix_costs[col] + debt_service[col])
+    if is_year:
+        div = (fix_costs[col] + debt_service[col]) / 12
+    else:
+        _yr_idx = min(_ci // 12, 4)
+        _yr_col = year_cols[_yr_idx]
+        div = (fix_costs[_yr_col] + debt_service[_yr_col]) / 12
     rw = cash[col] / div if div > 0 else 999
     runway_arr.append(f"{rw:.1f} Mo." if rw < 999 else "Infinite")
 kpi_dict[loc["kpi_runway"]] = runway_arr
@@ -3069,7 +3097,7 @@ with tabs[4]:
             st.markdown("""
             * **Debt Service Coverage Ratio (DSCR):** Measures our capacity to clear required bank loan installments. Calculated as *EBITDA / Total Debt Service (Principal + Interest)*.
             * **Equity Ratio:** Shows what share of corporate assets are owned directly by the shareholders rather than financed via third-party bank debt. Calculated as *Total Equity / Total Assets*.
-            * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / (Monthly Fixed Overhead + Monthly Debt Service Liabilities)*.
+            * **Liquidity Runway:** A worst-case stress test tracking survival time if revenues instantly drop to zero. Calculated as *Cash Balance / Average Monthly Burn (Fixed Overhead + Debt Service)*. The **yearly columns are the reliable read** — they divide by the year's average monthly burn (annual ÷ 12). Monthly columns divide that month's closing cash by the **same containing-year average burn**, so a single seasonal month (winter energy spike, or a month a balloon/residual principal clears) no longer distorts the figure.
             * **Net LTV:** Measures structural asset leverage net of our treasury cushion. Calculated as *(Total Financial Debt - Cash) / Net Fixed Assets*. Excludes operational pass-through liabilities like VAT.
             * **Variable Expense Ratio:** Measures proportional cost exposure running the cars. Calculated as *Total Variable Operating Costs / Top-line Net Revenue*.
             * **Fixed Expense Ratio:** Tracks the margin impact of baseline corporate infrastructure. Calculated as *Total Fixed Operating Costs / Top-line Net Revenue*.
@@ -3082,7 +3110,7 @@ with tabs[4]:
             st.markdown("""
             * **Schuldendienstdeckungsgrad (DSCR):** Misst die Fähigkeit des Unternehmens, Zinsen und Tilgungen für Bankkredite zu bedienen. Berechnung: *EBITDA / (Zinsaufwand + Tilgung)*.
             * **Eigenkapitalquote:** Zeigt den prozentualen Anteil des durch Gesellschafter finanzierten Vermögens. Berechnung: *Summe Eigenkapital / Bilanzsumme*.
-            * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / (Monatliche Fixkosten + Monatlicher Schuldendienst)*.
+            * **Liquiditätsreichweite:** Ein Stress-Test-Szenario, das die Überlebenszeit bei plötzlichem Umsatzausfall prognostiziert. Berechnung: *Kassenbestand / durchschnittlicher monatlicher Mittelabfluss (Fixkosten + Schuldendienst)*. Die **Jahresspalten sind der maßgebliche Wert** — sie teilen durch den durchschnittlichen monatlichen Mittelabfluss des Jahres (Jahreswert ÷ 12). Monatsspalten teilen den Endbestand des Monats durch **denselben Jahresdurchschnitt**, sodass ein einzelner saisonaler Monat (Winter-Energiespitze oder ein Monat, in dem eine Ballon-/Restschuldtilgung anfällt) die Kennzahl nicht mehr verzerrt.
             * **Netto-LTV:** Misst den Netto-Verschuldungsgrad unseres Anlagevermögens unter Berücksichtigung des Cash-Bestands. Berechnung: *(Summe Finanzverbindlichkeiten - Kasse) / Netto-Sachanlagen*.
             * **Variable Kostenquote:** Gibt an, wie viel Prozent jedes erwirtschafteten Euros direkt für den Betrieb der Fahrzeuge aufgewendet werden. Berechnung: *Variable Kosten / Netto-Umsatzerlöse*.
             * **Fixkostenquote:** Zeigt den prozentualen Anteil des Umsatzes, der durch die feste Unternehmensinfrastruktur aufgezehrt wird. Berechnung: *Fixkosten / Netto-Umsatzerlöse*.
@@ -3511,7 +3539,7 @@ with tabs[6]:
                 "wear_and_tear_rate": wear_and_tear_rate, "energy_kwh_per_km": energy_kwh_per_km,
                 "energy_eur_per_kwh": energy_eur_per_kwh, "charging_efficiency": charging_efficiency,
                 "insurance_pm": insurance_pm, "parking_pm": parking_pm,
-                "thg_quote_per_car_py": thg_quote_per_car_py, "salvage_value_per_car_eol": salvage_value_per_car_y4,
+                "thg_quote_per_car_py": thg_quote_per_car_py, "salvage_value_per_car_eol": salvage_value_per_car_eol,
                 "cybercab_base_usd": cybercab_base_usd, "usd_eur_rate": usd_eur_rate,
                 "customs_duty_rate": customs_duty_rate, "vehicle_ltv": vehicle_ltv,
                 "y1_loan_rate": y1_loan_rate, "y2_loan_rate": y2_loan_rate,
@@ -3582,6 +3610,11 @@ with tabs[6]:
             annual_macro = rng.normal(0.0, macro_sigma, size=5)
             macro_avg = float(np.mean(annual_macro))      # retained only for scalar rate/FX inputs (cohort-locked)
             macro_worst = float(np.max(annual_macro))     # L34: worst single year (path-dependency provenance)
+            # === L38 F17: macro_avg (mean) and macro_worst (max) are two summary
+            # statistics of the SAME 5-draw vector and are therefore mechanically
+            # collinear. They are used downstream ONLY as independent univariate
+            # tornado bars — never together in a joint attribution. See the F17
+            # GUARD comment at the tornado correlation loop before changing this. ===
 
             # === Roll each of the 5 years INDEPENDENTLY ===
             per_year_mods = []
@@ -3728,7 +3761,7 @@ with tabs[6]:
             wear_sampled = _sample_cost_skewed(rng, wear_and_tear_rate, mc_sigma_wear / max(0.001, wear_and_tear_rate))
             parking_sampled = _sample_cost_skewed(rng, parking_pm, mc_sigma_parking / max(1.0, parking_pm))
             customs_sampled = max(0.0, min(0.40, rng.normal(customs_duty_rate, mc_sigma_customs)))
-            salvage_sampled = max(0.0, rng.normal(salvage_value_per_car_y4, mc_sigma_salvage))
+            salvage_sampled = max(0.0, rng.normal(salvage_value_per_car_eol, mc_sigma_salvage))
 
             # Wear horizon-average cost coupling (modest; symmetric enough to average)
             wear_sampled = wear_sampled * wear_cost_mult_iter
@@ -4005,6 +4038,21 @@ with tabs[6]:
             "shock_road_5y": "Road Closure Days (5Y) [SH]",
             "shock_collapse_5y": "Demand-Collapse Days (5Y) [SH]",
         }
+        # === L38 F17 GUARD: macro_shock_avg vs macro_shock_worst collinearity ===
+        # `macro_shock_avg` (mean of the 5 annual draws) and `macro_shock_worst`
+        # (max of the SAME 5 draws) are mechanically correlated by construction —
+        # they are two summary statistics of one underlying vector, so their
+        # cross-correlation is high and largely artefactual. That is harmless
+        # HERE because every entry below is an INDEPENDENT, UNIVARIATE Pearson r
+        # between one input and the target: each tornado bar stands alone, and the
+        # collinearity between the two macro bars never enters a single estimator.
+        # DO NOT change that. Specifically, never feed both `macro_shock_avg` and
+        # `macro_shock_worst` into ANY *joint* attribution (multiple regression,
+        # Shapley/variance decomposition, partial-correlation, or a covariance
+        # matrix) — the collinearity would split/flip their coefficients and make
+        # the attribution uninterpretable. If a joint model is ever added, keep
+        # exactly ONE of the two (the worst-single-year bar is the path-dependency
+        # signal the credit committee wants) and drop the other from that model.
         for param_key, samples_arr in param_samples_stored.items():
             samples_valid_sub = samples_arr[valid_mask]
             target_valid_for_corr = target_arr_full[valid_mask]
@@ -4236,6 +4284,21 @@ with tabs[6]:
         st.markdown(survival_txt)
         st.markdown(drivers_txt)
         st.markdown(implication_txt)
+
+        # === L38 F18 FIX: surface the simulation provenance ===================
+        # `simulation_settings` captures the full input provenance of the run
+        # (iteration count, RNG seed, macro betas, and every baseline center the
+        # MC sampled around). It was previously written to session_state but
+        # never displayed, so a reviewer could not verify WHICH inputs produced a
+        # given percentile table. Rendering it in a collapsed expander makes every
+        # Monte Carlo run reproducible and auditable without cluttering the view.
+        # Guarded with .get so older cached results (pre-L38, lacking the key)
+        # degrade gracefully instead of raising a KeyError.
+        _provenance = mcr.get("simulation_settings")
+        if _provenance is not None:
+            with st.expander(loc["mc_provenance_header"], expanded=False):
+                st.caption(loc["mc_provenance_caption"])
+                st.json(_provenance)
     else:
         st.info(loc["mc_no_results"])
 
@@ -4247,6 +4310,19 @@ with tabs[7]:
         Welcome to the MRRG Master Financial Engine. This application is a fully integrated, institutional-grade financial model designed to simulate the operations, scaling, and accounting of an automated robotaxi (TaaS) fleet operating in Germany under HGB accounting rules.
 
         Built on **Streamlit** and written in **Python**, this dashboard uses a **60-month cohort engine** to simulate real-world physics and a fully balanced, HGB-compliant 3-Statement financial model.
+
+        ---
+
+        #### 🆕 Layer 38 — cosmetic & robustness fixes (F17, F18, F20, F22)
+        These four low-severity riders close out the audit backlog. **All are display, naming, documentation, or KPI-presentation changes — the deterministic engine output schema and every number it produces are unchanged, so the full integrity sweep still passes and Y5 management EBITDA holds at €2,363,561.50 to the cent.**
+
+        **F22 — Seasonally-stable Liquidity Runway denominator.** The monthly Runway columns previously divided a month's closing cash by that *same single month's* burn. Energy seasonality (a winter month burns materially more than a summer month) and lumpy debt service (the month a cohort's balloon/residual principal clears) distorted the per-month figure, so it swung even when liquidity was stable. The yearly columns were always the reliable read because they divide by the *year's average* monthly burn (annual ÷ 12). Now the monthly columns divide that month's cash by the **containing year's average monthly burn** — the same stable denominator — so the monthly Runway reads "this month's cash ÷ a typical month's burn". The yearly columns are bit-identical (zero regression on the headline read).
+
+        **F20 — Unified salvage naming.** The Monte-Carlo provenance/label key was `salvage_value_per_car_eol` while the engine parameter and sidebar variable were `salvage_value_per_car_y4` — a cosmetic split that read as two different quantities. Unified everywhere on `salvage_value_per_car_eol`, which is also the semantically correct name: the disposal occurs at the **end of the 60-month useful life (EOL = Y5)**, not Y4. Pure rename, no value change.
+
+        **F18 — Monte-Carlo provenance is now surfaced.** The `simulation_settings` dict (iteration count, RNG seed, macro-coupling betas, and every baseline center the run sampled around) was meticulously captured into session state but never displayed. It now renders in a collapsed **Simulation Provenance & Settings** expander beneath the results, so any run is reproducible and auditable by a credit committee. (Guarded so older cached results without the key degrade gracefully.)
+
+        **F17 — Tornado collinearity guard.** `macro_shock_avg` (mean of the 5 annual draws) and `macro_shock_worst` (max of the same 5 draws) are mechanically correlated — two summary statistics of one vector. This is harmless as displayed, because each tornado bar is an **independent univariate Pearson r** and the two never enter a single estimator. A prominent guard now documents that they must **never both** be fed into any *joint* attribution (multiple regression, Shapley/variance decomposition, partial correlation, or a covariance matrix), where the collinearity would split or flip their coefficients; if a joint model is ever added, keep only the worst-single-year bar.
 
         ---
 
@@ -4340,6 +4416,19 @@ with tabs[7]:
         Willkommen beim MRRG Master-Finanzmodell — ein vollständig integriertes, institutionelles Finanzmodell, das Betrieb, Skalierung und Buchhaltung einer automatisierten Robotaxi-Flotte (TaaS) in Deutschland nach HGB simuliert.
 
         Auf **Streamlit** und **Python** basierend, nutzt das Dashboard eine **60-monatige Kohorten-Logik** und ein vollständig bilanziertes, HGB-konformes 3-Statement-Modell.
+
+        ---
+
+        #### 🆕 Schicht 38 — Kosmetik- & Robustheits-Fixes (F17, F18, F20, F22)
+        Diese vier Befunde geringer Schwere schließen den Audit-Rückstand ab. **Alle sind Darstellungs-, Benennungs-, Dokumentations- oder KPI-Präsentationsänderungen — das deterministische Engine-Ausgabeschema und jede von ihm produzierte Zahl bleiben unverändert, sodass der vollständige Integritätstest weiterhin besteht und das J5-Management-EBITDA centgenau bei €2.363.561,50 bleibt.**
+
+        **F22 — Saisonal stabiler Liquiditätsreichweiten-Nenner.** Die monatlichen Reichweiten-Spalten teilten zuvor den Monatsschlussbestand der Kasse durch den Liquiditätsabfluss *desselben einzelnen Monats*. Energie-Saisonalität (ein Wintermonat verbraucht erheblich mehr als ein Sommermonat) und unregelmäßiger Kapitaldienst (der Monat, in dem eine Kohorten-Ballon-/Resttilgung fällig wird) verzerrten den Pro-Monats-Wert, sodass er selbst bei stabiler Liquidität schwankte. Die Jahres-Spalten waren stets der zuverlässige Wert, da sie durch den *Jahresdurchschnitt* des monatlichen Abflusses teilen (Jahr ÷ 12). Nun teilen die Monats-Spalten den Monatskassenbestand durch den **Durchschnittsabfluss des enthaltenden Jahres** — denselben stabilen Nenner — sodass die monatliche Reichweite „Kasse dieses Monats ÷ Abfluss eines typischen Monats" liest. Die Jahres-Spalten sind bit-identisch (null Regression auf dem maßgeblichen Wert).
+
+        **F20 — Vereinheitlichte Restwert-Benennung.** Der Monte-Carlo-Provenienz-/Label-Schlüssel hieß `salvage_value_per_car_eol`, während der Engine-Parameter und die Seitenleisten-Variable `salvage_value_per_car_y4` hießen — eine kosmetische Spaltung, die als zwei verschiedene Größen las. Überall auf `salvage_value_per_car_eol` vereinheitlicht, was auch der semantisch korrekte Name ist: der Abgang erfolgt am **Ende der 60-monatigen Nutzungsdauer (EOL = J5)**, nicht J4. Reine Umbenennung, keine Wertänderung.
+
+        **F18 — Monte-Carlo-Provenienz wird nun ausgewiesen.** Das `simulation_settings`-Dict (Iterationszahl, RNG-Seed, Makro-Kopplungs-Betas und jedes Basis-Zentrum, um das der Lauf gezogen hat) wurde sorgfältig in den Session-State erfasst, aber nie angezeigt. Es rendert nun in einem zugeklappten **Simulations-Provenienz & Einstellungen**-Expander unter den Ergebnissen, sodass jeder Lauf reproduzierbar und für ein Kreditkomitee prüfbar ist. (Abgesichert, sodass ältere zwischengespeicherte Ergebnisse ohne den Schlüssel anmutig degradieren.)
+
+        **F17 — Tornado-Kollinearitäts-Guard.** `macro_shock_avg` (Mittel der 5 Jahresziehungen) und `macro_shock_worst` (Maximum derselben 5 Ziehungen) sind mechanisch korreliert — zwei Kennzahlen eines Vektors. Das ist in der Anzeige harmlos, da jeder Tornado-Balken ein **unabhängiges univariates Pearson r** ist und die beiden nie in einen einzigen Schätzer eingehen. Ein prominenter Guard dokumentiert nun, dass sie **niemals beide** in eine *gemeinsame* Attribution (multiple Regression, Shapley-/Varianzzerlegung, partielle Korrelation oder eine Kovarianzmatrix) eingespeist werden dürfen, wo die Kollinearität ihre Koeffizienten aufspalten oder umkehren würde; wird je ein gemeinsames Modell hinzugefügt, nur den Schlimmstes-Einzeljahr-Balken behalten.
 
         ---
 
