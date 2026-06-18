@@ -2680,7 +2680,7 @@ def _execute_financial_simulation_uncached(
 # when user revisits the page with identical sidebar inputs. The MC harness
 # bypasses this and calls _execute_financial_simulation_uncached directly,
 # preventing cache pollution from random parameter sweeps.
-_ENGINE_OUTPUT_VERSION = "mrrg-engine-schema-v1"
+_ENGINE_OUTPUT_VERSION = "mrrg-engine-schema-v2-ops"
 # Bump this string whenever the engine's pnl_m / cf_m / bs_m output schema
 # changes (e.g. new row keys added), so Streamlit Cloud does not serve a stale
 # cached return tuple lacking the new keys (which would raise a KeyError in the
