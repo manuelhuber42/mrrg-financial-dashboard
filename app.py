@@ -2675,23 +2675,17 @@ def _execute_financial_simulation_uncached(
     return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal, insolvency_severity, legal_insolvency_month, ops_m
 
 
-# === CACHED WRAPPER for deterministic dashboard call (an audit finding) ===
-# This wrapper IS cached — single-shot dashboard runs benefit from cache hits
-# when user revisits the page with identical sidebar inputs. The MC harness
-# bypasses this and calls _execute_financial_simulation_uncached directly,
-# preventing cache pollution from random parameter sweeps.
-_ENGINE_OUTPUT_VERSION = "mrrg-engine-schema-v2-ops"
-# Bump this string whenever the engine's pnl_m / cf_m / bs_m output schema
-# changes (e.g. new row keys added), so Streamlit Cloud does not serve a stale
-# cached return tuple lacking the new keys (which would raise a KeyError in the
-# KPI engine). The string is hashable and participates in @st.cache_data's hash,
-# so changing it forces a fresh evaluation across the deployed cache.
-
-@st.cache_data
-def execute_financial_simulation(*args, engine_version=_ENGINE_OUTPUT_VERSION, **kwargs):
-    # `engine_version` is hashed by Streamlit (no underscore prefix), so
-    # changing _ENGINE_OUTPUT_VERSION above invalidates all prior cached entries.
-    # The argument is otherwise unused — it's a pure cache-key sentinel.
+# === DETERMINISTIC DASHBOARD WRAPPER (intentionally NOT cached) ===
+# The single deterministic 60-month pass is cheap (one short NumPy loop), so it
+# is recomputed on every rerun rather than cached. Caching it with @st.cache_data
+# proved fragile: each time the engine's return schema changed (for example when
+# the operational-KPI series was added), Streamlit Cloud kept serving a stale
+# return tuple with the old element count, which broke the tuple-unpack at the
+# call site below. A defaulted cache-key sentinel could not fix this because
+# Streamlit only hashes arguments that are actually passed, not unpassed defaults.
+# Recomputing every run removes that entire failure mode at negligible cost. The
+# Monte Carlo harness likewise calls _execute_financial_simulation_uncached.
+def execute_financial_simulation(*args, **kwargs):
     return _execute_financial_simulation_uncached(*args, **kwargs)
 
 
