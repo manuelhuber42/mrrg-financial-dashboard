@@ -341,6 +341,35 @@ if lang_choice == "English":
         "tab_bs": "Balance Sheet",
         "tab_kpi": "KPIs & Ratios",
         "tab_charts": "Visualizations & Dashboards",
+        "tab_ops": "🚗 Vehicle & Operational KPIs",
+        "ops_header": "Vehicle & Operational KPIs",
+        "ops_caption": "Per-vehicle, per-kilometre and per-trip operating metrics derived directly from the simulation — the unit economics underneath the financial statements. Columns follow the same monthly / yearly view as the other tabs (use the year toggles above to drill into months).",
+        "ops_total_km": "Total km driven (fleet)",
+        "ops_billable_km": "Loaded km (carrying a passenger / goods)",
+        "ops_deadhead_km": "Empty km (deadhead repositioning)",
+        "ops_deadhead_ratio": "Deadhead ratio (empty / total)",
+        "ops_pax_trips": "Passenger trips",
+        "ops_delivery_trips": "Delivery trips",
+        "ops_km_per_veh": "Km per vehicle (in the period)",
+        "ops_trips_per_veh": "Trips per vehicle (in the period)",
+        "ops_avg_fleet": "Average active vehicles",
+        "ops_netrev_veh": "Net revenue per vehicle",
+        "ops_ebitda_veh": "EBITDA per vehicle",
+        "ops_rev_km": "Net revenue per km",
+        "ops_gbv_km": "Gross fare per km (incl. VAT)",
+        "ops_energy_km": "Energy cost per km",
+        "ops_wear_km": "Maintenance / wear per km",
+        "ops_clean_km": "Cleaning cost per km (net)",
+        "ops_varcost_km": "Total variable cost per km",
+        "ops_contrib_km": "Contribution per km (revenue - variable cost)",
+        "ops_rev_trip": "Net revenue per trip",
+        "ops_energy_kwh": "Energy consumed (kWh, nameplate)",
+        "ops_m_total_km": "Lifetime km driven (5Y)",
+        "ops_m_km_veh_day": "Km per vehicle / day (realized)",
+        "ops_m_deadhead": "Deadhead ratio (5Y)",
+        "ops_m_rev_km": "Net revenue per km (5Y)",
+        "ops_chart_total_km": "Total km driven per year",
+        "ops_chart_km_veh": "Km per vehicle per year",
         "tab_readme": "README & User Manual",
         # === Monte Carlo Risk & Variance Analysis ===
         "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
@@ -797,6 +826,35 @@ else:
         "tab_bs": "Bilanz",
         "tab_kpi": "KPIs & Kennzahlen",
         "tab_charts": "Visualisierungen & Dashboards",
+        "tab_ops": "🚗 Fahrzeug- & Betriebskennzahlen",
+        "ops_header": "Fahrzeug- & Betriebskennzahlen",
+        "ops_caption": "Kennzahlen pro Fahrzeug, pro Kilometer und pro Fahrt, direkt aus der Simulation abgeleitet — die Stückkostenrechnung hinter den Finanzberichten. Die Spalten folgen derselben Monats-/Jahresansicht wie die übrigen Tabs (mit den Jahres-Schaltern oben in Monate aufklappen).",
+        "ops_total_km": "Gesamt gefahrene km (Flotte)",
+        "ops_billable_km": "Beladene km (mit Fahrgast / Ware)",
+        "ops_deadhead_km": "Leer-km (Leerfahrten / Repositionierung)",
+        "ops_deadhead_ratio": "Leerfahrtenquote (leer / gesamt)",
+        "ops_pax_trips": "Fahrgastfahrten",
+        "ops_delivery_trips": "Lieferfahrten",
+        "ops_km_per_veh": "km pro Fahrzeug (in der Periode)",
+        "ops_trips_per_veh": "Fahrten pro Fahrzeug (in der Periode)",
+        "ops_avg_fleet": "Durchschnittlich aktive Fahrzeuge",
+        "ops_netrev_veh": "Nettoerlös pro Fahrzeug",
+        "ops_ebitda_veh": "EBITDA pro Fahrzeug",
+        "ops_rev_km": "Nettoerlös pro km",
+        "ops_gbv_km": "Bruttofahrpreis pro km (inkl. USt)",
+        "ops_energy_km": "Energiekosten pro km",
+        "ops_wear_km": "Instandhaltung / Verschleiß pro km",
+        "ops_clean_km": "Reinigungskosten pro km (netto)",
+        "ops_varcost_km": "Variable Kosten gesamt pro km",
+        "ops_contrib_km": "Deckungsbeitrag pro km (Erlös - variable Kosten)",
+        "ops_rev_trip": "Nettoerlös pro Fahrt",
+        "ops_energy_kwh": "Energieverbrauch (kWh, nominal)",
+        "ops_m_total_km": "Gesamt gefahrene km (5J)",
+        "ops_m_km_veh_day": "km pro Fahrzeug / Tag (realisiert)",
+        "ops_m_deadhead": "Leerfahrtenquote (5J)",
+        "ops_m_rev_km": "Nettoerlös pro km (5J)",
+        "ops_chart_total_km": "Gesamt gefahrene km pro Jahr",
+        "ops_chart_km_veh": "km pro Fahrzeug pro Jahr",
         "tab_readme": "Handbuch & Dokumentation",
         # === Monte Carlo Risiko- & Varianzanalyse ===
         "tab_mc": "🎲 Risiko- & Varianzanalyse (Monte Carlo)",
@@ -1610,6 +1668,11 @@ def _execute_financial_simulation_uncached(
     pnl_m = {k: [] for k in [P_GBV, P_VAT, P_NET, P_TFEE, P_MNET, P_DGBV, P_DVAT, P_DNET, P_DTFEE, P_DMNET, P_TMNET, P_EN, P_WR, P_CL, P_LSE, P_DB1, P_INS, P_PK, P_API, P_TV, P_SUB, P_DB2, P_HQ, P_IT, P_LEG, P_HINS, P_FEE, P_BNK, P_LPR, P_THG, P_CFR, P_EB, P_EB_HGB, P_AF_V, P_AF_I, P_SAL, P_EBIT, P_I_IN, P_I_EX, P_I_EX_SH, P_EBT, P_TX, P_NI]}
     cf_m = {k: [] for k in [C_NI, C_DP, C_GS, C_TP, C_TPD, C_LPR, C_WCT, C_VCOL, C_VPD, C_LSE, C_OP, C_CAP, C_VRF, C_SLE, C_INV, C_EQ, C_CC, C_SH, C_KFW, C_PRN, C_VDR, C_VRP, C_OD, C_FIN, C_NET, C_BEG, C_END]}
     bs_m = {k: [] for k in [B_GF, B_AD, B_NF, B_VR, B_OPVRX, B_TR, B_TRX, B_ARAP, B_CS, B_TC, B_TA, B_ES, B_KR, B_ER, B_TEQ, B_PT, B_PL, B_TPV, B_DK, B_DV, B_DO, B_PV, B_SL, B_TL, B_TLEQ, B_CH]}
+    # Operational distance / throughput volumes (KPI-only series; never feed the
+    # financial statements, so they are financially inert by construction).
+    ops_m = {k: [] for k in ["ops_total_km", "ops_billable_km", "ops_deadhead_km",
+                             "ops_pax_billable_km", "ops_delivery_billable_km",
+                             "ops_pax_trips", "ops_delivery_trips"]}
 
     #
     # === GERMAN CORPORATE TAX SCHEDULE — parameterized by Hebesatz ====
@@ -1973,6 +2036,22 @@ def _execute_financial_simulation_uncached(
         
         # Combined variable cost: passenger km + delivery km feed into same energy/wear formulas
         total_km_mo = (actual_total_km_per_day * op_days * active_fleet) + delivery_total_km_mo
+        # --- Operational distance & throughput volumes (KPI series only) ---
+        # All terms below are already-derived physics; they never touch any
+        # financial line, so the three statements are unchanged.
+        _pax_billable_km_mo = actual_billable_km_per_day * op_days * active_fleet
+        _pax_trips_mo = actual_trips_per_day * op_days * active_fleet
+        _delivery_billable_km_mo = delivery_billable_km_per_day_full * delivery_op_days_mo * active_fleet * delivery_ramp_factor
+        _delivery_trips_mo = delivery_trips_per_day_full * delivery_op_days_mo * active_fleet * delivery_ramp_factor
+        _billable_km_mo = _pax_billable_km_mo + _delivery_billable_km_mo
+        _deadhead_km_mo = total_km_mo - _billable_km_mo
+        ops_m["ops_total_km"].append(total_km_mo)
+        ops_m["ops_billable_km"].append(_billable_km_mo)
+        ops_m["ops_deadhead_km"].append(_deadhead_km_mo)
+        ops_m["ops_pax_billable_km"].append(_pax_billable_km_mo)
+        ops_m["ops_delivery_billable_km"].append(_delivery_billable_km_mo)
+        ops_m["ops_pax_trips"].append(_pax_trips_mo)
+        ops_m["ops_delivery_trips"].append(_delivery_trips_mo)
         wear_mo = total_km_mo * wear_and_tear_rate
         # === path-dependency fix (energy/cost side) =============
         # Apply THIS YEAR's macro energy multiplier in-place. A crisis year
@@ -2593,7 +2672,7 @@ def _execute_financial_simulation_uncached(
         bs_m[B_TLEQ].append(total_liab_eq)
         bs_m[B_CH].append(bs_check_val)
 
-    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal, insolvency_severity, legal_insolvency_month
+    return pnl_m, cf_m, bs_m, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_internal, insolvency_severity, legal_insolvency_month, ops_m
 
 
 # === CACHED WRAPPER for deterministic dashboard call (an audit finding) ===
@@ -2618,7 +2697,7 @@ def execute_financial_simulation(*args, engine_version=_ENGINE_OUTPUT_VERSION, *
 
 # --- EXECUTING COMPUTER MATRIX WITH SAFELY WRAPPED ISOLATION LOGIC ---
 # === is_dynamic passed as positional arg before lang_choice ===
-pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated, insolvency_severity, legal_insolvency_month = execute_financial_simulation(
+pnl_monthly, cf_monthly, bs_monthly, month_col_names, cash_breach_months, net_liq_breach_months, insolvency_months, active_fleet_by_month, utilization_by_month, total_capex_per_car, bs_keys_isolated, insolvency_severity, legal_insolvency_month, ops_monthly = execute_financial_simulation(
     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
     active_hours_per_day, avg_speed_kmh, deadhead_rate, util_mode,
     target_util, init_util, rec_rate, can_fac, flat_util, avg_trip_distance_km,
@@ -2684,6 +2763,7 @@ def agg_to_yearly(monthly_dict):
 pnl_yearly = agg_to_yearly(pnl_monthly)
 cf_yearly = agg_to_yearly(cf_monthly)
 bs_yearly = agg_to_yearly(bs_monthly)
+ops_yearly = agg_to_yearly(ops_monthly)
 
 year_cols = [f"Year {y+1} ({2028+y})" if lang_choice == "English" else f"Jahr {y+1} ({2028+y})" for y in range(5)]
 
@@ -2698,6 +2778,11 @@ df_cf_combined = pd.concat([df_cf_mo, df_cf_yr], axis=1)
 df_bs_mo = pd.DataFrame(bs_monthly, index=month_col_names).T
 df_bs_yr = pd.DataFrame(bs_yearly, index=year_cols).T
 df_bs_combined = pd.concat([df_bs_mo, df_bs_yr], axis=1)
+
+# Operational KPI volumes (raw keys retained — looked up directly, not renamed)
+df_ops_mo = pd.DataFrame(ops_monthly, index=month_col_names).T
+df_ops_yr = pd.DataFrame(ops_yearly, index=year_cols).T
+df_ops_combined = pd.concat([df_ops_mo, df_ops_yr], axis=1)
 
 # Language Loc Mapper for final output tables
 # NOTE: Only the *_combined frames are renamed. df_pnl_yr / df_cf_yr / df_bs_yr
@@ -2977,7 +3062,7 @@ for i in range(5):
 
 st.write("") 
 
-tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_charts"], loc["tab_mc"], loc["tab_readme"]])
+tabs = st.tabs([loc["tab_pnl"], loc["tab_hgb_pnl"], loc["tab_cf"], loc["tab_bs"], loc["tab_kpi"], loc["tab_ops"], loc["tab_charts"], loc["tab_mc"], loc["tab_readme"]])
 
 def style_pnl_rows(row):
     if loc["pnl_mrrg_net"] in row.name: return ['font-weight: 600; color: #4DA8DA;'] * len(row)
@@ -3062,6 +3147,107 @@ with tabs[4]:
             """)
 
 with tabs[5]:
+    st.markdown(f"### {loc['ops_header']}")
+    st.caption(loc["ops_caption"])
+
+    _cols = df_pnl_combined.columns
+
+    def _S(name):
+        return df_ops_combined.loc[name]
+
+    def _sd(n, d):
+        return (n / d.replace(0, np.nan)).fillna(0.0)
+
+    total_km    = _S("ops_total_km")
+    billable_km = _S("ops_billable_km")
+    deadhead_km = _S("ops_deadhead_km")
+    pax_trips   = _S("ops_pax_trips")
+    del_trips   = _S("ops_delivery_trips")
+    total_trips = pax_trips + del_trips
+
+    net_rev = df_pnl_combined.loc[loc["pnl_net_rev"]] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]]
+    gbv     = df_pnl_combined.loc[loc["pnl_gbv"]] + df_pnl_combined.loc[loc["pnl_delivery_gbv"]]
+    energy_c = -df_pnl_combined.loc[loc["pnl_energy"]]
+    wear_c   = -df_pnl_combined.loc[loc["pnl_wear"]]
+    # Cleaning cost actually borne = gross cleaning expense minus the passenger
+    # fee income that offsets it (the net figure that hits EBITDA).
+    clean_net_c = (-df_pnl_combined.loc[loc["pnl_clean"]]) - df_pnl_combined.loc[loc["pnl_clean_fee"]]
+    ebitda_v = df_pnl_combined.loc[loc["pnl_ebitda"]]
+
+    # Active fleet per displayed column (monthly cols -> that month; yearly -> mean)
+    _fleet = []
+    for _ci, _col in enumerate(_cols):
+        if _col in year_cols:
+            _yi = year_cols.index(_col)
+            _fleet.append(float(np.mean(active_fleet_by_month[_yi * 12:(_yi + 1) * 12])))
+        else:
+            _fleet.append(float(active_fleet_by_month[_ci]))
+    fleet_s = pd.Series(_fleet, index=_cols)
+
+    varcost_km = _sd(energy_c + wear_c + clean_net_c, total_km)
+    rev_km = _sd(net_rev, total_km)
+    contrib_km = rev_km - varcost_km
+    energy_kwh = total_km * energy_kwh_per_km
+
+    ops = {}
+    ops[loc["ops_total_km"]]      = [f"{x:,.0f}" for x in total_km]
+    ops[loc["ops_billable_km"]]   = [f"{x:,.0f}" for x in billable_km]
+    ops[loc["ops_deadhead_km"]]   = [f"{x:,.0f}" for x in deadhead_km]
+    ops[loc["ops_deadhead_ratio"]] = [f"{x*100:,.1f}%" for x in _sd(deadhead_km, total_km)]
+    ops[loc["ops_pax_trips"]]     = [f"{x:,.0f}" for x in pax_trips]
+    ops[loc["ops_delivery_trips"]] = [f"{x:,.0f}" for x in del_trips]
+    ops[loc["ops_km_per_veh"]]    = [f"{x:,.0f}" for x in _sd(total_km, fleet_s)]
+    ops[loc["ops_trips_per_veh"]] = [f"{x:,.0f}" for x in _sd(total_trips, fleet_s)]
+    ops[loc["ops_avg_fleet"]]     = [f"{x:,.1f}" for x in fleet_s]
+    ops[loc["ops_netrev_veh"]]    = [f"€{x:,.0f}" for x in _sd(net_rev, fleet_s)]
+    ops[loc["ops_ebitda_veh"]]    = [f"€{x:,.0f}" for x in _sd(ebitda_v, fleet_s)]
+    ops[loc["ops_rev_km"]]        = [f"€{x:,.3f}" for x in rev_km]
+    ops[loc["ops_gbv_km"]]        = [f"€{x:,.3f}" for x in _sd(gbv, total_km)]
+    ops[loc["ops_energy_km"]]     = [f"€{x:,.3f}" for x in _sd(energy_c, total_km)]
+    ops[loc["ops_wear_km"]]       = [f"€{x:,.3f}" for x in _sd(wear_c, total_km)]
+    ops[loc["ops_clean_km"]]      = [f"€{x:,.3f}" for x in _sd(clean_net_c, total_km)]
+    ops[loc["ops_varcost_km"]]    = [f"€{x:,.3f}" for x in varcost_km]
+    ops[loc["ops_contrib_km"]]    = [f"€{x:,.3f}" for x in contrib_km]
+    ops[loc["ops_rev_trip"]]      = [f"€{x:,.2f}" for x in _sd(net_rev, total_trips)]
+    ops[loc["ops_energy_kwh"]]    = [f"{x:,.0f}" for x in energy_kwh]
+    df_ops_kpi = pd.DataFrame(ops, index=_cols).T
+
+    # Headline lifetime (5-year) metrics
+    _days = []
+    for _m in range(60):
+        _cy = 2028 + _m // 12
+        _mo = (_m % 12) + 1
+        _days.append(calendar.monthrange(_cy, _mo)[1])
+    _veh_days = sum(active_fleet_by_month[_m] * _days[_m] for _m in range(60))
+    _life_total_km = float(sum(df_ops_combined.loc["ops_total_km"][c] for c in month_col_names))
+    _life_billable = float(sum(df_ops_combined.loc["ops_billable_km"][c] for c in month_col_names))
+    _life_deadhead = _life_total_km - _life_billable
+    _km_veh_day = _life_total_km / _veh_days if _veh_days > 0 else 0.0
+    _life_net_rev = float(sum((df_pnl_combined.loc[loc["pnl_net_rev"]][c] + df_pnl_combined.loc[loc["pnl_delivery_net_rev"]][c]) for c in month_col_names))
+    _rev_km_life = _life_net_rev / _life_total_km if _life_total_km > 0 else 0.0
+    _dh_life = (_life_deadhead / _life_total_km * 100) if _life_total_km > 0 else 0.0
+
+    _hc1, _hc2, _hc3, _hc4 = st.columns(4)
+    _hc1.metric(loc["ops_m_total_km"], f"{_life_total_km:,.0f} km")
+    _hc2.metric(loc["ops_m_km_veh_day"], f"{_km_veh_day:,.0f} km")
+    _hc3.metric(loc["ops_m_deadhead"], f"{_dh_life:,.1f}%")
+    _hc4.metric(loc["ops_m_rev_km"], f"€{_rev_km_life:,.3f}")
+
+    st.dataframe(df_ops_kpi[display_cols], use_container_width=True)
+
+    _y_km = [float(df_ops_combined.loc["ops_total_km"][yc]) for yc in year_cols]
+    _y_kmveh = []
+    for _i in range(5):
+        _f = np.mean(active_fleet_by_month[_i * 12:(_i + 1) * 12])
+        _y_kmveh.append(float(df_ops_combined.loc["ops_total_km"][year_cols[_i]]) / _f if _f > 0 else 0.0)
+    _oc1, _oc2 = st.columns(2)
+    with _oc1:
+        st.plotly_chart(create_mrrg_chart(year_cols, _y_km, loc["ops_chart_total_km"], prefix="", suffix=" km"), use_container_width=True)
+    with _oc2:
+        st.plotly_chart(create_mrrg_chart(year_cols, _y_kmveh, loc["ops_chart_km_veh"], prefix="", suffix=" km"), use_container_width=True)
+
+
+with tabs[6]:
     # NOTE: df_pnl_yr / df_cf_yr / df_bs_yr were never renamed (only df_*_combined were).
     # They retain the raw short keys ("pnl_net_rev" etc.), so we MUST look up by raw key
     # rather than by loc[...]. Using loc[...] here would KeyError.
@@ -3119,7 +3305,7 @@ with tabs[5]:
 #     consumes by cohort (rates lock at purchase, so the cohort-year tug is applied
 #     to each cohort's origination year — see per-cohort rate handling below)
 #
-with tabs[6]:
+with tabs[7]:
     st.markdown(f"### {loc['mc_header']}")
     st.caption(loc["mc_intro"])
 
@@ -3740,7 +3926,7 @@ with tabs[6]:
             param_samples["shock_collapse_5y"][i] = shock_counts_5y["collapse"]
 
             try:
-                pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk, _is, _lim = _execute_financial_simulation_uncached(
+                pnl_mc, cf_mc, bs_mc, _mn, _cb, _nlb, insolvency_mc, _fl, _ut, _tcc, _bsk, _is, _lim, _ops = _execute_financial_simulation_uncached(
                     y1_adds_str, y2_adds_str, y3_adds_str, y4_adds_str, y5_adds_str,
                     active_hours_sampled, speed_sampled, deadhead_sampled, util_mode,
                     target_util_sampled, init_util_sampled, rec_rate_sampled, can_fac_sampled, flat_util, trip_dist_sampled,
@@ -4224,7 +4410,7 @@ with tabs[6]:
     else:
         st.info(loc["mc_no_results"])
 
-with tabs[7]:
+with tabs[8]:
     if lang_choice == "English":
         st.markdown("""
         ### 🚕 MRRG Cybercab Fleet: Master Financial Engine
