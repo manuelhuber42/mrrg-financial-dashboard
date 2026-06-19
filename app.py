@@ -370,6 +370,12 @@ if lang_choice == "English":
         "ops_m_rev_km": "Net revenue per km (5Y)",
         "ops_chart_total_km": "Total km driven per year",
         "ops_chart_km_veh": "Km per vehicle per year",
+        "ops_payback_header": "Vehicle payback",
+        "ops_m_payback_capex": "Payback - acquisition cost",
+        "ops_m_payback_loan": "Payback - financed loan",
+        "ops_m_payback_ramp": "Payback incl. ramp (launch car)",
+        "ops_payback_caption": "Time for ONE vehicle's operating contribution (DB2 - net revenue less energy, wear, cleaning, insurance, parking and telematics; before company overhead, financing and tax) to recover its landed acquisition cost (vehicle CIF + import duty). 'Acquisition cost' and 'financed loan' use the mature Year-5 per-vehicle contribution; 'incl. ramp' tracks a vehicle present from launch through the utilization ramp. Assumes the car is owned (loan / equity), matching the default financing.",
+        "ops_payback_basis": "Per vehicle - landed acquisition cost (CIF + customs duty): €{capex:,.0f}  ·  financed loan portion: €{loan:,.0f}",
         "tab_readme": "README & User Manual",
         # === Monte Carlo Risk & Variance Analysis ===
         "tab_mc": "🎲 Risk & Variance Analysis (Monte Carlo)",
@@ -855,6 +861,12 @@ else:
         "ops_m_rev_km": "Nettoerlös pro km (5J)",
         "ops_chart_total_km": "Gesamt gefahrene km pro Jahr",
         "ops_chart_km_veh": "km pro Fahrzeug pro Jahr",
+        "ops_payback_header": "Fahrzeug-Amortisation",
+        "ops_m_payback_capex": "Amortisation - Anschaffung",
+        "ops_m_payback_loan": "Amortisation - Darlehen",
+        "ops_m_payback_ramp": "Amortisation inkl. Hochlauf (Start-Fahrzeug)",
+        "ops_payback_caption": "Zeit, in der der Betriebsbeitrag EINES Fahrzeugs (DB2 - Nettoerlös abzüglich Energie, Verschleiß, Reinigung, Versicherung, Parken und Telematik; vor Gemeinkosten, Finanzierung und Steuern) seine Landed-Anschaffungskosten (Fahrzeug-CIF + Einfuhrzoll) zurückverdient. 'Anschaffung' und 'Darlehen' nutzen den reifen Pro-Fahrzeug-Beitrag aus Jahr 5; 'inkl. Hochlauf' verfolgt ein ab Start vorhandenes Fahrzeug durch den Auslastungs-Hochlauf. Annahme: Fahrzeug im Eigentum (Darlehen / Eigenkapital), entsprechend der Standardfinanzierung.",
+        "ops_payback_basis": "Pro Fahrzeug - Landed-Anschaffungskosten (CIF + Zoll): €{capex:,.0f}  ·  finanzierter Darlehensanteil: €{loan:,.0f}",
         "tab_readme": "Handbuch & Dokumentation",
         # === Monte Carlo Risiko- & Varianzanalyse ===
         "tab_mc": "🎲 Risiko- & Varianzanalyse (Monte Carlo)",
@@ -3226,6 +3238,47 @@ with tabs[5]:
     _hc2.metric(loc["ops_m_km_veh_day"], f"{_km_veh_day:,.0f} km")
     _hc3.metric(loc["ops_m_deadhead"], f"{_dh_life:,.1f}%")
     _hc4.metric(loc["ops_m_rev_km"], f"€{_rev_km_life:,.3f}")
+
+    # --- Vehicle payback period (per-vehicle DB2 vs all-in cost / financed loan) ---
+    _capex_car = float(total_capex_per_car)
+    _loan_car = _capex_car * vehicle_ltv
+    _db2_m = [float(df_pnl_combined.loc[loc["pnl_db2"]][c]) for c in month_col_names]
+    _db2_pm = [(_db2_m[i] / active_fleet_by_month[i]) if active_fleet_by_month[i] > 0 else 0.0 for i in range(60)]
+    _y5_db2 = sum(_db2_m[48:60])
+    _y5_vm = sum(active_fleet_by_month[48:60])
+    _mature_pm = (_y5_db2 / _y5_vm) if _y5_vm > 0 else 0.0  # mature per-vehicle monthly DB2
+
+    def _pb_fmt(months):
+        if months is None or months <= 0:
+            return "n/a"
+        return f"{months:,.1f} mo  (~{months/12:,.1f} yr)"
+
+    _pb_capex = (_capex_car / _mature_pm) if _mature_pm > 0 else None
+    _pb_loan = (_loan_car / _mature_pm) if _mature_pm > 0 else None
+
+    # Launch-cohort cumulative payback: a vehicle present from launch, riding the ramp
+    _cum = 0.0
+    _op_months = 0
+    _pb_ramp = None
+    for _i in range(60):
+        if active_fleet_by_month[_i] <= 0:
+            continue
+        _op_months += 1
+        _prev = _cum
+        _cum += _db2_pm[_i]
+        if _pb_ramp is None and _capex_car > 0 and _cum >= _capex_car:
+            _frac = (_capex_car - _prev) / _db2_pm[_i] if _db2_pm[_i] > 0 else 0.0
+            _pb_ramp = (_op_months - 1) + _frac
+            break
+    _pb_ramp_str = _pb_fmt(_pb_ramp) if _pb_ramp is not None else "> 60 mo"
+
+    st.markdown(f"**{loc['ops_payback_header']}**")
+    _pc1, _pc2, _pc3 = st.columns(3)
+    _pc1.metric(loc["ops_m_payback_capex"], _pb_fmt(_pb_capex))
+    _pc2.metric(loc["ops_m_payback_loan"], _pb_fmt(_pb_loan))
+    _pc3.metric(loc["ops_m_payback_ramp"], _pb_ramp_str)
+    st.caption(loc["ops_payback_caption"])
+    st.caption(loc["ops_payback_basis"].format(capex=_capex_car, loan=_loan_car))
 
     st.dataframe(df_ops_kpi[display_cols], use_container_width=True)
 
